@@ -1,0 +1,19 @@
+# Supported locales: en, hu
+locale: en
+debug: true
+storage:
+  # Accepted values: SQLite (local), MySql (server)
+  type: SQLite
+  # Used for SQLite
+  filename: database
+  # MySql Settings
+  host: localhost
+  port: 3306
+  database: minecraft
+  username: root
+  password: ascent
+  tablePrefix: openkits_
+
+
+# Do NOT edit this
+FileVersion: 1

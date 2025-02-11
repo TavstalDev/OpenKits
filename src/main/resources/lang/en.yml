@@ -1,0 +1,4 @@
+General:
+  Prefix: "&3Open&bKits &8»"
+  NoPermission: "%prefix% &cYou have no permission to do that."
+  PlayerNotFound: "%prefix% &cFailed to get the '&e%player%&c' player."
