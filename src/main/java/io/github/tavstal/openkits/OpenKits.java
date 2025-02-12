@@ -83,15 +83,15 @@ public class OpenKits extends JavaPlugin {
 
         // Create Database
         switch (this.getConfig().getString("storage.type").toLowerCase()) {
+            case "mysql":
+            {
+                Database = new MySqlManager();
+                break;
+            }
             case "sqlite":
             default:
             {
                 Database = new SqlLiteManager();
-                break;
-            }
-            case "mysql":
-            {
-                Database = new MySqlManager();
                 break;
             }
         }
@@ -103,10 +103,10 @@ public class OpenKits extends JavaPlugin {
 
         // Register Commands
         LoggerUtils.LogDebug("Registering commands...");
-        var kitCOmmand = getCommand("kit");
-        if (kitCOmmand != null) {
-            //kitCOmmand.setExecutor(new CommandKit());
-            //kitCOmmand.setTabCompleter(new CommandKitCompleter());
+        var kitCommand = getCommand("kit");
+        if (kitCommand != null) {
+            //kitCommand.setExecutor(new CommandKit());
+            //kitCommand.setTabCompleter(new CommandKitCompleter());
         }
 
         // Schedule a task to run every second

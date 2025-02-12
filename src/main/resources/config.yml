@@ -13,6 +13,10 @@ storage:
   username: root
   password: ascent
   tablePrefix: openkits_
+dropItemsOnFullInventory: true
+allowPreview: true
+previewRequiresPermission: false
+FirstJoinKit: none
 
 
 # Do NOT edit this
