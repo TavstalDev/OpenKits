@@ -1,7 +1,11 @@
 General:
   Prefix: "&3Open&bKits &8»"
+  CurrencySingular: "Coin" # Fallback if the plugin can't get the currency from vault.
+  CurrencyPlural: "Coins" # Fallback if the plugin can't get the currency from vault.
   NoPermission: "%prefix% &cYou have no permission to do that."
   PlayerNotFound: "%prefix% &cFailed to get the '&e%player%&c' player."
+  KitNotFound: "%prefix% &cFailed to get the '&e%kit%&c' kit."
+  NoKitPermission: "%prefix% &cYou have no permission for the '&e%kit%&c' kit."
 Commands:
   ConsoleCaller: "%prefix% &cYou must be a player to use this command."
   UnknownError: "%prefix% &cUnknown error happened. Please report it."
@@ -9,6 +13,7 @@ Commands:
     InvalidPage: "%prefix% &cInvalid page number."
     Yes: "&aYes"
     No: "&cNo"
+    None: "&cNone"
   Help:
     Desc: "Shows information about the commands."
     Title: "&e=== &aOpenKits Help &e=== &aPage &c%currentpage%&a/&c%maxpage% &e==="
@@ -37,18 +42,24 @@ Commands:
     Desc: "Shows information about the kit."
     Usage: "%prefix% &cUsage: &e/openkits info [kit]"
     Title: "&e=== &aKit Info &e=== &a%kit% &e==="
-    Name: "&eName: &3%kit%"
     Description: "&eDescription: &7%description%"
-    Price: "&ePrice: &3%price%"
+    Price: "&ePrice: &3%price% &e%currency_plural%"
     Cooldown: "&eCooldown: &3%cooldown%"
     Permission: "&ePermission: &3%permission%, Required?: %required%"
     OnTime: "&eOn Time: &3%ontime%"
   Get:
     Syntax: " [kit_name]"
     Desc: "Gets the kit."
+    Cooldown: "%prefix% &cYou have to wait &e%time%&c to get the '&e%kit%&c' kit again."
+    OneTime: "%prefix% &cYou can only get the '&e%kit%&c' kit once."
+    NoMoney: "%prefix% &cYou don't have enough money to get the '&e%kit%&c' kit."
+    Success: "%prefix% &aYou have received the '&e%kit%&a' kit."
+    Purchase: "%prefix% &aYou have purchased the '&e%kit%&a' kit for &e%price%&a %currency_plural%."
   Give:
     Syntax: " [player_name] [kit_name]"
     Desc: "Gives the kit to the player."
+    Usage: "%prefix% &cUsage: &e/openkits give [kit] [player]"
+    Success: "%prefix% &aYou have given the '&e%kit%&a' kit to the '&e%player%&a' player."
   Create:
     Syntax: " [kit_name] [description] [price] [cooldown] [permission] [is_permission_required] [onetime]"
     Desc: "Creates a new kit."
