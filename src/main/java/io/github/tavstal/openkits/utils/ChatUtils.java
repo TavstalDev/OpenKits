@@ -1,5 +1,6 @@
 package io.github.tavstal.openkits.utils;
 
+import io.github.tavstal.openkits.OpenKits;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -13,8 +14,13 @@ import java.util.Enumeration;
 public class ChatUtils {
 
     private static String replacePlaceholders(String message) {
+        String currencySingular = EconomyUtils.currencyNameSingular();
+        String currencyPlural = EconomyUtils.currencyNamePlural();
+
         return message
-                .replace("%prefix%", LocaleUtils.Localize("General.Prefix"));
+                .replace("%prefix%", LocaleUtils.Localize("General.Prefix"))
+                .replaceAll("%currency_plural%", currencyPlural == null ? LocaleUtils.Localize("General.CurrencyPlural") : currencyPlural)
+                .replaceAll("%currency_singular%", currencySingular == null ? LocaleUtils.Localize("General.CurrencySingular") : currencySingular);
     }
 
     /**
@@ -103,7 +109,7 @@ public class ChatUtils {
      */
     public static Component translateColors(@NotNull String message, boolean checkLegacy) {
         if (!checkLegacy)
-            return MiniMessage.miniMessage().deserialize(message);
+            return MiniMessage.miniMessage().deserialize(replacePlaceholders(message));
 
         // Convert '&' to '§' first (since ChatColor.stripColor requires '§')
         String legacyColor = translateAlternateColorCodes(message);
