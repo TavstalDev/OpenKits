@@ -21,22 +21,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/*
-SubCommands:
-- help
-- version
-- reload
-- give
-- list
-- create
-- delete
-- edit
-- info
-- gui
-- setPrice
-- setCooldown
-- setPermission
-*/
 public class CommandKit implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
@@ -217,6 +201,8 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
+                    // TODO: Open GUI
+
                     return true;
                 }
                 case "give": {
@@ -261,6 +247,8 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
+                    // TODO
+
                     return true;
                 }
                 case "delete": {
@@ -268,6 +256,21 @@ public class CommandKit implements CommandExecutor {
                         ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
                         return true;
                     }
+
+                    if (args.length != 2) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Delete.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    // TODO
 
                     return true;
                 }
@@ -277,6 +280,21 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
+                    if (args.length != 2) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Edit.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    // TODO
+
                     return true;
                 }
                 case "setprice": {
@@ -284,6 +302,21 @@ public class CommandKit implements CommandExecutor {
                         ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
                         return true;
                     }
+
+                    if (args.length != 2) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetPrice.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    // TODO
 
                     return true;
                 }
@@ -293,6 +326,21 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
+                    if (args.length != 2) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetCooldown.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    // TODO
+
                     return true;
                 }
                 case "setpermission": {
@@ -301,11 +349,27 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
+                    if (args.length != 2) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetPermission.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    // TODO
+
                     return true;
                 }
             }
 
             // Find kit by name
+            //#region Get Kit
             Kit kit = OpenKits.Database.FindKit(args[0]);
             if (kit == null) {
                 ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
@@ -365,6 +429,7 @@ public class CommandKit implements CommandExecutor {
             ChatUtils.sendLocalizedMsg(player, "Commands.Get.Success", new Hashtable<>() {{
                 put("kit", kit.Name);
             }});
+            //#endregion
         }
         catch (Exception ex) {
             ChatUtils.sendLocalizedMsg(player, "Commands.UnknownError");

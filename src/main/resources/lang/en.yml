@@ -63,9 +63,11 @@ Commands:
   Create:
     Syntax: " [kit_name] [description] [price] [cooldown] [permission] [is_permission_required] [onetime]"
     Desc: "Creates a new kit."
+    Usage: "%prefix% &cUsage: &e/openkits create [kit] [description] [price] [cooldown] [permission] [is_permission_required] [is_onetime]"
   Delete:
     Syntax: " [kit_name]"
     Desc: "Deletes the kit."
+    Usage: "%prefix% &cUsage: &e/openkits delete [kit]"
   Edit:
     Syntax: " [kit_name]"
     Desc: "Edits the kit."
@@ -74,9 +76,20 @@ Commands:
   SetPrice:
     Syntax: " [kit_name] [price]"
     Desc: "Sets the price of the kit."
+    Usage: "%prefix% &cUsage: &e/openkits setprice [kit] [price]"
   SetCooldown:
     Syntax: " [kit_name] [cooldown]"
     Desc: "Sets the cooldown of the kit."
+    Usage: "%prefix% &cUsage: &e/openkits setcooldown [kit] [cooldown]"
   SetPermission:
     Syntax: " [kit_name] [permission] [is_permission_required]"
     Desc: "Sets the permission of the kit."
+    Usage: "%prefix% &cUsage: &e/openkits setpermission [kit] [permission] [is_permission_required]"
+  Kits:
+    Desc: "Shows the list of available kits."
+    Format: "&6Kits(&e%count%&6) &8» &7%kits%"
+    Separator: "&8, "
+    Free: "&7%kit%"
+    Paid: "&3%kit% &7(%price%)"
+    CooldownKit: "&7&m%kit%&r &7(%cooldown%)"
+    UnavailableKit: "&c&m%kit%"

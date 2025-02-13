@@ -18,14 +18,19 @@ permissions:
       openkits.admin: true
   openkits.commands.kit:
     default: op
+  openkits.commands.kits:
+    default: op
   openkits.player:
     description: Collection of player permissions
     default: op
     children:
-      aldas.commands.aldas: true
+      openkits.commands.kit: true
+      openkits.commands.kits: true
   openkits.admin:
     description: Collection of admin permissions
     default: op
 commands:
   kit:
+    description: ""
+  kits:
     description: ""
