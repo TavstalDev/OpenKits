@@ -2,7 +2,9 @@ package io.github.tavstal.openkits.models;
 
 import org.bukkit.inventory.ItemStack;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Interface for database operations related to kits.
@@ -118,4 +120,55 @@ public interface IDatabase {
      * @return The kit with the specified ID, or null if not found.
      */
     Kit FindKit(long id);
+
+    /**
+     * Finds a kit by its name.
+     *
+     * @param name The name of the kit to find.
+     * @return The kit with the specified name, or null if not found.
+     */
+    Kit FindKit(String name);
+
+    /**
+     * Adds a cooldown period for a kit assigned to a player.
+     *
+     * @param playerId the unique identifier of the player
+     * @param kitId the unique identifier of the kit
+     * @param end the end time of the cooldown period
+     */
+    void AddKitCooldown(UUID playerId, long kitId, LocalDateTime end);
+
+    /**
+     * Updates the cooldown period for a kit assigned to a player.
+     *
+     * @param playerId the unique identifier of the player
+     * @param kitId the unique identifier of the kit
+     * @param end the new end time of the cooldown period
+     */
+    void UpdateKitCooldown(UUID playerId, long kitId, LocalDateTime end);
+
+    /**
+     * Removes the cooldown period for a kit assigned to a player.
+     *
+     * @param playerId the unique identifier of the player
+     * @param kitId the unique identifier of the kit
+     */
+    void RemoveKitCooldown(UUID playerId, long kitId);
+
+    /**
+     * Retrieves all cooldown periods for kits assigned to a player.
+     *
+     * @param playerId the unique identifier of the player
+     * @return a list of all kit cooldowns for the specified player
+     */
+    List<KitCooldown> GetKitCooldowns(UUID playerId);
+
+    /**
+     * Finds the cooldown period for a specific kit assigned to a player.
+     *
+     * @param playerId the unique identifier of the player
+     * @param kitId the unique identifier of the kit
+     * @return the kit cooldown for the specified player and kit, or null if not found
+     */
+    KitCooldown FindKitCooldown(UUID playerId, long kitId);
 }

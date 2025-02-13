@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.models.IDatabase;
 import io.github.tavstal.openkits.models.Kit;
+import io.github.tavstal.openkits.models.KitCooldown;
 import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -12,9 +13,11 @@ import org.bukkit.inventory.ItemStack;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class MySqlManager implements IDatabase {
     private static HikariDataSource _dataSource;
@@ -55,6 +58,7 @@ public class MySqlManager implements IDatabase {
     public void CheckSchema() {
         try (Connection connection = _dataSource.getConnection())
         {
+            // Kits
             String sql = String.format("CREATE TABLE IF NOT EXISTS %s_kits (" +
                     "Id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                     "Name VARCHAR(35), " +
@@ -70,6 +74,16 @@ public class MySqlManager implements IDatabase {
             );
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.executeUpdate();
+
+            // Cooldowns
+            sql = String.format("CREATE TABLE IF NOT EXISTS %s_cooldowns (" +
+                            "PlayerId VARCHAR(36), " +
+                            "KitId BIGINT, " +
+                            "End DATETIME);",
+                    getConfig().getString("storage.tablePrefix")
+            );
+            statement = connection.prepareStatement(sql);
+            statement.executeUpdate();
         }
         catch (Exception ex)
         {
@@ -77,6 +91,7 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    //#region Kits
     @Override
     public void AddKit(String name, String description, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
         try (Connection connection = _dataSource.getConnection())
@@ -255,7 +270,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while getting friends data...\n%s", ex.getMessage()));
+            LoggerUtils.LogError(String.format("Unknown error happened while getting kits data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -295,10 +310,168 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while finding friend data...\n%s", ex.getMessage()));
+            LoggerUtils.LogError(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
             return null;
         }
 
         return data;
     }
+
+    @Override
+    public Kit FindKit(String name) {
+        Kit data = null;
+        try (Connection connection = _dataSource.getConnection())
+        {
+            String sql = String.format("SELECT * FROM %s_kits WHERE LOWER(Name) LIKE LOWER('%%%s%%') LIMIT 1;",
+                    getConfig().getString("storage.tablePrefix"), name);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery();
+
+            if (result.next())
+            {
+                data = new Kit(
+                        result.getLong("Id"),
+                        result.getString("Name"),
+                        result.getString("Description"),
+                        result.getDouble("Price"),
+                        result.getBoolean("RequirePermission"),
+                        result.getString("Permission"),
+                        result.getLong("Cooldown"),
+                        result.getBoolean("IsOneTime"),
+                        result.getBoolean("Enable"),
+                        result.getBytes("Items")
+                );
+            }
+
+            if (!result.isClosed())
+                result.close();
+
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
+            return null;
+        }
+
+        return data;
+    }
+    //#endregion
+
+    //#region Cooldowns
+    @Override
+    public void AddKitCooldown(UUID playerId, long kitId, LocalDateTime end) {
+        try (Connection connection = _dataSource.getConnection())
+        {
+            String sql = String.format("INSERT INTO %s_cooldowns (PlayerId, KitId, End) " +
+                            "VALUES ('%s','%s','%s');",
+                    getConfig().getString("storage.tablePrefix"), playerId, kitId, end);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.executeUpdate();
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened while adding cooldown...\n%s", ex.getMessage()));
+        }
+    }
+
+    @Override
+    public void UpdateKitCooldown(UUID playerId, long kitId, LocalDateTime end) {
+        try (Connection connection = _dataSource.getConnection())
+        {
+            String sql = String.format("UPDATE %s_cooldowns SET End='%s' WHERE PlayerId='%s' AND KitId='%s';",
+                    getConfig().getString("storage.tablePrefix"), end, playerId, kitId);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.executeUpdate();
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened while updating the cooldowns table...\n%s", ex.getMessage()));
+        }
+    }
+
+    @Override
+    public void RemoveKitCooldown(UUID playerId, long kitId) {
+        try (Connection connection = _dataSource.getConnection())
+        {
+            String sql = String.format("DELETE FROM %s_cooldowns WHERE PlayerId='%s' AND KitId='%s';",
+                    getConfig().getString("storage.tablePrefix"), playerId, kitId);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.executeUpdate();
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+        }
+    }
+
+    @Override
+    public List<KitCooldown> GetKitCooldowns(UUID playerId) {
+        List<KitCooldown> data = new ArrayList<>();
+        try (Connection connection = _dataSource.getConnection())
+        {
+            String sql = String.format("SELECT * FROM %s_cooldowns WHERE PlayerId='%s';",
+                    getConfig().getString("storage.tablePrefix"), playerId);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery();
+
+
+            while (result.next()) {
+                data.add(new KitCooldown(
+                        result.getObject("PlayerId", UUID.class),
+                        result.getLong("KitId"),
+                        result.getObject("End", LocalDateTime.class)
+                ));
+            }
+
+            if (!result.isClosed())
+                result.close();
+
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened while getting cooldowns data...\n%s", ex.getMessage()));
+            return null;
+        }
+
+        return data;
+    }
+
+    @Override
+    public KitCooldown FindKitCooldown(UUID playerId, long kitId) {
+        KitCooldown data = null;
+        try (Connection connection = _dataSource.getConnection())
+        {
+            String sql = String.format("SELECT * FROM %s_cooldowns WHERE PlayerId='%s' AND KitId='%s' LIMIT 1;",
+                    getConfig().getString("storage.tablePrefix"), playerId, kitId);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet result = statement.executeQuery();
+
+            if (result.next())
+            {
+                data = new KitCooldown(
+                        result.getObject("PlayerId", UUID.class),
+                        result.getLong("KitId"),
+                        result.getObject("End", LocalDateTime.class)
+                );
+            }
+
+            if (!result.isClosed())
+                result.close();
+
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened while finding cooldown data...\n%s", ex.getMessage()));
+            return null;
+        }
+
+        return data;
+    }
+    //#endregion
 }
