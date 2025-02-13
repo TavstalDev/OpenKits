@@ -1,11 +1,14 @@
 package io.github.tavstal.openkits.models;
 
+import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.utils.LoggerUtils;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a kit in the OpenKits plugin.
@@ -152,4 +155,26 @@ public class Kit {
         return new byte[0];
     }
 
+    /**
+     * Gives the items from the kit to the specified player.
+     *
+     * @param player the player to whom the items will be given
+     * @return true if the items were successfully given to the player
+     */
+    public boolean Give(Player player) {
+        List<ItemStack> items = GetItems();
+        for (ItemStack item : items) {
+            Map<Integer, ItemStack> remainingItems = player.getInventory().addItem(item);
+            if (!OpenKits.Instance.getConfig().getBoolean("dropItemsOnFullInventory"))
+                continue;
+
+            if (remainingItems.isEmpty())
+                continue;
+
+            for (ItemStack remainingItem : remainingItems.values()) {
+                player.getWorld().dropItem(player.getLocation(), remainingItem);
+            }
+        }
+        return true;
+    }
 }
