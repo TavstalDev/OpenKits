@@ -2,9 +2,12 @@ package io.github.tavstal.openkits.commands;
 
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.models.Kit;
+import io.github.tavstal.openkits.models.KitCooldown;
 import io.github.tavstal.openkits.utils.ChatUtils;
+import io.github.tavstal.openkits.utils.EconomyUtils;
 import io.github.tavstal.openkits.utils.LocaleUtils;
 import io.github.tavstal.openkits.utils.LoggerUtils;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.command.Command;
@@ -14,6 +17,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /*
@@ -86,6 +91,11 @@ public class CommandKit implements CommandExecutor {
                     return true;
                 }
                 case "list": {
+                    if (!player.hasPermission("openkits.commands.kit.list")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
                     int page = 1;
                     if (args.length > 1) {
                         try {
@@ -149,50 +159,212 @@ public class CommandKit implements CommandExecutor {
                     return true;
                 }
                 case "info": {
-                    if (args.length == 1) {
+                    if (!player.hasPermission("openkits.commands.kit.info")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    if (args.length != 2) {
                         ChatUtils.sendLocalizedMsg(player, "Commands.Info.Usage");
                         return true;
                     }
 
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
 
+                    if (kit.RequirePermission && !player.hasPermission(kit.Permission)) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoKitPermission", kit.Name);
+                        return true;
+                    }
 
-                    return true;
-                }
-                case "give": {
+                    ChatUtils.sendLocalizedMsg(player, "Commands.Info.Title", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                    }});
 
-                    return true;
-                }
-                case "create": {
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Description").replace("%description%", kit.Description));
+                    String kitPermission = LocaleUtils.Localize("Commands.Common.None");
+                    if (!kit.Permission.isEmpty())
+                        kitPermission = kit.Permission;
+                    String kitRequired = LocaleUtils.Localize("Commands.Common.No");
+                    if (kit.RequirePermission)
+                        kitRequired = LocaleUtils.Localize("Commands.Common.Yes");
 
-                    return true;
-                }
-                case "delete": {
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Price").replace("%price%", String.format("%.2f", kit.Price)));
 
-                    return true;
-                }
-                case "edit": {
+                    long hours = kit.Cooldown / 3600;
+                    long minutes = (kit.Cooldown % 3600) / 60;
+                    long remainingSeconds = kit.Cooldown % 60;
+
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Cooldown")
+                            .replace("%cooldown%", String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)));
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Permission")
+                            .replace("%permission%", kitPermission)
+                            .replace("%required%", kitRequired));
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.OneTime")
+                            .replace("%onetime%", kit.IsOneTime ? LocaleUtils.Localize("Commands.Common.Yes") : LocaleUtils.Localize("Commands.Common.No")));
+
 
                     return true;
                 }
                 case "gui": {
+                    if (!player.hasPermission("openkits.commands.kit.gui")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    return true;
+                }
+                case "give": {
+                    if (!player.hasPermission("openkits.commands.kit.give")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    if (args.length != 3) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Give.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    Player target = OpenKits.Instance.getServer().getPlayer(args[2]);
+                    if (target == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.PlayerNotFound", new Hashtable<>() {{
+                            put("player", args[2]);
+                        }});
+                        return true;
+                    }
+
+                    kit.Give(target);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.Give.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("player", target.getName());
+                    }});
+                    ChatUtils.sendRichMsg(target, LocaleUtils.Localize("Commands.Get.Success").replace("%kit%", kit.Name));
+
+                    return true;
+                }
+                case "create": {
+                    if (!player.hasPermission("openkits.commands.kit.create")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    return true;
+                }
+                case "delete": {
+                    if (!player.hasPermission("openkits.commands.kit.delete")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    return true;
+                }
+                case "edit": {
+                    if (!player.hasPermission("openkits.commands.kit.edit")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
 
                     return true;
                 }
                 case "setprice": {
+                    if (!player.hasPermission("openkits.commands.kit.setprice")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
 
                     return true;
                 }
                 case "setcooldown": {
+                    if (!player.hasPermission("openkits.commands.kit.setcooldown")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
 
                     return true;
                 }
                 case "setpermission": {
+                    if (!player.hasPermission("openkits.commands.kit.setpermission")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
 
                     return true;
                 }
             }
 
             // Find kit by name
+            Kit kit = OpenKits.Database.FindKit(args[0]);
+            if (kit == null) {
+                ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                    put("kit", args[0]);
+                }});
+                return true;
+            }
+
+            if (kit.RequirePermission && !player.hasPermission(kit.Permission)) {
+                ChatUtils.sendLocalizedMsg(player, "General.NoKitPermission", new Hashtable<>() {{
+                    put("kit", kit.Name);
+                }});
+                return true;
+            }
+
+            KitCooldown cooldown = OpenKits.Database.FindKitCooldown(player.getUniqueId(), kit.Id);
+            if (cooldown != null) {
+                Duration duration = Duration.between(LocalDateTime.now(), cooldown.End);
+                if (duration.getSeconds() > 0) {
+                    ChatUtils.sendLocalizedMsg(player, "Commands.Get.Cooldown", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("time", String.format("%02d:%02d:%02d", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart()));
+                    }});
+                    return true;
+                }
+
+                if (kit.IsOneTime) {
+                    ChatUtils.sendLocalizedMsg(player, "Commands.Get.OneTime", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                    }});
+                    return true;
+                }
+            }
+
+            if (kit.Price > 0 && !EconomyUtils.has(player, kit.Price)) {
+                ChatUtils.sendLocalizedMsg(player, "Commands.Get.NoMoney", new Hashtable<>() {{
+                    put("kit", kit.Name);
+                }});
+                return true;
+            }
+
+            kit.Give(player);
+            if (cooldown == null)
+                OpenKits.Database.AddKitCooldown(player.getUniqueId(), kit.Id, LocalDateTime.now().plusSeconds(kit.Cooldown));
+            else
+                OpenKits.Database.UpdateKitCooldown(player.getUniqueId(), kit.Id, LocalDateTime.now().plusSeconds(kit.Cooldown));
+
+            if (kit.Price > 0) {
+                EconomyUtils.withdraw(player, kit.Price);
+                ChatUtils.sendLocalizedMsg(player, "Commands.Get.Purchase", new Hashtable<>() {{
+                    put("kit", kit.Name);
+                    put("price", String.format("%.2f", kit.Price));
+                }});
+                return true;
+            }
+
+            ChatUtils.sendLocalizedMsg(player, "Commands.Get.Success", new Hashtable<>() {{
+                put("kit", kit.Name);
+            }});
         }
         catch (Exception ex) {
             ChatUtils.sendLocalizedMsg(player, "Commands.UnknownError");
