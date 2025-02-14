@@ -10,10 +10,13 @@ Commands:
   ConsoleCaller: "%prefix% &cYou must be a player to use this command."
   UnknownError: "%prefix% &cUnknown error happened. Please report it."
   Common:
-    InvalidPage: "%prefix% &cInvalid page number."
     Yes: "&aYes"
     No: "&cNo"
     None: "&cNone"
+    InvalidPage: "%prefix% &cInvalid page number."
+    InvalidPrice: "%prefix% &cInvalid price number."
+    InvalidCooldown: "%prefix% &cInvalid cooldown number."
+    InvalidBoolean: "%prefix% &cInvalid boolean value. Use 'true' (y) or 'false' (n)."
   Help:
     Desc: "Shows information about the commands."
     Title: "&e=== &aOpenKits Help &e=== &aPage &c%currentpage%&a/&c%maxpage% &e==="
@@ -68,6 +71,7 @@ Commands:
     Syntax: " [kit_name]"
     Desc: "Deletes the kit."
     Usage: "%prefix% &cUsage: &e/openkits delete [kit]"
+    Success: "%prefix% &aYou have deleted the '&e%kit%&a' kit."
   Edit:
     Syntax: " [kit_name]"
     Desc: "Edits the kit."
@@ -77,14 +81,17 @@ Commands:
     Syntax: " [kit_name] [price]"
     Desc: "Sets the price of the kit."
     Usage: "%prefix% &cUsage: &e/openkits setprice [kit] [price]"
+    Success: "%prefix% &aYou have set the price of the '&e%kit%&a' kit to &e%price%&a %currency_plural%."
   SetCooldown:
     Syntax: " [kit_name] [cooldown]"
     Desc: "Sets the cooldown of the kit."
     Usage: "%prefix% &cUsage: &e/openkits setcooldown [kit] [cooldown]"
+    Success: "%prefix% &aYou have set the cooldown of the '&e%kit%&a' kit to &e%cooldown%&a seconds."
   SetPermission:
     Syntax: " [kit_name] [permission] [is_permission_required]"
     Desc: "Sets the permission of the kit."
-    Usage: "%prefix% &cUsage: &e/openkits setpermission [kit] [permission] [is_permission_required]"
+    Usage: "%prefix% &cUsage: &e/openkits setpermission [kit] [permission] <is_permission_required>"
+    Success: "%prefix% &aYou have set the permission of the '&e%kit%&a' kit to &e%permission%&a."
   Kits:
     Desc: "Shows the list of available kits."
     Format: "&6Kits(&e%count%&6) &8» &7%kits%"
