@@ -156,6 +156,20 @@ public interface IDatabase {
     void RemoveKitCooldown(UUID playerId, long kitId);
 
     /**
+     * Removes all cooldown periods for kits assigned to a player.
+     *
+     * @param playerId the unique identifier of the player
+     */
+    void RemoveKitCooldowns(UUID playerId);
+
+    /**
+     * Removes all cooldown periods for a specific kit.
+     *
+     * @param kitId the unique identifier of the kit
+     */
+    void RemoveKitCooldowns(long kitId);
+
+    /**
      * Retrieves all cooldown periods for kits assigned to a player.
      *
      * @param playerId the unique identifier of the player

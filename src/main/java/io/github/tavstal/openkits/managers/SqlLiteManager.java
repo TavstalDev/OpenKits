@@ -398,6 +398,38 @@ public class SqlLiteManager implements IDatabase {
     }
 
     @Override
+    public void RemoveKitCooldowns(UUID playerId) {
+        try (Connection connection = CreateConnection())
+        {
+            String sql = String.format("DELETE FROM %s_cooldowns WHERE PlayerId='%s';",
+                    getConfig().getString("storage.tablePrefix"), playerId);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.executeUpdate();
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+        }
+    }
+
+    @Override
+    public void RemoveKitCooldowns(long kitId) {
+        try (Connection connection = CreateConnection())
+        {
+            String sql = String.format("DELETE FROM %s_cooldowns WHERE KitId='%s';",
+                    getConfig().getString("storage.tablePrefix"), kitId);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.executeUpdate();
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+        }
+    }
+
+    @Override
     public List<KitCooldown> GetKitCooldowns(UUID playerId) {
         List<KitCooldown> data = new ArrayList<>();
         try (Connection connection = CreateConnection())
