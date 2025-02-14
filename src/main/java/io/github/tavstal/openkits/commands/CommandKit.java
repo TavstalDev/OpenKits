@@ -270,7 +270,11 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    // TODO
+                    OpenKits.Database.RemoveKit(kit.Id);
+                    OpenKits.Database.RemoveKitCooldowns(kit.Id);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.Delete.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                    }});
 
                     return true;
                 }
@@ -303,7 +307,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    if (args.length != 2) {
+                    if (args.length != 3) {
                         ChatUtils.sendLocalizedMsg(player, "Commands.SetPrice.Usage");
                         return true;
                     }
@@ -316,8 +320,24 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    // TODO
+                    double price;
+                    try {
+                        price = Double.parseDouble(args[2]);
+                    }
+                    catch (Exception ex) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidPrice");
+                        return true;
+                    }
+                    if (price < 0)
+                        price = 0;
 
+                    // Required because of the Hashtable
+                    double finalPrice = price;
+                    OpenKits.Database.UpdateKit(kit.Id, finalPrice);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.SetPrice.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("price", String.format("%.2f", finalPrice));
+                    }});
                     return true;
                 }
                 case "setcooldown": {
@@ -326,7 +346,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    if (args.length != 2) {
+                    if (args.length != 3) {
                         ChatUtils.sendLocalizedMsg(player, "Commands.SetCooldown.Usage");
                         return true;
                     }
@@ -339,8 +359,25 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    // TODO
+                    long cooldown;
+                    try {
+                        cooldown = Long.parseLong(args[2]);
+                    }
+                    catch (Exception ex) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidCooldown");
+                        return true;
+                    }
 
+                    if (cooldown < 0)
+                        cooldown = 0;
+
+                    // Required because of the Hashtable
+                    long finalCooldown = cooldown;
+                    OpenKits.Database.UpdateKit(kit.Id, finalCooldown);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.SetCooldown.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("cooldown", finalCooldown);
+                    }});
                     return true;
                 }
                 case "setpermission": {
@@ -349,7 +386,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    if (args.length != 2) {
+                    if (args.length < 3) {
                         ChatUtils.sendLocalizedMsg(player, "Commands.SetPermission.Usage");
                         return true;
                     }
@@ -362,7 +399,49 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    // TODO
+                    if (args[2].equalsIgnoreCase("none")) {
+                        OpenKits.Database.UpdateKit(kit.Id, false, "");
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetPermission.Success", new Hashtable<>() {{
+                            put("kit", kit.Name);
+                            put("permission", LocaleUtils.Localize("Commands.Common.None"));
+                        }});
+                        return true;
+                    }
+
+                    if (args.length != 4) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetPermission.Usage");
+                        return true;
+                    }
+
+                    boolean requirePermission;
+                    switch (args[3].toLowerCase()) {
+                        case "yes":
+                        case "y":
+                        case "true":
+                        case "1":
+                        case "on": {
+                            requirePermission = true;
+                            break;
+                        }
+                        case "no":
+                        case "n":
+                        case "false":
+                        case "0":
+                        case "off": {
+                            requirePermission = false;
+                            break;
+                        }
+                        default: {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidBoolean");
+                            return true;
+                        }
+                    }
+
+                    OpenKits.Database.UpdateKit(kit.Id, requirePermission, args[2]);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.SetPermission.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("permission", args[2]);
+                    }});
 
                     return true;
                 }
