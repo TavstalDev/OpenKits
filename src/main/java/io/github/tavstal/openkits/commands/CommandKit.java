@@ -7,7 +7,6 @@ import io.github.tavstal.openkits.utils.ChatUtils;
 import io.github.tavstal.openkits.utils.EconomyUtils;
 import io.github.tavstal.openkits.utils.LocaleUtils;
 import io.github.tavstal.openkits.utils.LoggerUtils;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.command.Command;
@@ -162,7 +161,9 @@ public class CommandKit implements CommandExecutor {
                     }
 
                     if (kit.RequirePermission && !player.hasPermission(kit.Permission)) {
-                        ChatUtils.sendLocalizedMsg(player, "General.NoKitPermission", kit.Name);
+                        ChatUtils.sendLocalizedMsg(player, "General.NoKitPermission", new Hashtable<>() {{
+                            put("kit", kit.Name);
+                        }});
                         return true;
                     }
 
@@ -520,21 +521,19 @@ public class CommandKit implements CommandExecutor {
     }
 
     private void help(Player player) {
-        Map<String, Object> parameters = new HashMap<>();
+        Dictionary<String, Object> parameters = new Hashtable<>();
         parameters.put("currentpage", 1);
         parameters.put("maxpage", 1);
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Title", parameters);
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Info");
 
         // Help
-        parameters = new HashMap<>();
         parameters.put("subcommand", "help");
         parameters.put("syntax", "");
         parameters.put("description", LocaleUtils.Localize("Commands.Help.Desc"));
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
 
         // Version
-        parameters = new HashMap<>();
         parameters.put("subcommand", "version");
         parameters.put("syntax", "");
         parameters.put("description", LocaleUtils.Localize("Commands.Version.Desc"));
@@ -542,7 +541,6 @@ public class CommandKit implements CommandExecutor {
 
         // Reload
         if (player.hasPermission("openkits.commands.kit.reload")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "reload");
             parameters.put("syntax", "");
             parameters.put("description", LocaleUtils.Localize("Commands.Reload.Desc"));
@@ -551,7 +549,6 @@ public class CommandKit implements CommandExecutor {
 
         // List
         if (player.hasPermission("openkits.commands.kit.list")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "list");
             parameters.put("syntax", LocaleUtils.Localize("Commands.List.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.List.Desc"));
@@ -560,7 +557,6 @@ public class CommandKit implements CommandExecutor {
 
         // Info
         if (player.hasPermission("openkits.commands.kit.info")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "info");
             parameters.put("syntax", LocaleUtils.Localize("Commands.Info.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.Info.Desc"));
@@ -568,7 +564,6 @@ public class CommandKit implements CommandExecutor {
         }
 
         // Get
-        parameters = new HashMap<>();
         parameters.put("subcommand", "");
         parameters.put("syntax", LocaleUtils.Localize("Commands.Get.Syntax"));
         parameters.put("description", LocaleUtils.Localize("Commands.Get.Desc"));
@@ -576,7 +571,6 @@ public class CommandKit implements CommandExecutor {
 
         // Give
         if (player.hasPermission("openkits.commands.kit.give")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "give");
             parameters.put("syntax", LocaleUtils.Localize("Commands.Give.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.Give.Desc"));
@@ -585,7 +579,6 @@ public class CommandKit implements CommandExecutor {
 
         // Create
         if (player.hasPermission("openkits.commands.kit.create")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "create");
             parameters.put("syntax", LocaleUtils.Localize("Commands.Create.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.Create.Desc"));
@@ -594,7 +587,6 @@ public class CommandKit implements CommandExecutor {
 
         // Delete
         if (player.hasPermission("openkits.commands.kit.delete")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "delete");
             parameters.put("syntax", LocaleUtils.Localize("Commands.Delete.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.Delete.Desc"));
@@ -603,7 +595,6 @@ public class CommandKit implements CommandExecutor {
 
         // Edit
         if (player.hasPermission("openkits.commands.kit.edit")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "edit");
             parameters.put("syntax", LocaleUtils.Localize("Commands.Edit.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.Edit.Desc"));
@@ -612,7 +603,6 @@ public class CommandKit implements CommandExecutor {
 
         // GUI
         if (player.hasPermission("openkits.commands.kit.gui")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "gui");
             parameters.put("syntax", LocaleUtils.Localize("Commands.Gui.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.Gui.Desc"));
@@ -621,7 +611,6 @@ public class CommandKit implements CommandExecutor {
 
         // SetPrice
         if (player.hasPermission("openkits.commands.kit.setprice")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "setprice");
             parameters.put("syntax", LocaleUtils.Localize("Commands.SetPrice.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.SetPrice.Desc"));
@@ -630,7 +619,6 @@ public class CommandKit implements CommandExecutor {
 
         // SetCooldown
         if (player.hasPermission("openkits.commands.kit.setcooldown")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "setcooldown");
             parameters.put("syntax", LocaleUtils.Localize("Commands.SetCooldown.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.SetCooldown.Desc"));
@@ -639,7 +627,6 @@ public class CommandKit implements CommandExecutor {
 
         // SetPermission
         if (player.hasPermission("openkits.commands.kit.setpermission")) {
-            parameters = new HashMap<>();
             parameters.put("subcommand", "setpermission");
             parameters.put("syntax", LocaleUtils.Localize("Commands.SetPermission.Syntax"));
             parameters.put("description", LocaleUtils.Localize("Commands.SetPermission.Desc"));

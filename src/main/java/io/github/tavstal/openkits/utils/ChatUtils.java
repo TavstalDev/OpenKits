@@ -6,6 +6,7 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.RegExp;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Dictionary;
@@ -31,18 +32,6 @@ public class ChatUtils {
      */
     public static void sendRichMsg(Player player, String message) {
         player.sendMessage(translateColors(message, true));
-    }
-
-    /**
-     * Retrieves a localized message, translates color codes, and sends it to a player.
-     *
-     * @param player     The player to send the message to.
-     * @param key        The localization key.
-     * @param parameters The parameters for localization.
-     */
-    public static void sendLocalizedMsg(Player player, String key, Object... parameters) {
-        String rawMessage = LocaleUtils.Localize(key, parameters);
-        sendRichMsg(player, rawMessage);
     }
 
     /**
