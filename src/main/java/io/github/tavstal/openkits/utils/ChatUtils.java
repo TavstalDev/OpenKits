@@ -79,11 +79,12 @@ public class ChatUtils {
         while (keys.hasMoreElements()) {
             @RegExp String dirKey = keys.nextElement();
             Component dirElem = parameters.get(dirKey);
-            if (!message.contains("%" + dirKey + "%"))
+            @RegExp String key = "%" + dirKey + "%";
+            if (!message.contains(key))
                 continue;
 
             result = result.replaceText(TextReplacementConfig.builder()
-                    .match(dirKey)
+                    .match(key)
                     .replacement(dirElem)
                     .build());
         }
