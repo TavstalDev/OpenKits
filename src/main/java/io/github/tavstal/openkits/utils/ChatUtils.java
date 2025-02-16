@@ -113,7 +113,7 @@ public class ChatUtils {
 
         // Convert '&' to '§' first (since ChatColor.stripColor requires '§')
         String legacyColor = translateAlternateColorCodes(message);
-        return MiniMessage.miniMessage().deserialize(replacePlaceholders(legacyColor));
+        return MiniMessage.miniMessage().deserialize(replacePlaceholders(legacyToMiniMessage(legacyColor)));
     }
 
     /**
