@@ -1,5 +1,4 @@
 General:
-  Prefix: "&3Open&bKits &8»"
   CurrencySingular: "Coin" # Fallback if the plugin can't get the currency from vault.
   CurrencyPlural: "Coins" # Fallback if the plugin can't get the currency from vault.
   NoPermission: "%prefix% &cYou have no permission to do that."

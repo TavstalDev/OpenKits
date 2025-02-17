@@ -1,5 +1,9 @@
-# Supported locales: en, hu
-locale: en
+# Supported locales: eng, hun
+locale: eng
+# If true, the plugin will try to use the player's locale
+usePlayerLocale: true
+# Prefix for all messages
+prefix: "&3Open&bKits &8»"
 debug: true
 storage:
   # Accepted values: SQLite (local), MySql (server)
