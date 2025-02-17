@@ -1,6 +1,9 @@
 package io.github.tavstal.openkits;
 
 import com.samjakob.spigui.SpiGUI;
+import io.github.tavstal.openkits.commands.CommandKit;
+import io.github.tavstal.openkits.commands.CommandKitCompleter;
+import io.github.tavstal.openkits.commands.CommandKits;
 import io.github.tavstal.openkits.managers.MySqlManager;
 import io.github.tavstal.openkits.managers.SqlLiteManager;
 import io.github.tavstal.openkits.models.IDatabase;
@@ -103,10 +106,14 @@ public class OpenKits extends JavaPlugin {
 
         // Register Commands
         LoggerUtils.LogDebug("Registering commands...");
-        var kitCommand = getCommand("kit");
-        if (kitCommand != null) {
-            //kitCommand.setExecutor(new CommandKit());
-            //kitCommand.setTabCompleter(new CommandKitCompleter());
+        var command = getCommand("kit");
+        if (command != null) {
+            command.setExecutor(new CommandKit());
+            command.setTabCompleter(new CommandKitCompleter());
+        }
+        command = getCommand("kits");
+        if (command != null) {
+            command.setExecutor(new CommandKits());
         }
 
         // Schedule a task to run every second

@@ -6,11 +6,11 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.RegExp;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Objects;
 
 public class ChatUtils {
 
@@ -19,7 +19,7 @@ public class ChatUtils {
         String currencyPlural = EconomyUtils.currencyNamePlural();
 
         return message
-                .replace("%prefix%", LocaleUtils.Localize("General.Prefix"))
+                .replace("%prefix%", Objects.requireNonNull(OpenKits.GetConfig().getString("prefix")))
                 .replaceAll("%currency_plural%", currencyPlural == null ? LocaleUtils.Localize("General.CurrencyPlural") : currencyPlural)
                 .replaceAll("%currency_singular%", currencySingular == null ? LocaleUtils.Localize("General.CurrencySingular") : currencySingular);
     }
@@ -41,7 +41,7 @@ public class ChatUtils {
      * @param key        The localization key.
      */
     public static void sendLocalizedMsg(Player player, String key) {
-        String rawMessage = LocaleUtils.Localize(key);
+        String rawMessage = LocaleUtils.Localize(player, key);
         sendRichMsg(player, rawMessage);
     }
 
@@ -53,13 +53,18 @@ public class ChatUtils {
      * @param parameters The dictionary containing placeholder keys and their corresponding values.
      */
     public static void sendLocalizedMsg(Player player, String key, Dictionary<String, Object> parameters) {
-        String rawMessage = LocaleUtils.Localize(key);
+        String rawMessage = LocaleUtils.Localize(player, key);
 
         // Get the keys
         Enumeration<String> keys = parameters.keys();
         while (keys.hasMoreElements()) {
-            String dirKey = keys.nextElement();
-            rawMessage = rawMessage.replace("%" + dirKey + "%", parameters.get(dirKey).toString());
+            @RegExp String dirKey = keys.nextElement();
+            @RegExp String finalKey;
+            if (dirKey.startsWith("%"))
+                finalKey = dirKey;
+            else
+                finalKey = "%" + dirKey + "%";
+            rawMessage = rawMessage.replace(finalKey, parameters.get(dirKey).toString());
         }
 
         sendRichMsg(player, rawMessage);
@@ -79,7 +84,11 @@ public class ChatUtils {
         while (keys.hasMoreElements()) {
             @RegExp String dirKey = keys.nextElement();
             Component dirElem = parameters.get(dirKey);
-            @RegExp String key = "%" + dirKey + "%";
+            @RegExp String key;
+            if (dirKey.startsWith("%"))
+                key = dirKey;
+            else
+                key = "%" + dirKey + "%";
             if (!message.contains(key))
                 continue;
 

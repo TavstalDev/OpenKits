@@ -104,24 +104,24 @@ public class CommandKit implements CommandExecutor {
                         }
 
                         Kit kit = kits.get(index);
-                        String msg = LocaleUtils.Localize("Commands.List.Line")
+                        String msg = LocaleUtils.Localize(player,"Commands.List.Line")
                                 .replace("%kit%", kit.Name)
                                 .replace("%description%", kit.Description);
 
                         Component result = ChatUtils.buildWithButtons(msg, new Hashtable<>() {{
                             put("info_button",
-                                    ChatUtils.translateColors(LocaleUtils.Localize("Commands.List.InfoBtn"), true).clickEvent(ClickEvent.runCommand("/kit info " + kit.Name)));
+                                    ChatUtils.translateColors(LocaleUtils.Localize(player,"Commands.List.InfoBtn"), true).clickEvent(ClickEvent.runCommand("/kit info " + kit.Name)));
                             put("get_button",
-                                    ChatUtils.translateColors(LocaleUtils.Localize("Commands.List.GetBtn"), true).clickEvent(ClickEvent.runCommand("/kit " + kit.Name)));
+                                    ChatUtils.translateColors(LocaleUtils.Localize(player,"Commands.List.GetBtn"), true).clickEvent(ClickEvent.runCommand("/kit " + kit.Name)));
                         }});
 
                         player.sendMessage(result);
                     }
 
                     // Bottom message
-                    String previousBtn = LocaleUtils.Localize("Commands.List.PrevBtn");
-                    String nextBtn = LocaleUtils.Localize("Commands.List.NextBtn");
-                    String bottomMsg = LocaleUtils.Localize("Commands.List.Bottom")
+                    String previousBtn = LocaleUtils.Localize(player,"Commands.List.PrevBtn");
+                    String nextBtn = LocaleUtils.Localize(player,"Commands.List.NextBtn");
+                    String bottomMsg = LocaleUtils.Localize(player,"Commands.List.Bottom")
                             .replace("%page%", String.valueOf(page))
                             .replace("%maxPage%", String.valueOf(maxPage));
 
@@ -171,27 +171,27 @@ public class CommandKit implements CommandExecutor {
                         put("kit", kit.Name);
                     }});
 
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Description").replace("%description%", kit.Description));
-                    String kitPermission = LocaleUtils.Localize("Commands.Common.None");
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Description").replace("%description%", kit.Description));
+                    String kitPermission = LocaleUtils.Localize(player,"Commands.Common.None");
                     if (!kit.Permission.isEmpty())
                         kitPermission = kit.Permission;
-                    String kitRequired = LocaleUtils.Localize("Commands.Common.No");
+                    String kitRequired = LocaleUtils.Localize(player,"Commands.Common.No");
                     if (kit.RequirePermission)
-                        kitRequired = LocaleUtils.Localize("Commands.Common.Yes");
+                        kitRequired = LocaleUtils.Localize(player,"Commands.Common.Yes");
 
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Price").replace("%price%", String.format("%.2f", kit.Price)));
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Price").replace("%price%", String.format("%.2f", kit.Price)));
 
                     long hours = kit.Cooldown / 3600;
                     long minutes = (kit.Cooldown % 3600) / 60;
                     long remainingSeconds = kit.Cooldown % 60;
 
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Cooldown")
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Cooldown")
                             .replace("%cooldown%", String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)));
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.Permission")
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Permission")
                             .replace("%permission%", kitPermission)
                             .replace("%required%", kitRequired));
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize("Commands.Info.OneTime")
-                            .replace("%onetime%", kit.IsOneTime ? LocaleUtils.Localize("Commands.Common.Yes") : LocaleUtils.Localize("Commands.Common.No")));
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.OneTime")
+                            .replace("%onetime%", kit.IsOneTime ? LocaleUtils.Localize(player,"Commands.Common.Yes") : LocaleUtils.Localize(player,"Commands.Common.No")));
 
 
                     return true;
@@ -238,7 +238,7 @@ public class CommandKit implements CommandExecutor {
                         put("kit", kit.Name);
                         put("player", target.getName());
                     }});
-                    ChatUtils.sendRichMsg(target, LocaleUtils.Localize("Commands.Get.Success").replace("%kit%", kit.Name));
+                    ChatUtils.sendRichMsg(target, LocaleUtils.Localize(player,"Commands.Get.Success").replace("%kit%", kit.Name));
 
                     return true;
                 }
@@ -404,7 +404,7 @@ public class CommandKit implements CommandExecutor {
                         OpenKits.Database.UpdateKit(kit.Id, false, "");
                         ChatUtils.sendLocalizedMsg(player, "Commands.SetPermission.Success", new Hashtable<>() {{
                             put("kit", kit.Name);
-                            put("permission", LocaleUtils.Localize("Commands.Common.None"));
+                            put("permission", LocaleUtils.Localize(player,"Commands.Common.None"));
                         }});
                         return true;
                     }
@@ -530,106 +530,106 @@ public class CommandKit implements CommandExecutor {
         // Help
         parameters.put("subcommand", "help");
         parameters.put("syntax", "");
-        parameters.put("description", LocaleUtils.Localize("Commands.Help.Desc"));
+        parameters.put("description", LocaleUtils.Localize(player,"Commands.Help.Desc"));
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
 
         // Version
         parameters.put("subcommand", "version");
         parameters.put("syntax", "");
-        parameters.put("description", LocaleUtils.Localize("Commands.Version.Desc"));
+        parameters.put("description", LocaleUtils.Localize(player,"Commands.Version.Desc"));
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
 
         // Reload
         if (player.hasPermission("openkits.commands.kit.reload")) {
             parameters.put("subcommand", "reload");
             parameters.put("syntax", "");
-            parameters.put("description", LocaleUtils.Localize("Commands.Reload.Desc"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.Reload.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // List
         if (player.hasPermission("openkits.commands.kit.list")) {
             parameters.put("subcommand", "list");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.List.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.List.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.List.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.List.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // Info
         if (player.hasPermission("openkits.commands.kit.info")) {
             parameters.put("subcommand", "info");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.Info.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.Info.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Info.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.Info.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // Get
         parameters.put("subcommand", "");
-        parameters.put("syntax", LocaleUtils.Localize("Commands.Get.Syntax"));
-        parameters.put("description", LocaleUtils.Localize("Commands.Get.Desc"));
+        parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Get.Syntax"));
+        parameters.put("description", LocaleUtils.Localize(player,"Commands.Get.Desc"));
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
 
         // Give
         if (player.hasPermission("openkits.commands.kit.give")) {
             parameters.put("subcommand", "give");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.Give.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.Give.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Give.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.Give.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // Create
         if (player.hasPermission("openkits.commands.kit.create")) {
             parameters.put("subcommand", "create");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.Create.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.Create.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Create.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.Create.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // Delete
         if (player.hasPermission("openkits.commands.kit.delete")) {
             parameters.put("subcommand", "delete");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.Delete.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.Delete.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Delete.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.Delete.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // Edit
         if (player.hasPermission("openkits.commands.kit.edit")) {
             parameters.put("subcommand", "edit");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.Edit.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.Edit.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Edit.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.Edit.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // GUI
         if (player.hasPermission("openkits.commands.kit.gui")) {
             parameters.put("subcommand", "gui");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.Gui.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.Gui.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Gui.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.Gui.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // SetPrice
         if (player.hasPermission("openkits.commands.kit.setprice")) {
             parameters.put("subcommand", "setprice");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.SetPrice.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.SetPrice.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.SetPrice.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.SetPrice.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // SetCooldown
         if (player.hasPermission("openkits.commands.kit.setcooldown")) {
             parameters.put("subcommand", "setcooldown");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.SetCooldown.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.SetCooldown.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.SetCooldown.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.SetCooldown.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
 
         // SetPermission
         if (player.hasPermission("openkits.commands.kit.setpermission")) {
             parameters.put("subcommand", "setpermission");
-            parameters.put("syntax", LocaleUtils.Localize("Commands.SetPermission.Syntax"));
-            parameters.put("description", LocaleUtils.Localize("Commands.SetPermission.Desc"));
+            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.SetPermission.Syntax"));
+            parameters.put("description", LocaleUtils.Localize(player,"Commands.SetPermission.Desc"));
             ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
         }
     }
