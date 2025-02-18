@@ -2,12 +2,12 @@ package io.github.tavstal.openkits.models;
 
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.utils.EconomyUtils;
+import io.github.tavstal.openkits.utils.ItemUtils;
 import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -51,7 +51,7 @@ public class Kit {
         Cooldown = cooldown;
         IsOneTime = isOneTime;
         Enable = enable;
-        Items = SerializeItems(items);
+        Items = ItemUtils.serializeItemStackList(items);
     }
 
     /**
@@ -80,78 +80,10 @@ public class Kit {
      *
      * @return the list of deserialized items
      */
-    @SuppressWarnings("unchecked")
     public List<ItemStack> GetItems() {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Items);
-             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
-            return (List<ItemStack>) objectInputStream.readObject();
-        }
-        catch (IOException ex) {
-            LoggerUtils.LogError("An IO error occurred while deserializing items.");
-            LoggerUtils.LogError(ex.getMessage());
-        }
-        catch (ClassNotFoundException ex) {
-            LoggerUtils.LogError("Failed to get class while deserializing items.");
-            LoggerUtils.LogError(ex.getMessage());
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("Unexpected error happened while deserializing items..");
-            LoggerUtils.LogError(ex.getMessage());
-        }
-        return new ArrayList<>();
+        return ItemUtils.deserializeItemStackList(Items);
     }
 
-    /**
-     * Deserializes the items from the given byte array.
-     *
-     * @param items the byte array containing the serialized items
-     * @return the list of deserialized items
-     */
-    @SuppressWarnings("unchecked")
-    public static List<ItemStack> GetItems(byte[] items) {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(items);
-             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
-            return (List<ItemStack>) objectInputStream.readObject();
-        }
-        catch (IOException ex) {
-            LoggerUtils.LogError("An IO error occurred while deserializing items.");
-            LoggerUtils.LogError(ex.getMessage());
-        }
-        catch (ClassNotFoundException ex) {
-            LoggerUtils.LogError("Failed to get class while deserializing items.");
-            LoggerUtils.LogError(ex.getMessage());
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("Unexpected error happened while deserializing items..");
-            LoggerUtils.LogError(ex.getMessage());
-
-        }
-        return new ArrayList<>();
-    }
-
-    /**
-     * Serializes the given list of items into a byte array.
-     *
-     * @param itemStacks the list of items to serialize
-     * @return the byte array containing the serialized items
-     */
-    public static byte[] SerializeItems(List<ItemStack> itemStacks) {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-            objectOutputStream.writeObject(itemStacks);
-            return byteArrayOutputStream.toByteArray();
-        }
-        catch (IOException ex) {
-            LoggerUtils.LogError("An IO error occurred while serializing items.");
-            LoggerUtils.LogError(ex.getMessage());
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("Unexpected error happened while serializing items..");
-            LoggerUtils.LogError(ex.getMessage());
-
-        }
-        return new byte[0];
-    }
 
     /**
      * Gives the items from the kit to the specified player.
