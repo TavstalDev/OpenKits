@@ -1,16 +1,17 @@
 package io.github.tavstal.openkits.models;
 
 import io.github.tavstal.openkits.OpenKits;
+import io.github.tavstal.openkits.utils.ChatUtils;
+import io.github.tavstal.openkits.utils.EconomyUtils;
 import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * Represents a kit in the OpenKits plugin.
@@ -174,5 +175,34 @@ public class Kit {
             }
         }
         return true;
+    }
+
+    /**
+     * Checks if the player can get the kit.
+     *
+     * @param player the player to check
+     * @return true if the player can get the kit, false otherwise
+     */
+    public boolean CanGet(Player player) {
+        if (!Enable) {
+            return false;
+        }
+
+        if (RequirePermission && !player.hasPermission(Permission))
+            return false;
+
+        KitCooldown cooldown = OpenKits.Database.FindKitCooldown(player.getUniqueId(), Id);
+        if (cooldown != null) {
+            Duration duration = Duration.between(LocalDateTime.now(), cooldown.End);
+            if (duration.getSeconds() > 0) {
+                return false;
+            }
+
+            if (IsOneTime) {
+                return false;
+            }
+        }
+
+        return Price <= 0 || EconomyUtils.has(player, Price);
     }
 }
