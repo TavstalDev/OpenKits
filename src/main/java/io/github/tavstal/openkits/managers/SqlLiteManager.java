@@ -52,7 +52,6 @@ public class SqlLiteManager implements IDatabase {
             String sql = String.format("CREATE TABLE IF NOT EXISTS %s_kits (" +
                             "Id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                             "Name VARCHAR(35), " +
-                            "Description VARCHAR(70), " +
                             "Price DECIMAL, " +
                             "RequirePermission BOOLEAN, " +
                             "Permission VARCHAR(200), " +
@@ -83,12 +82,12 @@ public class SqlLiteManager implements IDatabase {
 
     //#region Kits
     @Override
-    public void AddKit(String name, String description, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
+    public void AddKit(String name, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
         try (Connection connection = CreateConnection())
         {
-            String sql = String.format("INSERT INTO %s_kits (Name, Description, Price, RequirePermission, Permission, Cooldown, IsOneTime, Enable, Items) " +
-                            "VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s');",
-                    getConfig().getString("storage.tablePrefix"), name, description, price, requirePermission, permission, cooldown, isOneTime, enable, Arrays.toString(Kit.SerializeItems(items)));
+            String sql = String.format("INSERT INTO %s_kits (Name, Price, RequirePermission, Permission, Cooldown, IsOneTime, Enable, Items) " +
+                            "VALUES ('%s','%s','%s','%s','%s','%s','%s','%s');",
+                    getConfig().getString("storage.tablePrefix"), name, price, requirePermission, permission, cooldown, isOneTime, enable, Arrays.toString(Kit.SerializeItems(items)));
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.executeUpdate();
         }
@@ -99,11 +98,11 @@ public class SqlLiteManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, String name, String description) {
+    public void UpdateKit(long id, String name) {
         try (Connection connection = CreateConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET Name='%s' AND Description='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), name, description, id);
+            String sql = String.format("UPDATE %s_kits SET Name='%s' WHERE Id='%s';",
+                    getConfig().getString("storage.tablePrefix"), name, id);
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.executeUpdate();
             statement.close();
@@ -241,7 +240,6 @@ public class SqlLiteManager implements IDatabase {
                 data.add(new Kit(
                         result.getLong("Id"),
                         result.getString("Name"),
-                        result.getString("Description"),
                         result.getDouble("Price"),
                         result.getBoolean("RequirePermission"),
                         result.getString("Permission"),
@@ -281,7 +279,6 @@ public class SqlLiteManager implements IDatabase {
                 data = new Kit(
                         result.getLong("Id"),
                         result.getString("Name"),
-                        result.getString("Description"),
                         result.getDouble("Price"),
                         result.getBoolean("RequirePermission"),
                         result.getString("Permission"),
@@ -321,7 +318,6 @@ public class SqlLiteManager implements IDatabase {
                 data = new Kit(
                         result.getLong("Id"),
                         result.getString("Name"),
-                        result.getString("Description"),
                         result.getDouble("Price"),
                         result.getBoolean("RequirePermission"),
                         result.getString("Permission"),

@@ -16,7 +16,6 @@ import java.util.Map;
 public class Kit {
     public long Id;
     public String Name;
-    public String Description;
     public Double Price;
     public boolean RequirePermission;
     public String Permission;
@@ -30,7 +29,6 @@ public class Kit {
      *
      * @param id                the unique identifier of the kit
      * @param name              the name of the kit
-     * @param description       the description of the kit
      * @param price             the price of the kit
      * @param requirePermission whether the kit requires a permission
      * @param permission        the permission required to use the kit
@@ -39,10 +37,9 @@ public class Kit {
      * @param enable            whether the kit is enabled
      * @param items             the serialized items in the kit
      */
-    public Kit(long id, String name, String description, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, byte[] items) {
+    public Kit(long id, String name, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, byte[] items) {
         Id = id;
         Name = name;
-        Description = description;
         Price = price;
         RequirePermission = requirePermission;
         Permission = permission;
@@ -56,7 +53,6 @@ public class Kit {
      * Constructs a new Kit with the specified parameters.
      *
      * @param name              the name of the kit
-     * @param description       the description of the kit
      * @param price             the price of the kit
      * @param requirePermission whether the kit requires a permission
      * @param permission        the permission required to use the kit
@@ -65,9 +61,8 @@ public class Kit {
      * @param enable            whether the kit is enabled
      * @param items             the list of items in the kit
      */
-    public Kit(String name, String description, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
+    public Kit(String name, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
         Name = name;
-        Description = description;
         Price = price;
         RequirePermission = requirePermission;
         Permission = permission;
