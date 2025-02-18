@@ -2,6 +2,7 @@ package io.github.tavstal.openkits.models;
 
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.utils.LoggerUtils;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,6 +10,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a kit in the OpenKits plugin.
@@ -16,6 +18,7 @@ import java.util.Map;
 public class Kit {
     public long Id;
     public String Name;
+    public String Icon;
     public Double Price;
     public boolean RequirePermission;
     public String Permission;
@@ -24,22 +27,11 @@ public class Kit {
     public boolean Enable;
     public byte[] Items;
 
-    /**
-     * Constructs a new Kit with the specified parameters.
-     *
-     * @param id                the unique identifier of the kit
-     * @param name              the name of the kit
-     * @param price             the price of the kit
-     * @param requirePermission whether the kit requires a permission
-     * @param permission        the permission required to use the kit
-     * @param cooldown          the cooldown time for the kit
-     * @param isOneTime         whether the kit can be used only once
-     * @param enable            whether the kit is enabled
-     * @param items             the serialized items in the kit
-     */
-    public Kit(long id, String name, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, byte[] items) {
+
+    public Kit(long id, String name, String icon, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, byte[] items) {
         Id = id;
         Name = name;
+        Icon = icon;
         Price = price;
         RequirePermission = requirePermission;
         Permission = permission;
@@ -49,20 +41,10 @@ public class Kit {
         Items = items;
     }
 
-    /**
-     * Constructs a new Kit with the specified parameters.
-     *
-     * @param name              the name of the kit
-     * @param price             the price of the kit
-     * @param requirePermission whether the kit requires a permission
-     * @param permission        the permission required to use the kit
-     * @param cooldown          the cooldown time for the kit
-     * @param isOneTime         whether the kit can be used only once
-     * @param enable            whether the kit is enabled
-     * @param items             the list of items in the kit
-     */
-    public Kit(String name, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
+
+    public Kit(String name, String icon, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
         Name = name;
+        Icon = icon;
         Price = price;
         RequirePermission = requirePermission;
         Permission = permission;
@@ -70,6 +52,27 @@ public class Kit {
         IsOneTime = isOneTime;
         Enable = enable;
         Items = SerializeItems(items);
+    }
+
+    /**
+     * Retrieves the icon material for the kit.
+     * If the icon is not set or is empty, it returns the default icon material from the configuration.
+     * If an error occurs, it logs the error and returns Material.CHEST.
+     *
+     * @return the Material representing the icon of the kit
+     */
+    public Material GetIcon() {
+        try
+        {
+            if (Icon == null || Icon.isEmpty())
+                return Material.getMaterial(Objects.requireNonNull(OpenKits.GetConfig().getString("default.icon")));
+            return Material.getMaterial(Icon);
+        }
+        catch (Exception ex) {
+            LoggerUtils.LogError("Failed to get kit icon.");
+            LoggerUtils.LogError(ex.getMessage());
+            return Material.CHEST;
+        }
     }
 
     /**

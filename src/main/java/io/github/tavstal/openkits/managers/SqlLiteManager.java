@@ -5,6 +5,7 @@ import io.github.tavstal.openkits.models.IDatabase;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.KitCooldown;
 import io.github.tavstal.openkits.utils.LoggerUtils;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
@@ -82,12 +83,12 @@ public class SqlLiteManager implements IDatabase {
 
     //#region Kits
     @Override
-    public void AddKit(String name, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
+    public void AddKit(String name, Material icon, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
         try (Connection connection = CreateConnection())
         {
-            String sql = String.format("INSERT INTO %s_kits (Name, Price, RequirePermission, Permission, Cooldown, IsOneTime, Enable, Items) " +
-                            "VALUES ('%s','%s','%s','%s','%s','%s','%s','%s');",
-                    getConfig().getString("storage.tablePrefix"), name, price, requirePermission, permission, cooldown, isOneTime, enable, Arrays.toString(Kit.SerializeItems(items)));
+            String sql = String.format("INSERT INTO %s_kits (Name, Icon, Price, RequirePermission, Permission, Cooldown, IsOneTime, Enable, Items) " +
+                            "VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s');",
+                    getConfig().getString("storage.tablePrefix"), name, icon.name(), price, requirePermission, permission, cooldown, isOneTime, enable, Arrays.toString(Kit.SerializeItems(items)));
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.executeUpdate();
         }
@@ -194,6 +195,22 @@ public class SqlLiteManager implements IDatabase {
     }
 
     @Override
+    public void UpdateKit(long id, Material icon) {
+        try (Connection connection = CreateConnection())
+        {
+            String sql = String.format("UPDATE %s_kits SET Icon='%s' WHERE Id='%s';",
+                    getConfig().getString("storage.tablePrefix"), icon.name(), id);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.executeUpdate();
+            statement.close();
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+        }
+    }
+
+    @Override
     public void UpdateKitOneTime(long id, boolean isOneTime) {
         try (Connection connection = CreateConnection())
         {
@@ -240,6 +257,7 @@ public class SqlLiteManager implements IDatabase {
                 data.add(new Kit(
                         result.getLong("Id"),
                         result.getString("Name"),
+                        result.getString("Icon"),
                         result.getDouble("Price"),
                         result.getBoolean("RequirePermission"),
                         result.getString("Permission"),
@@ -279,6 +297,7 @@ public class SqlLiteManager implements IDatabase {
                 data = new Kit(
                         result.getLong("Id"),
                         result.getString("Name"),
+                        result.getString("Icon"),
                         result.getDouble("Price"),
                         result.getBoolean("RequirePermission"),
                         result.getString("Permission"),
@@ -318,6 +337,7 @@ public class SqlLiteManager implements IDatabase {
                 data = new Kit(
                         result.getLong("Id"),
                         result.getString("Name"),
+                        result.getString("Icon"),
                         result.getDouble("Price"),
                         result.getBoolean("RequirePermission"),
                         result.getString("Permission"),

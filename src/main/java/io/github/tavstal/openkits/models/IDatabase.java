@@ -1,7 +1,9 @@
 package io.github.tavstal.openkits.models;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import javax.swing.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +32,7 @@ public interface IDatabase {
      * Adds a new kit to the database.
      *
      * @param name              the name of the kit
-     * @param description       the description of the kit
+     * @param icon              the icon of the kit
      * @param price             the price of the kit
      * @param requirePermission whether the kit requires a permission
      * @param permission        the permission required to use the kit
@@ -39,16 +41,15 @@ public interface IDatabase {
      * @param enable            whether the kit is enabled
      * @param items             the list of items in the kit
      */
-    void AddKit(String name, String description, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items);
+    void AddKit(String name, Material icon, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items);
 
     /**
      * Updates the name and description of a kit.
      *
      * @param id The ID of the kit to update.
      * @param name The new name of the kit.
-     * @param description The new description of the kit.
      */
-    void UpdateKit(long id, String name, String description);
+    void UpdateKit(long id, String name);
 
     /**
      * Updates the permission requirements of a kit.
@@ -90,6 +91,14 @@ public interface IDatabase {
      * @param enable Whether to enable or disable the kit.
      */
     void UpdateKit(long id, boolean enable);
+
+    /**
+     * Updates the icon of a kit.
+     *
+     * @param id The ID of the kit to update.
+     * @param icon The new icon of the kit.
+     */
+    void UpdateKit(long id, Material icon);
 
     /**
      * Sets whether a kit is one-time use.
