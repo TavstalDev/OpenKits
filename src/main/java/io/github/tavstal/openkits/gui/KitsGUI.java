@@ -5,12 +5,19 @@ import com.samjakob.spigui.menu.SGMenu;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.helpers.GUIHelper;
 import io.github.tavstal.openkits.managers.PlayerManager;
+import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.PlayerData;
+import io.github.tavstal.openkits.utils.ChatUtils;
 import io.github.tavstal.openkits.utils.LocaleUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 public class KitsGUI {
     private static final Integer[] SlotPlaceholders = {
@@ -75,8 +82,9 @@ public class KitsGUI {
     public static void open(@NotNull Player player) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         // Show the GUI
-        player.openInventory(playerData.getKitsMenu().getInventory());
         playerData.setGUIOpened(true);
+        playerData.setKitsPage(1);
+        player.openInventory(playerData.getKitsMenu().getInventory());
     }
 
     public static void close(@NotNull Player player) {
@@ -93,6 +101,45 @@ public class KitsGUI {
         );
         playerData.getKitsMenu().setButton(0, 49, pageButton);
 
+        var kits = OpenKits.Database.GetKits();
+        int page =  playerData.getKitsPage();
+        for (int i = 0; i < 28; i++) {
+            int index = i + page * 28;
+            int slot = i + 10 + (2 * (i / 7));
+            if (index >= kits.size()) {
+                playerData.getKitsMenu().setButton(0, null);
+                continue;
+            }
 
+            Kit kit = kits.get(index);
+            List<Component> loreList = new ArrayList<>();
+
+            long hours = kit.Cooldown / 3600;
+            long minutes = (kit.Cooldown % 3600) / 60;
+            long remainingSeconds = kit.Cooldown % 60;
+
+            for (String rawLore :  LocaleUtils.LocalizeList(player,"GUI.KitLore")) {
+                String lore = rawLore
+                        .replace("%enabled%", LocaleUtils.Localize(player, kit.Enable ? "Commands.Common.Yes" : "Commands.Common.No"))
+                        .replace("%price%", String.format("%.2f", kit.Price))
+                        .replace("%cooldown%", String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds))
+                        .replace("%onetime%", LocaleUtils.Localize(player, kit.IsOneTime ? "Commands.Common.Enabled" : "Commands.Common.Disabled"))
+                        .replace("%canget%", kit.CanGet(player) ? LocaleUtils.Localize(player, "Commands.Common.Yes") : LocaleUtils.Localize(player, "Commands.Common.No"));
+                loreList.add(ChatUtils.translateColors(lore, true));
+            }
+            ItemStack stack = GUIHelper.createItem(kit.GetIcon(),
+                    LocaleUtils.Localize(player, "GUI.Kit", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                    }}),
+                    loreList
+            );
+
+            playerData.getKitsMenu().setButton(0, slot, new SGButton(stack).withListener((InventoryClickEvent event) -> {
+                if (event.isLeftClick())
+                    player.performCommand("kit " + kit.Name);
+                if (event.isRightClick())
+                    PreviewGUI.open(player, kit);
+            }));
+        }
     }
 }

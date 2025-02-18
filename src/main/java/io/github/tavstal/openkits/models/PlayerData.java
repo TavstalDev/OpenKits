@@ -15,6 +15,7 @@ public class PlayerData {
     private SGMenu _previewMenu;
     private int _kitsPage;
     private int _previewPage;
+    private Kit _previewKit;
 
     /**
      * Constructs a new PlayerData object for the specified player.
@@ -124,5 +125,23 @@ public class PlayerData {
      */
     public void setPreviewPage(int previewPage) {
         _previewPage = previewPage;
+    }
+
+    /**
+     * Gets the kit currently being previewed by the player.
+     *
+     * @return the kit currently being previewed
+     */
+    public Kit getPreviewKit() {
+        return _previewKit;
+    }
+
+    /**
+     * Sets the kit to be previewed by the player.
+     *
+     * @param kit the kit to be previewed
+     */
+    public void setPreviewKit(Kit kit) {
+        _previewKit = kit;
     }
 }
