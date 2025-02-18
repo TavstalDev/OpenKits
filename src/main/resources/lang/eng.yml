@@ -16,11 +16,15 @@ Commands:
     InvalidPrice: "%prefix% &cInvalid price number."
     InvalidCooldown: "%prefix% &cInvalid cooldown number."
     InvalidBoolean: "%prefix% &cInvalid boolean value. Use 'true' (y) or 'false' (n)."
+    InvalidMaterial: "%prefix% &cInvalid material name."
   Help:
     Desc: "Shows information about the commands."
     Title: "&e=== &aOpenKits Help &e=== &aPage &c%currentpage%&a/&c%maxpage% &e==="
     Info: "   &c[] &7- &6Required   &c<> &7- &6Optional"
     Line: "&2/openkits %subcommand%&a%syntax% &8» &7%description%"
+    Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======",
+    PrevBtn: "&a<<< ",
+    NextBtn: " &a>>>"
   Version:
     Desc: "Shows the plugin version."
     Current: "%prefix% &aYou are using the '&3%version%&a' version of OpenKits."
@@ -33,7 +37,7 @@ Commands:
     Syntax: " <page>"
     Desc: "Shows the list of available kits."
     Title: "&e====== &aKit List &e======"
-    Line: "&e- &3%kit% &e- &7%description% &8| %info_button% %get_button%"
+    Line: "&e- &3%kit% &8| %info_button% %get_button%"
     InfoBtn: "&8[&2Info&8]"
     GetBtn: "&8[&bGet&8]"
     Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======",
@@ -44,7 +48,7 @@ Commands:
     Desc: "Shows information about the kit."
     Usage: "%prefix% &cUsage: &e/openkits info [kit]"
     Title: "&e=== &aKit Info &e=== &a%kit% &e==="
-    Description: "&eDescription: &7%description%"
+    Enabled: "&eEnabled: &3%enabled%"
     Price: "&ePrice: &3%price% &e%currency_plural%"
     Cooldown: "&eCooldown: &3%cooldown%"
     Permission: "&ePermission: &3%permission%, Required?: %required%"
@@ -57,15 +61,18 @@ Commands:
     NoMoney: "%prefix% &cYou don't have enough money to get the '&e%kit%&c' kit."
     Success: "%prefix% &aYou have received the '&e%kit%&a' kit."
     Purchase: "%prefix% &aYou have purchased the '&e%kit%&a' kit for &e%price%&a %currency_plural%."
+    Disabled: "%prefix% &cThe '&e%kit%&c' kit is disabled."
   Give:
     Syntax: " [player_name] [kit_name]"
     Desc: "Gives the kit to the player."
     Usage: "%prefix% &cUsage: &e/openkits give [kit] [player]"
     Success: "%prefix% &aYou have given the '&e%kit%&a' kit to the '&e%player%&a' player."
   Create:
-    Syntax: " [kit_name] [description] [price] [cooldown] [permission] [is_permission_required] [onetime]"
+    Syntax: " [kit_name] [icon_material] <cooldown> <price> <permission> <is_permission_required> <onetime>"
     Desc: "Creates a new kit."
-    Usage: "%prefix% &cUsage: &e/openkits create [kit] [description] [price] [cooldown] [permission] [is_permission_required] [is_onetime]"
+    Usage: "%prefix% &cUsage: &e/openkits create [kit] [icon_material] [description] [price] [cooldown] [permission] [is_permission_required] [is_onetime]"
+    Success: "%prefix% &aYou have created the '&e%kit%&a' kit."
+    KitAlreadyExists: "%prefix% &cThe '&e%kit%&c' kit already exists."
   Delete:
     Syntax: " [kit_name]"
     Desc: "Deletes the kit."
@@ -91,6 +98,26 @@ Commands:
     Desc: "Sets the permission of the kit."
     Usage: "%prefix% &cUsage: &e/openkits setpermission [kit] [permission] <is_permission_required>"
     Success: "%prefix% &aYou have set the permission of the '&e%kit%&a' kit to &e%permission%&a."
+  SetOnTime:
+    Syntax: " [kit_name] [is_onetime]"
+    Desc: "Sets the kit can be called only once."
+    Usage: "%prefix% &cUsage: &e/openkits setontime [kit] [is_onetime]"
+    Success: "%prefix %aYou have set the '&e%kit%&a' kit to be called only once to &e%onetime%&a."
+  SetEnabled:
+    Syntax: " [kit_name] [is_enabled]"
+    Desc: "Sets the kit is enabled."
+    Usage: "%prefix% &cUsage: &e/openkits setenabled [kit] [is_enabled]"
+    Success: "%prefix% &aYou have set the '&e%kit%&a' kit to be enabled to &e%enabled%&a."
+  SetName:
+    Syntax: " [kit_name] [new_name]"
+    Desc: "Sets the name of the kit."
+    Usage: "%prefix% &cUsage: &e/openkits setname [kit] [new_name]"
+    Success: "%prefix% &aYou have set the name of the '&e%kit%&a' kit to '&e%new_name%&a'."
+  SetIcon:
+    Syntax: " [kit_name] [item]"
+    Desc: "Sets the icon of the kit."
+    Usage: "%prefix% &cUsage: &e/openkits seticon [kit] [item]"
+    Success: "%prefix% &aYou have set the icon of the '&e%kit%&a' kit to '&e%icon%&a'."
   Kits:
     Desc: "Shows the list of available kits."
     Format: "&6Kits(&e%count%&6) &8» &7%kits%"

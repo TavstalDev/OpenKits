@@ -1,6 +1,7 @@
 package io.github.tavstal.openkits.commands;
 
 import io.github.tavstal.openkits.OpenKits;
+import io.github.tavstal.openkits.models.SubCommandData;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.KitCooldown;
 import io.github.tavstal.openkits.utils.ChatUtils;
@@ -9,6 +10,7 @@ import io.github.tavstal.openkits.utils.LocaleUtils;
 import io.github.tavstal.openkits.utils.LoggerUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,12 +25,11 @@ import java.util.*;
 public class CommandKit implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
-        if (sender instanceof ConsoleCommandSender)
-        {
+        if (sender instanceof ConsoleCommandSender) {
             LoggerUtils.LogInfo(ChatUtils.translateColors("Commands.ConsoleCaller", true).toString());
             return true;
         }
-        Player player = (Player)sender;
+        Player player = (Player) sender;
 
         if (!player.hasPermission("openkits.commands.kit")) {
             ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
@@ -36,7 +37,7 @@ public class CommandKit implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            help(player);
+            help(player, 1);
             return true;
         }
 
@@ -44,7 +45,17 @@ public class CommandKit implements CommandExecutor {
             switch (args[0].toLowerCase()) {
                 case "help":
                 case "?": {
-                    help(player);
+                    int page = 1;
+                    if (args.length > 1) {
+                        try {
+                            page = Integer.parseInt(args[1]);
+                        } catch (Exception ex) {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidPage");
+                            return true;
+                        }
+                    }
+
+                    help(player, page);
                     return true;
                 }
                 case "version": {
@@ -83,8 +94,7 @@ public class CommandKit implements CommandExecutor {
                     if (args.length > 1) {
                         try {
                             page = Integer.parseInt(args[1]);
-                        }
-                        catch (Exception ex) {
+                        } catch (Exception ex) {
                             ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidPage");
                             return true;
                         }
@@ -104,35 +114,34 @@ public class CommandKit implements CommandExecutor {
                         }
 
                         Kit kit = kits.get(index);
-                        String msg = LocaleUtils.Localize(player,"Commands.List.Line")
-                                .replace("%kit%", kit.Name)
-                                .replace("%description%", kit.Description);
+                        String msg = LocaleUtils.Localize(player, "Commands.List.Line")
+                                .replace("%kit%", kit.Name);
 
                         Component result = ChatUtils.buildWithButtons(msg, new Hashtable<>() {{
                             put("info_button",
-                                    ChatUtils.translateColors(LocaleUtils.Localize(player,"Commands.List.InfoBtn"), true).clickEvent(ClickEvent.runCommand("/kit info " + kit.Name)));
+                                    ChatUtils.translateColors(LocaleUtils.Localize(player, "Commands.List.InfoBtn"), true).clickEvent(ClickEvent.runCommand("/kit info " + kit.Name)));
                             put("get_button",
-                                    ChatUtils.translateColors(LocaleUtils.Localize(player,"Commands.List.GetBtn"), true).clickEvent(ClickEvent.runCommand("/kit " + kit.Name)));
+                                    ChatUtils.translateColors(LocaleUtils.Localize(player, "Commands.List.GetBtn"), true).clickEvent(ClickEvent.runCommand("/kit " + kit.Name)));
                         }});
 
                         player.sendMessage(result);
                     }
 
                     // Bottom message
-                    String previousBtn = LocaleUtils.Localize(player,"Commands.List.PrevBtn");
-                    String nextBtn = LocaleUtils.Localize(player,"Commands.List.NextBtn");
-                    String bottomMsg = LocaleUtils.Localize(player,"Commands.List.Bottom")
+                    String previousBtn = LocaleUtils.Localize(player, "Commands.List.PrevBtn");
+                    String nextBtn = LocaleUtils.Localize(player, "Commands.List.NextBtn");
+                    String bottomMsg = LocaleUtils.Localize(player, "Commands.List.Bottom")
                             .replace("%page%", String.valueOf(page))
                             .replace("%maxPage%", String.valueOf(maxPage));
 
                     Dictionary<String, Component> bottomParams = new Hashtable<>();
                     if (page > 1)
-                        bottomParams.put("previous_btn", Component.text(previousBtn).clickEvent(ClickEvent.runCommand("/aldas list " + (page - 1))));
+                        bottomParams.put("previous_btn", Component.text(previousBtn).clickEvent(ClickEvent.runCommand("/kit list " + (page - 1))));
                     else
                         bottomParams.put("previous_btn", Component.text(previousBtn));
 
                     if (!reachedEnd && maxPage >= page + 1)
-                        bottomParams.put("next_btn", Component.text(nextBtn).clickEvent(ClickEvent.runCommand("/aldas list " + (page + 1))));
+                        bottomParams.put("next_btn", Component.text(nextBtn).clickEvent(ClickEvent.runCommand("/kit list " + (page + 1))));
                     else
                         bottomParams.put("next_btn", Component.text(nextBtn));
 
@@ -171,28 +180,28 @@ public class CommandKit implements CommandExecutor {
                         put("kit", kit.Name);
                     }});
 
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Description").replace("%description%", kit.Description));
-                    String kitPermission = LocaleUtils.Localize(player,"Commands.Common.None");
+                    String kitPermission = LocaleUtils.Localize(player, "Commands.Common.None");
                     if (!kit.Permission.isEmpty())
                         kitPermission = kit.Permission;
-                    String kitRequired = LocaleUtils.Localize(player,"Commands.Common.No");
+                    String kitRequired = LocaleUtils.Localize(player, "Commands.Common.No");
                     if (kit.RequirePermission)
-                        kitRequired = LocaleUtils.Localize(player,"Commands.Common.Yes");
-
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Price").replace("%price%", String.format("%.2f", kit.Price)));
+                        kitRequired = LocaleUtils.Localize(player, "Commands.Common.Yes");
 
                     long hours = kit.Cooldown / 3600;
                     long minutes = (kit.Cooldown % 3600) / 60;
                     long remainingSeconds = kit.Cooldown % 60;
 
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Cooldown")
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player, "Commands.Info.Enabled")
+                            .replace("%enabled%", kit.Enable ? LocaleUtils.Localize(player, "Commands.Common.Yes") : LocaleUtils.Localize(player, "Commands.Common.No")));
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player, "Commands.Info.Price")
+                            .replace("%price%", String.format("%.2f", kit.Price)));
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player, "Commands.Info.Cooldown")
                             .replace("%cooldown%", String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)));
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.Permission")
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player, "Commands.Info.Permission")
                             .replace("%permission%", kitPermission)
                             .replace("%required%", kitRequired));
-                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player,"Commands.Info.OneTime")
-                            .replace("%onetime%", kit.IsOneTime ? LocaleUtils.Localize(player,"Commands.Common.Yes") : LocaleUtils.Localize(player,"Commands.Common.No")));
-
+                    ChatUtils.sendRichMsg(player, LocaleUtils.Localize(player, "Commands.Info.OneTime")
+                            .replace("%onetime%", kit.IsOneTime ? LocaleUtils.Localize(player, "Commands.Common.Yes") : LocaleUtils.Localize(player, "Commands.Common.No")));
 
                     return true;
                 }
@@ -225,6 +234,13 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
+                    if (!kit.Enable) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Get.Disabled", new Hashtable<>() {{
+                            put("kit", kit.Name);
+                        }});
+                        return true;
+                    }
+
                     Player target = OpenKits.Instance.getServer().getPlayer(args[2]);
                     if (target == null) {
                         ChatUtils.sendLocalizedMsg(player, "General.PlayerNotFound", new Hashtable<>() {{
@@ -238,7 +254,7 @@ public class CommandKit implements CommandExecutor {
                         put("kit", kit.Name);
                         put("player", target.getName());
                     }});
-                    ChatUtils.sendRichMsg(target, LocaleUtils.Localize(player,"Commands.Get.Success").replace("%kit%", kit.Name));
+                    ChatUtils.sendRichMsg(target, LocaleUtils.Localize(player, "Commands.Get.Success").replace("%kit%", kit.Name));
 
                     return true;
                 }
@@ -248,7 +264,119 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    // TODO
+                    if (args.length < 3 || args.length > 8) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Create.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit != null) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Create.KitAlreadyExists", new Hashtable<>() {{
+                            put("kit", kit.Name);
+                        }});
+                        return true;
+                    }
+                    double price = OpenKits.GetConfig().getDouble("default.price");
+                    long cooldown = OpenKits.GetConfig().getLong("default.cooldown");
+                    String permission = OpenKits.GetConfig().getString("default.permission");
+                    if (permission != null)
+                        permission = permission.replace("%kit%", args[1]);
+                    boolean requirePermission = OpenKits.GetConfig().getBoolean("default.isPermissionRequired");
+                    boolean isOneTime = OpenKits.GetConfig().getBoolean("default.onTime");
+                    Material icon;
+                    try
+                    {
+                        icon = Material.getMaterial(args[2].toUpperCase());
+                        if ( icon == null) {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidMaterial", new Hashtable<>() {{
+                                put("material", args[2]);
+                            }});
+                            return true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidMaterial");
+                        return true;
+                    }
+
+                    if (args.length >= 4) {
+                        try {
+                            cooldown = Long.parseLong(args[3]);
+                        } catch (Exception ex) {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidCooldown");
+                            return true;
+                        }
+                    }
+
+                    if (args.length >= 5) {
+                        try {
+                            price = Double.parseDouble(args[4]);
+                        } catch (Exception ex) {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidPrice");
+                            return true;
+                        }
+                    }
+
+                    if (args.length >= 6) {
+                        permission = args[5];
+                        requirePermission = true;
+                    }
+
+                    if (args.length >= 7) {
+                        switch (args[6].toLowerCase()) {
+                            case "yes":
+                            case "y":
+                            case "true":
+                            case "1":
+                            case "on": {
+                                isOneTime = true;
+                                break;
+                            }
+                            case "no":
+                            case "n":
+                            case "false":
+                            case "0":
+                            case "off": {
+                                isOneTime = false;
+                                break;
+                            }
+                            default: {
+                                ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidBoolean");
+                                return true;
+                            }
+                        }
+                    }
+
+                    if (args.length == 8) {
+                        switch (args[7].toLowerCase()) {
+                            case "yes":
+                            case "y":
+                            case "true":
+                            case "1":
+                            case "on": {
+                                isOneTime = true;
+                                break;
+                            }
+                            case "no":
+                            case "n":
+                            case "false":
+                            case "0":
+                            case "off": {
+                                isOneTime = false;
+                                break;
+                            }
+                            default: {
+                                ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidBoolean");
+                                return true;
+                            }
+                        }
+                    }
+
+                    OpenKits.Database.AddKit(args[1], icon, price, requirePermission, permission, cooldown, isOneTime, true, new ArrayList<>());
+                    ChatUtils.sendLocalizedMsg(player, "Commands.Create.Success", new Hashtable<>() {{
+                        put("kit", args[1]);
+                    }});
 
                     return true;
                 }
@@ -324,8 +452,7 @@ public class CommandKit implements CommandExecutor {
                     double price;
                     try {
                         price = Double.parseDouble(args[2]);
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidPrice");
                         return true;
                     }
@@ -363,8 +490,7 @@ public class CommandKit implements CommandExecutor {
                     long cooldown;
                     try {
                         cooldown = Long.parseLong(args[2]);
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidCooldown");
                         return true;
                     }
@@ -404,7 +530,7 @@ public class CommandKit implements CommandExecutor {
                         OpenKits.Database.UpdateKit(kit.Id, false, "");
                         ChatUtils.sendLocalizedMsg(player, "Commands.SetPermission.Success", new Hashtable<>() {{
                             put("kit", kit.Name);
-                            put("permission", LocaleUtils.Localize(player,"Commands.Common.None"));
+                            put("permission", LocaleUtils.Localize(player, "Commands.Common.None"));
                         }});
                         return true;
                     }
@@ -446,6 +572,186 @@ public class CommandKit implements CommandExecutor {
 
                     return true;
                 }
+                case "setonetime": {
+                    if (!player.hasPermission("openkits.commands.kit.setonetime")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    if (args.length != 3) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetOneTime.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    boolean isOneTime;
+                    switch (args[2].toLowerCase()) {
+                        case "yes":
+                        case "y":
+                        case "true":
+                        case "1":
+                        case "on": {
+                            isOneTime = true;
+                            break;
+                        }
+                        case "no":
+                        case "n":
+                        case "false":
+                        case "0":
+                        case "off": {
+                            isOneTime = false;
+                            break;
+                        }
+                        default: {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidBoolean");
+                            return true;
+                        }
+                    }
+
+                    OpenKits.Database.UpdateKitOneTime(kit.Id, isOneTime);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.SetOneTime.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("onetime", isOneTime ? LocaleUtils.Localize(player, "Commands.Common.Yes") : LocaleUtils.Localize(player, "Commands.Common.No"));
+                    }});
+
+                    return true;
+                }
+                case "setenabled": {
+                    if (!player.hasPermission("openkits.commands.kit.setenabled")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    if (args.length != 3) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetEnabled.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    boolean enabled;
+                    switch (args[2].toLowerCase()) {
+                        case "yes":
+                        case "y":
+                        case "true":
+                        case "1":
+                        case "on": {
+                            enabled = true;
+                            break;
+                        }
+                        case "no":
+                        case "n":
+                        case "false":
+                        case "0":
+                        case "off": {
+                            enabled = false;
+                            break;
+                        }
+                        default: {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidBoolean");
+                            return true;
+                        }
+                    }
+
+                    OpenKits.Database.UpdateKitOneTime(kit.Id, enabled);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.SetEnabled.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("enabled", enabled ? LocaleUtils.Localize(player, "Commands.Common.Yes") : LocaleUtils.Localize(player, "Commands.Common.No"));
+                    }});
+
+                    return true;
+                }
+                case "setname": {
+                    if (!player.hasPermission("openkits.commands.kit.setname")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    if (args.length != 3) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetName.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    Kit newKit = OpenKits.Database.FindKit(args[2]);
+                    if (newKit != null) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Create.KitAlreadyExists", new Hashtable<>() {{
+                            put("kit", newKit.Name);
+                        }});
+                        return true;
+                    }
+
+                    OpenKits.Database.UpdateKit(kit.Id, args[2]);
+                    ChatUtils.sendLocalizedMsg(player, "Commands.SetName.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                        put("new_name", args[2]);
+                    }});
+
+                    return true;
+                }
+                case "seticon": {
+                    if (!player.hasPermission("openkits.commands.kit.seticon")) {
+                        ChatUtils.sendLocalizedMsg(player, "General.NoPermission");
+                        return true;
+                    }
+
+                    if (args.length != 3) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.SetIcon.Usage");
+                        return true;
+                    }
+
+                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    if (kit == null) {
+                        ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
+                            put("kit", args[1]);
+                        }});
+                        return true;
+                    }
+
+                    Material icon;
+                    try {
+                        icon = Material.getMaterial(args[2].toUpperCase());
+                        if (icon == null)
+                        {
+                            ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidMaterial", new Hashtable<>() {{
+                                put("material", args[2]);
+                            }});
+                            return true;
+                        }
+                    } catch (Exception ex) {
+                        ChatUtils.sendLocalizedMsg(player, "Commands.Common.InvalidMaterial", new Hashtable<>() {{
+                            put("material", args[2]);
+                        }});
+                        return true;
+                    }
+
+                    OpenKits.Database.UpdateKit(kit.Id, icon);
+                    player.sendMessage(ChatUtils.buildWithButtons(LocaleUtils.Localize(player, "Commands.SetIcon.Success"), new Hashtable<>() {{
+                        put("kit", ChatUtils.translateColors(kit.Name, true));
+                        put("icon", Component.translatable(icon.translationKey()));
+                    }}));
+                    return true;
+                }
             }
 
             // Find kit by name
@@ -454,6 +760,13 @@ public class CommandKit implements CommandExecutor {
             if (kit == null) {
                 ChatUtils.sendLocalizedMsg(player, "General.KitNotFound", new Hashtable<>() {{
                     put("kit", args[0]);
+                }});
+                return true;
+            }
+
+            if (!kit.Enable) {
+                ChatUtils.sendLocalizedMsg(player, "Commands.Get.Disabled", new Hashtable<>() {{
+                    put("kit", kit.Name);
                 }});
                 return true;
             }
@@ -510,127 +823,163 @@ public class CommandKit implements CommandExecutor {
                 put("kit", kit.Name);
             }});
             //#endregion
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ChatUtils.sendLocalizedMsg(player, "Commands.UnknownError");
-            LoggerUtils.LogWarning("Error while executing aldas command:");
+            LoggerUtils.LogWarning("Error while executing kits command:");
             LoggerUtils.LogError(ex.getMessage());
         }
 
         return true;
     }
 
-    private void help(Player player) {
-        Dictionary<String, Object> parameters = new Hashtable<>();
-        parameters.put("currentpage", 1);
-        parameters.put("maxpage", 1);
-        ChatUtils.sendLocalizedMsg(player, "Commands.Help.Title", parameters);
+    private final List<SubCommandData> _subCommands = new ArrayList<>() {
+        {
+            // HELP
+            add(new SubCommandData("help", "", new Hashtable<>() {{
+                put("syntax", null);
+                put("description", "Commands.Help.Desc");
+            }}));
+            // VERSION
+            add(new SubCommandData("version", "", new Hashtable<>() {{
+                put("syntax", null);
+                put("description", "Commands.Version.Desc");
+            }}));
+            // RELOAD
+            add(new SubCommandData("reload", "openkits.commands.kit.reload", new Hashtable<>() {{
+                put("syntax", null);
+                put("description", "Commands.Reload.Desc");
+            }}));
+            // LIST
+            add(new SubCommandData("list", "openkits.commands.kit.list", new Hashtable<>() {{
+                put("syntax", "Commands.List.Syntax");
+                put("description", "Commands.List.Desc");
+            }}));
+            // INFO
+            add(new SubCommandData("info", "openkits.commands.kit.info", new Hashtable<>() {{
+                put("syntax", "Commands.Info.Syntax");
+                put("description", "Commands.Info.Desc");
+            }}));
+            // GET
+            add(new SubCommandData("", "", new Hashtable<>() {{
+                put("syntax", "Commands.Get.Syntax");
+                put("description", "Commands.Get.Desc");
+            }}));
+            // GIVE
+            add(new SubCommandData("give", "openkits.commands.kit.give", new Hashtable<>() {{
+                put("syntax", "Commands.Give.Syntax");
+                put("description", "Commands.Give.Desc");
+            }}));
+            // GUI
+            add(new SubCommandData("gui", "openkits.commands.kit.gui", new Hashtable<>() {{
+                put("syntax", "Commands.Gui.Syntax");
+                put("description", "Commands.Gui.Desc");
+            }}));
+            // CREATE
+            add(new SubCommandData("create", "openkits.commands.kit.create", new Hashtable<>() {{
+                put("syntax", "Commands.Create.Syntax");
+                put("description", "Commands.Create.Desc");
+            }}));
+            // DELETE
+            add(new SubCommandData("delete", "openkits.commands.kit.delete", new Hashtable<>() {{
+                put("syntax", "Commands.Delete.Syntax");
+                put("description", "Commands.Delete.Desc");
+            }}));
+            // EDIT
+            add(new SubCommandData("edit", "openkits.commands.kit.edit", new Hashtable<>() {{
+                put("syntax", "Commands.Edit.Syntax");
+                put("description", "Commands.Edit.Desc");
+            }}));
+            // SETNAME
+            add(new SubCommandData("setname", "openkits.commands.kit.setname", new Hashtable<>() {{
+                put("syntax", "Commands.SetName.Syntax");
+                put("description", "Commands.SetName.Desc");
+            }}));
+            // SETENABLED
+            add(new SubCommandData("setenabled", "openkits.commands.kit.setenabled", new Hashtable<>() {{
+                put("syntax", "Commands.SetEnabled.Syntax");
+                put("description", "Commands.SetEnabled.Desc");
+            }}));
+            // SETPRICE
+            add(new SubCommandData("setprice", "openkits.commands.kit.setprice", new Hashtable<>() {{
+                put("syntax", "Commands.SetPrice.Syntax");
+                put("description", "Commands.SetPrice.Desc");
+            }}));
+            // SETCOOLDOWN
+            add(new SubCommandData("setcooldown", "openkits.commands.kit.setcooldown", new Hashtable<>() {{
+                put("syntax", "Commands.SetCooldown.Syntax");
+                put("description", "Commands.SetCooldown.Desc");
+            }}));
+            // SETPERMISSION
+            add(new SubCommandData("setpermission", "openkits.commands.kit.setpermission", new Hashtable<>() {{
+                put("syntax", "Commands.SetPermission.Syntax");
+                put("description", "Commands.SetPermission.Desc");
+            }}));
+            // SETONETIME
+            add(new SubCommandData("setonetime", "openkits.commands.kit.setonetime", new Hashtable<>() {{
+                put("syntax", "Commands.SetOneTime.Syntax");
+                put("description", "Commands.SetOneTime.Desc");
+            }}));
+            // SETICON
+            add(new SubCommandData("seticon", "openkits.commands.kit.seticon", new Hashtable<>() {{
+                put("syntax", "Commands.SetIcon.Syntax");
+                put("description", "Commands.SetIcon.Desc");
+            }}));
+        }
+    };
+
+    private void help(Player player, int page) {
+        int maxPage = 1 + (_subCommands.size() / 15);
+
+        if (page > maxPage)
+            page = maxPage;
+        if (page < 1)
+            page = 1;
+        int finalPage = page;
+
+        ChatUtils.sendLocalizedMsg(player, "Commands.Help.Title", new Hashtable<>() {{
+            put("currentpage", finalPage);
+            put("maxpage", maxPage);
+        }});
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Info");
 
-        // Help
-        parameters.put("subcommand", "help");
-        parameters.put("syntax", "");
-        parameters.put("description", LocaleUtils.Localize(player,"Commands.Help.Desc"));
-        ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
+        boolean reachedEnd = false;
+        int itemIndex = 0;
+        for (int i = 0; i < 15; i++) {
+            int index = itemIndex + (page - 1) * 15;
+            if (index >= _subCommands.size()) {
+                reachedEnd = true;
+                break;
+            }
+            itemIndex++;
 
-        // Version
-        parameters.put("subcommand", "version");
-        parameters.put("syntax", "");
-        parameters.put("description", LocaleUtils.Localize(player,"Commands.Version.Desc"));
-        ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
+            SubCommandData subCommand = _subCommands.get(index);
+            if (!subCommand.hasPermission(player)) {
+                i--;
+                continue;
+            }
 
-        // Reload
-        if (player.hasPermission("openkits.commands.kit.reload")) {
-            parameters.put("subcommand", "reload");
-            parameters.put("syntax", "");
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.Reload.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
+            subCommand.send(player);
         }
 
-        // List
-        if (player.hasPermission("openkits.commands.kit.list")) {
-            parameters.put("subcommand", "list");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.List.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.List.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
+        // Bottom message
+        String previousBtn = LocaleUtils.Localize(player, "Commands.Help.PrevBtn");
+        String nextBtn = LocaleUtils.Localize(player, "Commands.Help.NextBtn");
+        String bottomMsg = LocaleUtils.Localize(player, "Commands.Help.Bottom")
+                .replace("%page%", String.valueOf(page))
+                .replace("%maxPage%", String.valueOf(maxPage));
 
-        // Info
-        if (player.hasPermission("openkits.commands.kit.info")) {
-            parameters.put("subcommand", "info");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Info.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.Info.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
+        Dictionary<String, Component> bottomParams = new Hashtable<>();
+        if (page > 1)
+            bottomParams.put("previous_btn", Component.text(previousBtn).clickEvent(ClickEvent.runCommand("/kit help " + (page - 1))));
+        else
+            bottomParams.put("previous_btn", Component.text(previousBtn));
 
-        // Get
-        parameters.put("subcommand", "");
-        parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Get.Syntax"));
-        parameters.put("description", LocaleUtils.Localize(player,"Commands.Get.Desc"));
-        ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
+        if (!reachedEnd && maxPage >= page + 1)
+            bottomParams.put("next_btn", Component.text(nextBtn).clickEvent(ClickEvent.runCommand("/kit help " + (page + 1))));
+        else
+            bottomParams.put("next_btn", Component.text(nextBtn));
 
-        // Give
-        if (player.hasPermission("openkits.commands.kit.give")) {
-            parameters.put("subcommand", "give");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Give.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.Give.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
-
-        // Create
-        if (player.hasPermission("openkits.commands.kit.create")) {
-            parameters.put("subcommand", "create");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Create.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.Create.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
-
-        // Delete
-        if (player.hasPermission("openkits.commands.kit.delete")) {
-            parameters.put("subcommand", "delete");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Delete.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.Delete.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
-
-        // Edit
-        if (player.hasPermission("openkits.commands.kit.edit")) {
-            parameters.put("subcommand", "edit");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Edit.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.Edit.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
-
-        // GUI
-        if (player.hasPermission("openkits.commands.kit.gui")) {
-            parameters.put("subcommand", "gui");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.Gui.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.Gui.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
-
-        // SetPrice
-        if (player.hasPermission("openkits.commands.kit.setprice")) {
-            parameters.put("subcommand", "setprice");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.SetPrice.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.SetPrice.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
-
-        // SetCooldown
-        if (player.hasPermission("openkits.commands.kit.setcooldown")) {
-            parameters.put("subcommand", "setcooldown");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.SetCooldown.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.SetCooldown.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
-
-        // SetPermission
-        if (player.hasPermission("openkits.commands.kit.setpermission")) {
-            parameters.put("subcommand", "setpermission");
-            parameters.put("syntax", LocaleUtils.Localize(player,"Commands.SetPermission.Syntax"));
-            parameters.put("description", LocaleUtils.Localize(player,"Commands.SetPermission.Desc"));
-            ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", parameters);
-        }
+        Component bottomComp = ChatUtils.buildWithButtons(bottomMsg, bottomParams);
+        player.sendMessage(bottomComp);
     }
 }
