@@ -5,7 +5,7 @@ usePlayerLocale: true
 # Prefix for all messages
 prefix: "&3Open&bKits &8»"
 # Shows debug messages
-debug: true
+debug: false
 storage:
   # Accepted values: SQLite (local), MySql (server)
   type: SQLite
@@ -17,7 +17,7 @@ storage:
   database: minecraft
   username: root
   password: ascent
-  tablePrefix: openkits_
+  tablePrefix: openkits
 # Should the items be dropped when the player's inventory is full?
 dropItemsOnFullInventory: true
 # Allow previewing kits

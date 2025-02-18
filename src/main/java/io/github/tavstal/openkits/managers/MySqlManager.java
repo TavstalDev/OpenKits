@@ -6,6 +6,7 @@ import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.models.IDatabase;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.KitCooldown;
+import io.github.tavstal.openkits.utils.ItemUtils;
 import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -97,16 +98,30 @@ public class MySqlManager implements IDatabase {
     public void AddKit(String name, Material icon, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
         try (Connection connection = _dataSource.getConnection())
         {
+            byte[] serializedItems = ItemUtils.serializeItemStackList(items);
             String sql = String.format("INSERT INTO %s_kits (Name, Icon, Price, RequirePermission, Permission, Cooldown, IsOneTime, Enable, Items) " +
-                            "VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s');",
-                    getConfig().getString("storage.tablePrefix"), name, icon.name(), price, requirePermission, permission, cooldown, isOneTime, enable, Arrays.toString(Kit.SerializeItems(items)));
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    getConfig().getString("storage.tablePrefix"));
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                // Set parameters for the prepared statement
+                statement.setString(1, name);  // Kit name
+                statement.setString(2, icon.name());  // Material icon as a string
+                statement.setDouble(3, price);  // Price
+                statement.setBoolean(4, requirePermission);  // Require Permission
+                statement.setString(5, permission);  // Permission (string)
+                statement.setLong(6, cooldown);  // Cooldown
+                statement.setBoolean(7, isOneTime);  // Is One Time
+                statement.setBoolean(8, enable);  // Is Enabled
+                statement.setBytes(9, serializedItems);  // Serialized Items (e.g., JSON or Base64 string)
+
+                // Execute the query
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while adding kit...\n%s", ex.getMessage()));
+            LoggerUtils.LogError(String.format("Unknown error happened while adding tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -114,15 +129,17 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitName(long id, String name) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET Name='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), name, id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET Name=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, name);
+                statement.setLong(2, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
-           LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -130,11 +147,14 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitPermission(long id, boolean requirePermission, String permission) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET RequirePermission='%s' AND Permission='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), requirePermission, permission, id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET RequirePermission=?, Permission=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setBoolean(1, requirePermission);
+                statement.setString(2, permission);
+                statement.setLong(3, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -146,11 +166,13 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitItems(long id, List<ItemStack> items) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET Items='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), Arrays.toString(Kit.SerializeItems(items)), id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET Items=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setBytes(1, ItemUtils.serializeItemStackList(items));
+                statement.setLong(2, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -162,11 +184,13 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitPrice(long id, Double price) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET Price='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), price, id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET Price=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setDouble(1, price);
+                statement.setLong(2, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -178,11 +202,13 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitCooldown(long id, long cooldown) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET Cooldown='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), cooldown, id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET Cooldown=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setLong(1, cooldown);
+                statement.setLong(2, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -194,11 +220,13 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitEnabled(long id, boolean enable) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET Enable='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), enable, id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET Enable=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setBoolean(1, enable);
+                statement.setLong(2, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -210,11 +238,13 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitIcon(long id, Material icon) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET Icon='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), icon.name(), id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET Icon=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, icon.name());
+                statement.setLong(2, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -226,11 +256,13 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitOneTime(long id, boolean isOneTime) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_kits SET IsOneTime='%s' WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), isOneTime, id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_kits SET IsOneTime=? WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setBoolean(1, isOneTime);
+                statement.setLong(2, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -242,11 +274,12 @@ public class MySqlManager implements IDatabase {
     public void RemoveKit(long id) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("DELETE FROM %s_kits WHERE Id='%s';",
-                    getConfig().getString("storage.tablePrefix"), id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("DELETE FROM %s_kits WHERE Id=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setLong(1, id);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -261,29 +294,24 @@ public class MySqlManager implements IDatabase {
         {
             String sql = String.format("SELECT * FROM %s_kits;",
                     getConfig().getString("storage.tablePrefix"));
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet result = statement.executeQuery();
+            try (PreparedStatement statement = connection.prepareStatement(sql);
+                 ResultSet result = statement.executeQuery()) {
 
-
-            while (result.next()) {
-                data.add(new Kit(
-                        result.getLong("Id"),
-                        result.getString("Name"),
-                        result.getString("Icon"),
-                        result.getDouble("Price"),
-                        result.getBoolean("RequirePermission"),
-                        result.getString("Permission"),
-                        result.getLong("Cooldown"),
-                        result.getBoolean("IsOneTime"),
-                        result.getBoolean("Enable"),
-                        result.getBytes("Items")
-                ));
+                while (result.next()) {
+                    data.add(new Kit(
+                            result.getLong("Id"),
+                            result.getString("Name"),
+                            result.getString("Icon"),
+                            result.getDouble("Price"),
+                            result.getBoolean("RequirePermission"),
+                            result.getString("Permission"),
+                            result.getLong("Cooldown"),
+                            result.getBoolean("IsOneTime"),
+                            result.getBoolean("Enable"),
+                            result.getBytes("Items")
+                    ));
+                }
             }
-
-            if (!result.isClosed())
-                result.close();
-
-            statement.close();
         }
         catch (Exception ex)
         {
@@ -299,31 +327,27 @@ public class MySqlManager implements IDatabase {
         Kit data = null;
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("SELECT * FROM %s_kits WHERE Id='%s' LIMIT 1;",
-                    getConfig().getString("storage.tablePrefix"), id);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet result = statement.executeQuery();
-
-            if (result.next())
-            {
-                data = new Kit(
-                        result.getLong("Id"),
-                        result.getString("Name"),
-                        result.getString("Icon"),
-                        result.getDouble("Price"),
-                        result.getBoolean("RequirePermission"),
-                        result.getString("Permission"),
-                        result.getLong("Cooldown"),
-                        result.getBoolean("IsOneTime"),
-                        result.getBoolean("Enable"),
-                        result.getBytes("Items")
-                );
+            String sql = String.format("SELECT * FROM %s_kits WHERE Id=? LIMIT 1;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setLong(1, id);
+                try (ResultSet result = statement.executeQuery()) {
+                    if (result.next()) {
+                        data = new Kit(
+                                result.getLong("Id"),
+                                result.getString("Name"),
+                                result.getString("Icon"),
+                                result.getDouble("Price"),
+                                result.getBoolean("RequirePermission"),
+                                result.getString("Permission"),
+                                result.getLong("Cooldown"),
+                                result.getBoolean("IsOneTime"),
+                                result.getBoolean("Enable"),
+                                result.getBytes("Items")
+                        );
+                    }
+                }
             }
-
-            if (!result.isClosed())
-                result.close();
-
-            statement.close();
         }
         catch (Exception ex)
         {
@@ -339,31 +363,27 @@ public class MySqlManager implements IDatabase {
         Kit data = null;
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("SELECT * FROM %s_kits WHERE LOWER(Name) LIKE LOWER('%%%s%%') LIMIT 1;",
-                    getConfig().getString("storage.tablePrefix"), name);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet result = statement.executeQuery();
-
-            if (result.next())
-            {
-                data = new Kit(
-                        result.getLong("Id"),
-                        result.getString("Name"),
-                        result.getString("Icon"),
-                        result.getDouble("Price"),
-                        result.getBoolean("RequirePermission"),
-                        result.getString("Permission"),
-                        result.getLong("Cooldown"),
-                        result.getBoolean("IsOneTime"),
-                        result.getBoolean("Enable"),
-                        result.getBytes("Items")
-                );
+            String sql = String.format("SELECT * FROM %s_kits WHERE LOWER(Name) LIKE LOWER(?) LIMIT 1;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, "%" + name + "%");
+                try (ResultSet result = statement.executeQuery()) {
+                    if (result.next()) {
+                        data = new Kit(
+                                result.getLong("Id"),
+                                result.getString("Name"),
+                                result.getString("Icon"),
+                                result.getDouble("Price"),
+                                result.getBoolean("RequirePermission"),
+                                result.getString("Permission"),
+                                result.getLong("Cooldown"),
+                                result.getBoolean("IsOneTime"),
+                                result.getBoolean("Enable"),
+                                result.getBytes("Items")
+                        );
+                    }
+                }
             }
-
-            if (!result.isClosed())
-                result.close();
-
-            statement.close();
         }
         catch (Exception ex)
         {
@@ -381,11 +401,14 @@ public class MySqlManager implements IDatabase {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("INSERT INTO %s_cooldowns (PlayerId, KitId, End) " +
-                            "VALUES ('%s','%s','%s');",
-                    getConfig().getString("storage.tablePrefix"), playerId, kitId, end);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+                            "VALUES (?, ?, ?);",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, playerId.toString());
+                statement.setLong(2, kitId);
+                statement.setString(3, end.toString());
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -397,11 +420,14 @@ public class MySqlManager implements IDatabase {
     public void UpdateKitCooldown(UUID playerId, long kitId, LocalDateTime end) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("UPDATE %s_cooldowns SET End='%s' WHERE PlayerId='%s' AND KitId='%s';",
-                    getConfig().getString("storage.tablePrefix"), end, playerId, kitId);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("UPDATE %s_cooldowns SET End=? WHERE PlayerId=? AND KitId=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, end.toString());
+                statement.setString(2, playerId.toString());
+                statement.setLong(3, kitId);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -413,11 +439,13 @@ public class MySqlManager implements IDatabase {
     public void RemoveKitCooldown(UUID playerId, long kitId) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("DELETE FROM %s_cooldowns WHERE PlayerId='%s' AND KitId='%s';",
-                    getConfig().getString("storage.tablePrefix"), playerId, kitId);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("DELETE FROM %s_cooldowns WHERE PlayerId=? AND KitId=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, playerId.toString());
+                statement.setLong(2, kitId);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -429,11 +457,12 @@ public class MySqlManager implements IDatabase {
     public void RemoveKitCooldowns(UUID playerId) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("DELETE FROM %s_cooldowns WHERE PlayerId='%s';",
-                    getConfig().getString("storage.tablePrefix"), playerId);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("DELETE FROM %s_cooldowns WHERE PlayerId=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, playerId.toString());
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -445,11 +474,12 @@ public class MySqlManager implements IDatabase {
     public void RemoveKitCooldowns(long kitId) {
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("DELETE FROM %s_cooldowns WHERE KitId='%s';",
-                    getConfig().getString("storage.tablePrefix"), kitId);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            statement.close();
+            String sql = String.format("DELETE FROM %s_cooldowns WHERE KitId=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setLong(1, kitId);
+                statement.executeUpdate();
+            }
         }
         catch (Exception ex)
         {
@@ -462,24 +492,20 @@ public class MySqlManager implements IDatabase {
         List<KitCooldown> data = new ArrayList<>();
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("SELECT * FROM %s_cooldowns WHERE PlayerId='%s';",
-                    getConfig().getString("storage.tablePrefix"), playerId);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet result = statement.executeQuery();
-
-
-            while (result.next()) {
-                data.add(new KitCooldown(
-                        result.getObject("PlayerId", UUID.class),
-                        result.getLong("KitId"),
-                        result.getObject("End", LocalDateTime.class)
-                ));
+            String sql = String.format("SELECT * FROM %s_cooldowns WHERE PlayerId=?;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, playerId.toString());
+                try (ResultSet result = statement.executeQuery()) {
+                    while (result.next()) {
+                        data.add(new KitCooldown(
+                                result.getObject("PlayerId", UUID.class),
+                                result.getLong("KitId"),
+                                result.getObject("End", LocalDateTime.class)
+                        ));
+                    }
+                }
             }
-
-            if (!result.isClosed())
-                result.close();
-
-            statement.close();
         }
         catch (Exception ex)
         {
@@ -495,24 +521,21 @@ public class MySqlManager implements IDatabase {
         KitCooldown data = null;
         try (Connection connection = _dataSource.getConnection())
         {
-            String sql = String.format("SELECT * FROM %s_cooldowns WHERE PlayerId='%s' AND KitId='%s' LIMIT 1;",
-                    getConfig().getString("storage.tablePrefix"), playerId, kitId);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet result = statement.executeQuery();
-
-            if (result.next())
-            {
-                data = new KitCooldown(
-                        result.getObject("PlayerId", UUID.class),
-                        result.getLong("KitId"),
-                        result.getObject("End", LocalDateTime.class)
-                );
+            String sql = String.format("SELECT * FROM %s_cooldowns WHERE PlayerId=? AND KitId=? LIMIT 1;",
+                    getConfig().getString("storage.tablePrefix"));
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, playerId.toString());
+                statement.setLong(2, kitId);
+                try (ResultSet result = statement.executeQuery()) {
+                    if (result.next()) {
+                        data = new KitCooldown(
+                                result.getObject("PlayerId", UUID.class),
+                                result.getLong("KitId"),
+                                result.getObject("End", LocalDateTime.class)
+                        );
+                    }
+                }
             }
-
-            if (!result.isClosed())
-                result.close();
-
-            statement.close();
         }
         catch (Exception ex)
         {

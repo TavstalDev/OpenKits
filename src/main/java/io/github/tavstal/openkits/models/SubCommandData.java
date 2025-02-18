@@ -62,6 +62,6 @@ public class SubCommandData {
             args.put(key, LocaleUtils.Localize(player, param.toString()));
         }
 
-        ChatUtils.sendLocalizedMsg(player, LocaleUtils.Localize(player, "Commands.Help.Line"), args);
+        ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", args);
     }
 }

@@ -133,19 +133,19 @@ public class CommandKit implements CommandExecutor {
                     String previousBtn = LocaleUtils.Localize(player, "Commands.List.PrevBtn");
                     String nextBtn = LocaleUtils.Localize(player, "Commands.List.NextBtn");
                     String bottomMsg = LocaleUtils.Localize(player, "Commands.List.Bottom")
-                            .replace("%page%", String.valueOf(page))
-                            .replace("%maxPage%", String.valueOf(maxPage));
+                            .replace("%current_page%", String.valueOf(page))
+                            .replace("%max_page%", String.valueOf(maxPage));
 
                     Map<String, Component> bottomParams = new HashMap<>();
                     if (page > 1)
-                        bottomParams.put("previous_btn", Component.text(previousBtn).clickEvent(ClickEvent.runCommand("/kit list " + (page - 1))));
+                        bottomParams.put("previous_btn", ChatUtils.translateColors(previousBtn, true).clickEvent(ClickEvent.runCommand("/kit list " + (page - 1))));
                     else
-                        bottomParams.put("previous_btn", Component.text(previousBtn));
+                        bottomParams.put("previous_btn", ChatUtils.translateColors(previousBtn, true));
 
                     if (!reachedEnd && maxPage >= page + 1)
-                        bottomParams.put("next_btn", Component.text(nextBtn).clickEvent(ClickEvent.runCommand("/kit list " + (page + 1))));
+                        bottomParams.put("next_btn", ChatUtils.translateColors(nextBtn, true).clickEvent(ClickEvent.runCommand("/kit list " + (page + 1))));
                     else
-                        bottomParams.put("next_btn", Component.text(nextBtn));
+                        bottomParams.put("next_btn", ChatUtils.translateColors(nextBtn, true));
 
                     Component bottomComp = ChatUtils.buildWithButtons(bottomMsg, bottomParams);
                     player.sendMessage(bottomComp);
@@ -374,7 +374,13 @@ public class CommandKit implements CommandExecutor {
                         }
                     }
 
-                    OpenKits.Database.AddKit(args[1], icon, price, requirePermission, permission, cooldown, isOneTime, true, new ArrayList<>());
+                    List<ItemStack> items = new ArrayList<>();
+                    for (ItemStack itemStack : player.getInventory().getContents()) {
+                        if (itemStack != null && itemStack.getType() != Material.AIR)
+                            items.add(itemStack);
+                    }
+
+                    OpenKits.Database.AddKit(args[1], icon, price, requirePermission, permission, cooldown, isOneTime, true, items);
                     ChatUtils.sendLocalizedMsg(player, "Commands.Create.Success", new HashMap<>() {{
                         put("kit", args[1]);
                     }});
@@ -941,8 +947,8 @@ public class CommandKit implements CommandExecutor {
         int finalPage = page;
 
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Title", new HashMap<>() {{
-            put("currentpage", finalPage);
-            put("maxpage", maxPage);
+            put("current_page", finalPage);
+            put("max_page", maxPage);
         }});
         ChatUtils.sendLocalizedMsg(player, "Commands.Help.Info");
 
@@ -969,19 +975,19 @@ public class CommandKit implements CommandExecutor {
         String previousBtn = LocaleUtils.Localize(player, "Commands.Help.PrevBtn");
         String nextBtn = LocaleUtils.Localize(player, "Commands.Help.NextBtn");
         String bottomMsg = LocaleUtils.Localize(player, "Commands.Help.Bottom")
-                .replace("%page%", String.valueOf(page))
-                .replace("%maxPage%", String.valueOf(maxPage));
+                .replace("%current_page%", String.valueOf(page))
+                .replace("%max_page%", String.valueOf(maxPage));
 
         Map<String, Component> bottomParams = new HashMap<>();
         if (page > 1)
-            bottomParams.put("previous_btn", Component.text(previousBtn).clickEvent(ClickEvent.runCommand("/kit help " + (page - 1))));
+            bottomParams.put("previous_btn", ChatUtils.translateColors(previousBtn, true).clickEvent(ClickEvent.runCommand("/kit help " + (page - 1))));
         else
-            bottomParams.put("previous_btn", Component.text(previousBtn));
+            bottomParams.put("previous_btn", ChatUtils.translateColors(previousBtn, true));
 
         if (!reachedEnd && maxPage >= page + 1)
-            bottomParams.put("next_btn", Component.text(nextBtn).clickEvent(ClickEvent.runCommand("/kit help " + (page + 1))));
+            bottomParams.put("next_btn", ChatUtils.translateColors(nextBtn, true).clickEvent(ClickEvent.runCommand("/kit help " + (page + 1))));
         else
-            bottomParams.put("next_btn", Component.text(nextBtn));
+            bottomParams.put("next_btn", ChatUtils.translateColors(nextBtn, true));
 
         Component bottomComp = ChatUtils.buildWithButtons(bottomMsg, bottomParams);
         player.sendMessage(bottomComp);

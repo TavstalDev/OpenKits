@@ -19,11 +19,11 @@ Commands:
     InvalidMaterial: "%prefix% &cInvalid material name."
   Help:
     Desc: "Shows information about the commands."
-    Title: "&e=== &aOpenKits Help &e=== &aPage &c%currentpage%&a/&c%maxpage% &e==="
+    Title: "&e=== &aOpenKits Help &e=== &aPage &c%current_page%&a/&c%max_page% &e==="
     Info: "   &c[] &7- &6Required   &c<> &7- &6Optional"
     Line: "&2/openkits %subcommand%&a%syntax% &8» &7%description%"
-    Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======",
-    PrevBtn: "&a<<< ",
+    Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======"
+    PrevBtn: "&a<<< "
     NextBtn: " &a>>>"
   Version:
     Desc: "Shows the plugin version."
@@ -40,8 +40,8 @@ Commands:
     Line: "&e- &3%kit% &8| %info_button% %get_button%"
     InfoBtn: "&8[&2Info&8]"
     GetBtn: "&8[&bGet&8]"
-    Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======",
-    PrevBtn: "&a<<< ",
+    Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======"
+    PrevBtn: "&a<<< "
     NextBtn: " &a>>>"
   Info:
     Syntax: " [kit_name]"
@@ -70,7 +70,7 @@ Commands:
   Create:
     Syntax: " [kit_name] [icon_material] <cooldown> <price> <permission> <is_permission_required> <onetime>"
     Desc: "Creates a new kit."
-    Usage: "%prefix% &cUsage: &e/openkits create [kit] [icon_material] [description] [price] [cooldown] [permission] [is_permission_required] [is_onetime]"
+    Usage: "%prefix% &cUsage: &e/openkits create [kit_name] [icon_material] <cooldown> <price> <permission> <is_permission_required> <onetime>"
     Success: "%prefix% &aYou have created the '&e%kit%&a' kit."
     KitAlreadyExists: "%prefix% &cThe '&e%kit%&c' kit already exists."
   Delete:
