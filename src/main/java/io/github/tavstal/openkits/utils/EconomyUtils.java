@@ -20,11 +20,12 @@ public class EconomyUtils {
      */
     public static boolean setupEconomy() {
         LoggerUtils.LogDebug("Setting up economy...");
-        RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-        LoggerUtils.LogDebug("Economy provider: " + rsp);
-        if (rsp == null) return false;
+        RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        LoggerUtils.LogDebug("Economy provider: " + economyProvider);
+        if (economyProvider == null)
+            return false;
         LoggerUtils.LogDebug("Economy provider found.");
-        economy = rsp.getProvider();
+        economy = economyProvider.getProvider();
         economyEnabled = economy != null;
         return economyEnabled;
     }

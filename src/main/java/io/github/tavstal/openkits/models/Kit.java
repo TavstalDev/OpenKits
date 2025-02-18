@@ -1,7 +1,6 @@
 package io.github.tavstal.openkits.models;
 
 import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.utils.ChatUtils;
 import io.github.tavstal.openkits.utils.EconomyUtils;
 import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Material;

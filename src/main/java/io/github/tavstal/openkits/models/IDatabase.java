@@ -3,7 +3,6 @@ package io.github.tavstal.openkits.models;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -49,7 +48,7 @@ public interface IDatabase {
      * @param id The ID of the kit to update.
      * @param name The new name of the kit.
      */
-    void UpdateKit(long id, String name);
+    void UpdateKitName(long id, String name);
 
     /**
      * Updates the permission requirements of a kit.
@@ -58,7 +57,7 @@ public interface IDatabase {
      * @param requirePermission Whether the kit requires permission.
      * @param permission The permission required for the kit.
      */
-    void UpdateKit(long id, boolean requirePermission, String permission);
+    void UpdateKitPermission(long id, boolean requirePermission, String permission);
 
     /**
      * Updates the items of a kit.
@@ -66,7 +65,7 @@ public interface IDatabase {
      * @param id The ID of the kit to update.
      * @param items The new items of the kit.
      */
-    void UpdateKit(long id, List<ItemStack> items);
+    void UpdateKitItems(long id, List<ItemStack> items);
 
     /**
      * Updates the price of a kit.
@@ -74,7 +73,7 @@ public interface IDatabase {
      * @param id The ID of the kit to update.
      * @param price The new price of the kit.
      */
-    void UpdateKit(long id, Double price);
+    void UpdateKitPrice(long id, Double price);
 
     /**
      * Updates the cooldown of a kit.
@@ -82,7 +81,7 @@ public interface IDatabase {
      * @param id The ID of the kit to update.
      * @param cooldown The new cooldown of the kit.
      */
-    void UpdateKit(long id, long cooldown);
+    void UpdateKitCooldown(long id, long cooldown);
 
     /**
      * Enables or disables a kit.
@@ -90,7 +89,7 @@ public interface IDatabase {
      * @param id The ID of the kit to update.
      * @param enable Whether to enable or disable the kit.
      */
-    void UpdateKit(long id, boolean enable);
+    void UpdateKitEnabled(long id, boolean enable);
 
     /**
      * Updates the icon of a kit.
@@ -98,7 +97,7 @@ public interface IDatabase {
      * @param id The ID of the kit to update.
      * @param icon The new icon of the kit.
      */
-    void UpdateKit(long id, Material icon);
+    void UpdateKitIcon(long id, Material icon);
 
     /**
      * Sets whether a kit is one-time use.

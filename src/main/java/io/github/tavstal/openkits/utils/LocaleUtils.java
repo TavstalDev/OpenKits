@@ -21,7 +21,7 @@ import java.util.*;
  * Utility class for handling localization using YAML files.
  */
 public class LocaleUtils {
-    private static Dictionary<String, Map<String, Object>> _localization;
+    private static Map<String, Map<String, Object>> _localization;
     private static String _defaultLocale = "eng";
 
     /**
@@ -31,19 +31,19 @@ public class LocaleUtils {
      */
     public static Boolean Load() {
         InputStream inputStream;
-        _localization = new Hashtable<>();
+        _localization = new HashMap<>();
         _defaultLocale = OpenKits.Instance.getConfig().getString("locale");
 
         Path dirPath = Paths.get(OpenKits.Instance.getDataFolder().getPath(), "lang");
-        if (!Files.exists(dirPath))
+        if (!Files.exists(dirPath) || DirectoryUtils.isDirectoryEmpty(dirPath))
             try
             {
                 Files.createDirectory(dirPath);
 
                 // Copy default locales from resource
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                Enumeration<URL> resources = classLoader.getResources("/lang");
-
+                Enumeration<URL> resources = classLoader.getResources("lang");
+                LoggerUtils.LogWarning("resources: " + resources);
                 while (resources.hasMoreElements()) {
                     URL resource = resources.nextElement();
                     Path path = Paths.get(resource.toURI());
@@ -68,6 +68,7 @@ public class LocaleUtils {
 
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath)) {
+
             for (Path entry : stream) {
                 String fileName = entry.getFileName().toString();
                 if (!(fileName.endsWith(".yml") || fileName.endsWith(".yaml")))

@@ -111,7 +111,7 @@ public class MySqlManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, String name) {
+    public void UpdateKitName(long id, String name) {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("UPDATE %s_kits SET Name='%s' WHERE Id='%s';",
@@ -127,7 +127,7 @@ public class MySqlManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, boolean requirePermission, String permission) {
+    public void UpdateKitPermission(long id, boolean requirePermission, String permission) {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("UPDATE %s_kits SET RequirePermission='%s' AND Permission='%s' WHERE Id='%s';",
@@ -143,7 +143,7 @@ public class MySqlManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, List<ItemStack> items) {
+    public void UpdateKitItems(long id, List<ItemStack> items) {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("UPDATE %s_kits SET Items='%s' WHERE Id='%s';",
@@ -159,7 +159,7 @@ public class MySqlManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, Double price) {
+    public void UpdateKitPrice(long id, Double price) {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("UPDATE %s_kits SET Price='%s' WHERE Id='%s';",
@@ -175,7 +175,7 @@ public class MySqlManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, long cooldown) {
+    public void UpdateKitCooldown(long id, long cooldown) {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("UPDATE %s_kits SET Cooldown='%s' WHERE Id='%s';",
@@ -191,7 +191,7 @@ public class MySqlManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, boolean enable) {
+    public void UpdateKitEnabled(long id, boolean enable) {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("UPDATE %s_kits SET Enable='%s' WHERE Id='%s';",
@@ -207,7 +207,7 @@ public class MySqlManager implements IDatabase {
     }
 
     @Override
-    public void UpdateKit(long id, Material icon) {
+    public void UpdateKitIcon(long id, Material icon) {
         try (Connection connection = _dataSource.getConnection())
         {
             String sql = String.format("UPDATE %s_kits SET Icon='%s' WHERE Id='%s';",

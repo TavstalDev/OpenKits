@@ -8,8 +8,7 @@ import org.bukkit.entity.Player;
 import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Dictionary;
-import java.util.Enumeration;
+import java.util.Map;
 import java.util.Objects;
 
 public class ChatUtils {
@@ -52,13 +51,12 @@ public class ChatUtils {
      * @param key        The localization key.
      * @param parameters The dictionary containing placeholder keys and their corresponding values.
      */
-    public static void sendLocalizedMsg(Player player, String key, Dictionary<String, Object> parameters) {
+    public static void sendLocalizedMsg(Player player, String key, Map<String, Object> parameters) {
         String rawMessage = LocaleUtils.Localize(player, key);
 
         // Get the keys
-        Enumeration<String> keys = parameters.keys();
-        while (keys.hasMoreElements()) {
-            @RegExp String dirKey = keys.nextElement();
+        var keys = parameters.keySet();
+        for (@RegExp var dirKey : keys) {
             @RegExp String finalKey;
             if (dirKey.startsWith("%"))
                 finalKey = dirKey;
@@ -77,12 +75,11 @@ public class ChatUtils {
      * @param parameters The dictionary containing placeholder keys and their corresponding Component values.
      * @return The Component message with buttons.
      */
-    public static Component buildWithButtons(String message, Dictionary<String, Component> parameters) {
+    public static Component buildWithButtons(String message, Map<String, Component> parameters) {
         Component result = translateColors(message, true);
         // Get the keys
-        Enumeration<String> keys = parameters.keys();
-        while (keys.hasMoreElements()) {
-            @RegExp String dirKey = keys.nextElement();
+        var keys = parameters.keySet();
+        for (@RegExp var dirKey : keys) {
             Component dirElem = parameters.get(dirKey);
             @RegExp String key;
             if (dirKey.startsWith("%"))

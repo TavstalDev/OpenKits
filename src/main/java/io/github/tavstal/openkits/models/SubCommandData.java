@@ -4,8 +4,8 @@ import io.github.tavstal.openkits.utils.ChatUtils;
 import io.github.tavstal.openkits.utils.LocaleUtils;
 import org.bukkit.entity.Player;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents the data associated with a subcommand in the OpenKits plugin.
@@ -13,7 +13,7 @@ import java.util.Hashtable;
 public class SubCommandData {
     public String command;
     public String permission;
-    public Dictionary<String, Object> arguments;
+    public Map<String, Object> arguments;
 
     /**
      * Constructs a new SubCommandData object with the specified command, permission, and arguments.
@@ -22,7 +22,7 @@ public class SubCommandData {
      * @param permission the permission required to execute the subcommand
      * @param arguments  the arguments for the subcommand
      */
-    public SubCommandData(String command, String permission, Dictionary<String, Object> arguments) {
+    public SubCommandData(String command, String permission, Map<String, Object> arguments) {
         this.command = command;
         this.permission = permission;
         this.arguments = arguments;
@@ -49,12 +49,11 @@ public class SubCommandData {
         if (arguments == null)
             return;
 
-        Hashtable<String, Object> args = new Hashtable<>() {{
+        Map<String, Object> args = new HashMap<>() {{
             put("subcommand", command);
         }};
-        var keys = arguments.keys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
+        var keys = arguments.keySet();
+        for (String key : keys) {
             Object param = arguments.get(key);
             if (param == null) {
                 args.put(key, "");

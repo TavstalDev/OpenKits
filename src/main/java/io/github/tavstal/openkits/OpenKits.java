@@ -82,7 +82,11 @@ public class OpenKits extends JavaPlugin {
         if (EconomyUtils.setupEconomy())
             LoggerUtils.LogInfo("Economy plugin found and hooked into Vault.");
         else
+        {
             LoggerUtils.LogWarning("Economy plugin not found. Disabling economy features.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         // Create Database
         switch (this.getConfig().getString("storage.type").toLowerCase()) {

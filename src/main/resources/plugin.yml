@@ -8,29 +8,155 @@ authors: [ Tavstal ]
 description: A free and open-source player kits plugin with GUI and database support.
 website: https://github.com/TavstalDev/OpenKits
 # This sets PlaceholderAPI as an optional dependency for your plugin.
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, Vault]
 permissions:
-  openkits.*:
-    description: Gives all permissions related to the OpenKits plugin.
+  openkits.commands.kits:
     default: op
-    children:
-      openkits.player: true
-      openkits.admin: true
   openkits.commands.kit:
     default: op
-  openkits.commands.kits:
+  openkits.commands.kit.reload:
+    default: op
+  openkits.commands.kit.list:
+    default: op
+  openkits.commands.kit.info:
+    default: op
+  openkits.commands.kit.give:
+    default: op
+  openkits.commands.kit.gui:
+    default: op
+  openkits.commands.kit.create:
+    default: op
+  openkits.commands.kit.delete:
+    default: op
+  openkits.commands.kit.edit:
+    default: op
+  openkits.commands.kit.setprice:
+    default: op
+  openkits.commands.kit.setcooldown:
+    default: op
+  openkits.commands.kit.setpermission:
+    default: op
+  openkits.commands.kit.setonetime:
+    default: op
+  openkits.commands.kit.setenabled:
+    default: op
+  openkits.commands.kit.setname:
+    default: op
+  openkits.commands.kit.seticon:
     default: op
   openkits.player:
     description: Collection of player permissions
     default: op
     children:
       openkits.commands.kit: true
+      openkits.commands.kit.help: true
+      openkits.commands.kit.version: true
+      openkits.commands.kit.list: true
+      openkits.commands.kit.info: true
+      openkits.commands.kit.get: true
+      openkits.commands.kit.gui: true
       openkits.commands.kits: true
   openkits.admin:
     description: Collection of admin permissions
     default: op
+    children:
+      openkits.commands.kit.reload: true
+      openkits.commands.kit.create: true
+      openkits.commands.kit.delete: true
+      openkits.commands.kit.edit: true
+      openkits.commands.kit.give: true
+      openkits.commands.kit.setname: true
+      openkits.commands.kit.setenabled: true
+      openkits.commands.kit.setprice: true
+      openkits.commands.kit.setcooldown: true
+      openkits.commands.kit.setpermission: true
+      openkits.commands.kit.setonetime: true
+      openkits.commands.kit.seticon: true
+  openkits.*:
+    description: Gives all permissions related to the OpenKits plugin.
+    default: op
+    children:
+      openkits.player: true
+      openkits.admin: true
 commands:
   kit:
-    description: ""
+    description: "Main command for managing kits"
+    usage: "/kit help"
+    aliases: [ "kits" ]
+    permission: openkits.commands.kit
+    subcommands:
+      help:
+        description: "Show help for the kit command"
+        usage: "/kit help"
+        permission: openkits.commands.kit.help
+      version:
+        description: "Show the version of the plugin"
+        usage: "/kit version"
+        permission: openkits.commands.kit.version
+      list:
+        description: "List all available kits"
+        usage: "/kit list <page>"
+        permission: openkits.commands.kit.list
+      info:
+        description: "Show information about a kit"
+        usage: "/kit info <kitname>"
+        permission: openkits.commands.kit.info
+      get:
+        description: "Get a kit"
+        usage: "/kit <kitname>"
+      gui:
+        description: "Open the kit GUI"
+        usage: "/kit gui"
+        permission: openkits.commands.kit.gui
+      reload:
+        description: "Reload the plugin"
+        usage: "/kit reload"
+        permission: openkits.commands.kit.reload
+      give:
+        description: "Give a kit to a player"
+        usage: "/kit give <kitname> <player>"
+        permission: openkits.commands.kit.give
+      create:
+        description: "Create a new kit"
+        usage: "/kit create <kitname> <icon> <cooldown> <price> <permission> <ispermissionrequired> <onetime>"
+        permission: openkits.commands.kit.create
+      delete:
+        description: "Delete a kit"
+        usage: "/kit delete <kitname>"
+        permission: openkits.commands.kit.delete
+      edit:
+        description: "Edit a kit"
+        usage: "/kit edit <kitname>"
+        permission: openkits.commands.kit.edit
+      setname:
+        description: "Set the name of a kit"
+        usage: "/kit setname <kitname> <newname>"
+        permission: openkits.commands.kit.setname
+      setenabled:
+        description: "Enable or disable a kit"
+        usage: "/kit setenabled <kitname> <true|false>"
+        permission: openkits.commands.kit.setenabled
+      setprice:
+        description: "Set the price of a kit"
+        usage: "/kit setprice <kitname> <price>"
+        permission: openkits.commands.kit.setprice
+      setcooldown:
+        description: "Set the cooldown of a kit"
+        usage: "/kit setcooldown <kitname> <cooldown>"
+        permission: openkits.commands.kit.setcooldown
+      setpermission:
+        description: "Set the permission required to use a kit"
+        usage: "/kit setpermission <kitname> <permission>"
+        permission: openkits.commands.kit.setpermission
+      setonetime:
+        description: "Set whether a kit can be used only once"
+        usage: "/kit setonetime <kitname> <true|false>"
+        permission: openkits.commands.kit.setonetime
+      seticon:
+        description: "Set the icon of a kit"
+        usage: "/kit seticon <kitname> <icon>"
+        permission: openkits.commands.kit.seticon
   kits:
-    description: ""
+    description: "List all available kits"
+    usage: "/kits"
+    permission: openkits.commands.kits

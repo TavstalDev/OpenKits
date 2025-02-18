@@ -7,9 +7,7 @@ import io.github.tavstal.openkits.helpers.GUIHelper;
 import io.github.tavstal.openkits.managers.PlayerManager;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.PlayerData;
-import io.github.tavstal.openkits.utils.ChatUtils;
 import io.github.tavstal.openkits.utils.LocaleUtils;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -17,8 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 public class PreviewGUI {

@@ -14,7 +14,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -128,7 +127,7 @@ public class KitsGUI {
                 loreList.add(ChatUtils.translateColors(lore, true));
             }
             ItemStack stack = GUIHelper.createItem(kit.GetIcon(),
-                    LocaleUtils.Localize(player, "GUI.Kit", new Hashtable<>() {{
+                    LocaleUtils.Localize(player, "GUI.Kit", new HashMap<>() {{
                         put("kit", kit.Name);
                     }}),
                     loreList
