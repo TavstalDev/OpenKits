@@ -4,6 +4,7 @@ locale: eng
 usePlayerLocale: true
 # Prefix for all messages
 prefix: "&3Open&bKits &8»"
+# Shows debug messages
 debug: true
 storage:
   # Accepted values: SQLite (local), MySql (server)
@@ -17,11 +18,28 @@ storage:
   username: root
   password: ascent
   tablePrefix: openkits_
+# Should the items be dropped when the player's inventory is full?
 dropItemsOnFullInventory: true
+# Allow previewing kits
 allowPreview: true
+# Does the preview require permission?
 previewRequiresPermission: false
+# If true, players will receive the firstJoinKit when they join the server for the first time
 firstJoinKit: none
-
+# Default values for kits when they are created but not specified
+default:
+    # Default price for kits
+    price: 0
+    # Default cooldown for kits
+    cooldown: 180
+    # Default permission for kits
+    permission: "openkits.kit.%kit%"
+    # Default isPermissionRequired for kits
+    isPermissionRequired: true
+    # Default onTime for kits
+    onTime: false
+    # Default icon for kits
+    icon: "WOODEN_SWORD"
 
 # Do NOT edit this
 FileVersion: 1
