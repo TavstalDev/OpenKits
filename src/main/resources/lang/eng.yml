@@ -81,6 +81,7 @@ Commands:
   Edit:
     Syntax: " [kit_name]"
     Desc: "Edits the kit."
+    Success: "%prefix% &aThe '&e%kit%&a' has been updated."
   Gui:
     Desc: "Opens the kit GUI."
   SetPrice:

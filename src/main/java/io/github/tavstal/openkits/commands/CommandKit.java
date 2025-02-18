@@ -1,6 +1,7 @@
 package io.github.tavstal.openkits.commands;
 
 import io.github.tavstal.openkits.OpenKits;
+import io.github.tavstal.openkits.gui.KitsGUI;
 import io.github.tavstal.openkits.models.SubCommandData;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.KitCooldown;
@@ -16,6 +17,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -211,8 +213,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    // TODO: Open GUI
-
+                    KitsGUI.open(player);
                     return true;
                 }
                 case "give": {
@@ -426,8 +427,11 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    // TODO
-
+                    ItemStack[] items = player.getInventory().getContents();
+                    OpenKits.Database.UpdateKit(kit.Id, Arrays.stream(items).toList());
+                    ChatUtils.sendLocalizedMsg(player, "Commands.Edit.Success", new Hashtable<>() {{
+                        put("kit", kit.Name);
+                    }});
                     return true;
                 }
                 case "setprice": {
