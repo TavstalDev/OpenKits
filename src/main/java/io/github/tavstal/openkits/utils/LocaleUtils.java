@@ -34,20 +34,22 @@ public class LocaleUtils {
         _localization = new HashMap<>();
         _defaultLocale = OpenKits.Instance.getConfig().getString("locale");
 
+        LoggerUtils.LogWarning("Checking lang directory...");
         Path dirPath = Paths.get(OpenKits.Instance.getDataFolder().getPath(), "lang");
         if (!Files.exists(dirPath) || DirectoryUtils.isDirectoryEmpty(dirPath))
             try
             {
+                LoggerUtils.LogWarning("Creating lang directory...");
                 Files.createDirectory(dirPath);
 
                 // Copy default locales from resource
+                LoggerUtils.LogWarning("Copying default locales from resource...");
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                 Enumeration<URL> resources = classLoader.getResources("lang");
-                LoggerUtils.LogWarning("resources: " + resources);
                 while (resources.hasMoreElements()) {
                     URL resource = resources.nextElement();
                     Path path = Paths.get(resource.toURI());
-
+                    LoggerUtils.LogWarning("Copying from: " + path.toString());
                     try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
                         for (Path entry : stream) {
                             Files.copy(entry, Paths.get(dirPath.toString(), entry.getFileName().toString()));
@@ -67,10 +69,12 @@ public class LocaleUtils {
             }
 
 
+        LoggerUtils.LogWarning("Reading lang directory...");
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath)) {
-
+            LoggerUtils.LogWarning("Reading lang files...");
             for (Path entry : stream) {
                 String fileName = entry.getFileName().toString();
+                LoggerUtils.LogWarning("Reading file: " + fileName);
                 if (!(fileName.endsWith(".yml") || fileName.endsWith(".yaml")))
                     continue;
 
@@ -90,6 +94,7 @@ public class LocaleUtils {
                     return false;
                 }
 
+                LoggerUtils.LogWarning("Loading yaml file...");
                 Yaml yaml = new Yaml();
                 Object yamlObject = yaml.load(inputStream);
                 if (!(yamlObject instanceof Map))
@@ -98,6 +103,7 @@ public class LocaleUtils {
                     return false;
                 }
 
+                LoggerUtils.LogWarning("Casting yamlObject to Map...");
                 @SuppressWarnings("unchecked")
                 Map<String, Object> localValue = (Map<String, Object>)yamlObject;
                 _localization.put(fileName.split("\\.")[0], localValue); // Warning fix
