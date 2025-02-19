@@ -1,22 +1,25 @@
 package io.github.tavstal.openkits.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.profile.PlayerTextures;
 
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 
 public class ItemUtils {
+
     public static byte[] serializeItemStackList(List<ItemStack> items) {
         List<Map<String, Object>> itemDataList = new ArrayList<>();
         for (ItemStack item : items) {
@@ -58,18 +61,18 @@ public class ItemUtils {
                     serializeBannerMeta(meta, itemData);
                     // Books
                     serializeBookMeta(meta, itemData);
-                    // BlockData
-                    serializeBlockDataMeta(meta, itemData);
                     // Crossbow
                     serializeCrossbowMeta(meta, itemData);
+                    // Firework Effect
+                    serializeFireworkEffectMeta(meta, itemData);
                     // Fireworks
-                    //serializeFireworkMeta(meta, itemData);
+                    serializeFireworkMeta(meta, itemData);
                     // Leather Armor
                     serializeLeatherArmorMeta(meta, itemData);
                     // Maps
                     serializeMapMeta(meta, itemData);
                     // Potions
-                    //serializePotionMeta(meta, itemData);
+                    serializePotionMeta(meta, itemData);
                     // Skulls
                     serializeSkullMeta(meta, itemData);
                     // Spawn Eggs
@@ -136,18 +139,18 @@ public class ItemUtils {
                     deserializeBannerMeta(meta, itemData);
                     // Books
                     deserializeBookMeta(meta, itemData);
-                    // BlockData
-                    deserializeBlockDataMeta(meta, itemData);
                     // Crossbow
                     deserializeCrossbowMeta(meta, itemData);
+                    // FireworkEffect
+                    deserializeFireworkEffectMeta(meta, itemData);
                     // Fireworks
-                    //deserializeFireworkMeta(meta, itemData);
+                    deserializeFireworkMeta(meta, itemData);
                     // Leather Armor
                     deserializeLeatherArmorMeta(meta, itemData);
                     // Maps
                     deserializeMapMeta(meta, itemData);
                     // Potions
-                    //deserializePotionMeta(meta, itemData);
+                    deserializePotionMeta(meta, itemData);
                     // Skulls
                     deserializeSkullMeta(meta, itemData);
                     // Spawn Eggs
@@ -255,6 +258,12 @@ public class ItemUtils {
         }
     }
 
+    /**
+     * Serializes the metadata of a potion item into a map.
+     *
+     * @param meta     The ItemMeta of the potion to serialize.
+     * @param itemData The map to store the serialized data.
+     */
     private static void serializePotionMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof PotionMeta potionMeta) {
@@ -286,6 +295,12 @@ public class ItemUtils {
         }
     }
 
+    /**
+     * Deserializes the metadata of a potion item from a map.
+     *
+     * @param meta     The ItemMeta of the potion to deserialize.
+     * @param itemData The map containing the serialized data.
+     */
     private static void deserializePotionMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof PotionMeta potionMeta) {
@@ -334,16 +349,39 @@ public class ItemUtils {
         }
     }
 
+    /**
+     * Serializes the metadata of a firework item into a map.
+     *
+     * @param meta     The ItemMeta of the firework to serialize.
+     * @param itemData The map to store the serialized data.
+     */
     private static void serializeFireworkMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof FireworkMeta fireworkMeta) {
                 if (fireworkMeta.hasEffects()) {
                     List<Map<String, Object>> effects = new ArrayList<>();
-                    int index = 0;
                     for (var effect : fireworkMeta.getEffects()) {
-                        var serialized = effect.serialize();
-                        effects.add(index, serialized);
-                        index++;
+                        Map<String, Object> effectData = new HashMap<>();
+                        effectData.put("type", effect.getType().name());
+                        effectData.put("flicker", effect.hasFlicker());
+                        effectData.put("trail", effect.hasTrail());
+
+                        // Colors
+                        var colorList =  effect.getColors();
+                        List<String> colors = new ArrayList<>();
+                        for (Color color : colorList) {
+                            colors.add(String.format("%s;%s;%s;%s", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+                        }
+                        effectData.put("colors", colors);
+
+                        // FadeColors
+                        var fadeColor =  effect.getFadeColors();
+                        List<String> fadeColors = new ArrayList<>();
+                        for (Color color : fadeColor) {
+                            fadeColors.add(String.format("%s;%s;%s;%s", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+                        }
+                        effectData.put("fadeColors", fadeColors);
+                        effects.add(effectData);
                     }
                     itemData.put("effects", effects);
                 }
@@ -358,40 +396,113 @@ public class ItemUtils {
         }
     }
 
+    /**
+     * Deserializes the metadata of a firework item from a map.
+     *
+     * @param meta     The ItemMeta of the firework to deserialize.
+     * @param itemData The map containing the serialized data.
+     */
     private static void deserializeFireworkMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof FireworkMeta fireworkMeta) {
                 if (itemData.containsKey("effects")) {
                     List<Map<String, Object>> effects = (List<Map<String, Object>>) itemData.get("effects");
-                    for (var effect : effects) {
-                        var builder = FireworkEffect.builder();
-                        if (effect.containsKey("flicker"))
-                            builder.flicker((boolean) effect.get("flicker"));
-                        if (effect.containsKey("trail"))
-                            builder.trail((boolean) effect.get("trail"));
-                        if (effect.containsKey("type"))
-                            builder.with(FireworkEffect.Type.valueOf((String) effect.get("type")));
-                        if (effect.containsKey("colors")) {
-                            List<Color> colors = new ArrayList<>();
-                            for (var color : (List<Map<String, Object>>) effect.get("colors")) {
-                                colors.add(Color.deserialize(color));
-                            }
-                            builder.withColor(colors);
+                    for (var effectData : effects) {
+                        FireworkEffect.Type type = FireworkEffect.Type.valueOf((String) effectData.get("type"));
+                        boolean flicker = (boolean) effectData.get("flicker");
+                        boolean trail = (boolean) effectData.get("trail");
+
+                        List<Color> colors = new ArrayList<>();
+                        for (String colorData : (List<String>) effectData.get("colors")) {
+                            String[] color = colorData.split(";");
+                            colors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
                         }
-                        if (effect.containsKey("fadeColors")) {
-                            List<Color> fadeColors = new ArrayList<>();
-                            for (var color : (List<Map<String, Object>>) effect.get("fadeColors")) {
-                                fadeColors.add(Color.deserialize(color));
-                            }
-                            builder.withFade(fadeColors);
+
+                        List<Color> fadeColors = new ArrayList<>();
+                        for (String colorData : (List<String>) effectData.get("fadeColors")) {
+                            String[] color = colorData.split(";");
+                            fadeColors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
                         }
-                        fireworkMeta.addEffect(builder.build());
+
+                        fireworkMeta.addEffect(FireworkEffect.builder().flicker(flicker).trail(trail).with(type).withColor(colors).withFade(fadeColors).build());
                     }
+                }
+
+                if (itemData.containsKey("power")) {
+                    fireworkMeta.setPower((int) itemData.get("power"));
                 }
             }
         }
         catch (Exception ex) {
             LoggerUtils.LogError("An error occurred while deserializing firework meta: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Serializes the metadata of a firework effect item into a map.
+     *
+     * @param meta     The ItemMeta of the firework effect to serialize.
+     * @param itemData The map to store the serialized data.
+     */
+    private static void serializeFireworkEffectMeta(ItemMeta meta, Map<String, Object> itemData) {
+        if (meta instanceof FireworkEffectMeta fireworkEffectMeta) {
+            if (fireworkEffectMeta.hasEffect() && fireworkEffectMeta.getEffect() != null) {
+                var effect = fireworkEffectMeta.getEffect();
+                Map<String, Object> effectData = new HashMap<>();
+                effectData.put("type", effect.getType().name());
+                effectData.put("flicker", effect.hasFlicker());
+                effectData.put("trail", effect.hasTrail());
+
+                // Colors
+                var colorList = effect.getColors();
+                List<String> colors = new ArrayList<>();
+                for (Color color : colorList) {
+                    colors.add(String.format("%s;%s;%s;%s", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+                }
+                effectData.put("colors", colors);
+
+                // FadeColors
+                var fadeColor = effect.getFadeColors();
+                List<String> fadeColors = new ArrayList<>();
+                for (Color color : fadeColor) {
+                    fadeColors.add(String.format("%s;%s;%s;%s", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+                }
+                effectData.put("fadeColors", fadeColors);
+
+                itemData.put("effect", effectData);
+            }
+        }
+    }
+
+    /**
+     * Deserializes the metadata of a firework effect item from a map.
+     *
+     * @param meta     The ItemMeta of the firework effect to deserialize.
+     * @param itemData The map containing the serialized data.
+     */
+    private static void deserializeFireworkEffectMeta(ItemMeta meta, Map<String, Object> itemData) {
+        if (meta instanceof FireworkEffectMeta fireworkEffectMeta) {
+            if (itemData.containsKey("effect")) {
+                Map<String, Object> effectData = (Map<String, Object>) itemData.get("effect");
+
+                FireworkEffect.Type type = FireworkEffect.Type.valueOf((String) effectData.get("type"));
+                boolean flicker = (boolean) effectData.get("flicker");
+                boolean trail = (boolean) effectData.get("trail");
+
+                List<Color> colors = new ArrayList<>();
+                for (String colorData : (List<String>) effectData.get("colors")) {
+                    String[] color = colorData.split(";");
+                    colors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
+                }
+
+                List<Color> fadeColors = new ArrayList<>();
+                for (String colorData : (List<String>) effectData.get("fadeColors")) {
+                    String[] color = colorData.split(";");
+                    fadeColors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
+                }
+
+                fireworkEffectMeta.setEffect(FireworkEffect.builder().flicker(flicker).trail(trail).with(type).withColor(colors).withFade(fadeColors).build());
+            }
         }
     }
 
@@ -493,31 +604,59 @@ public class ItemUtils {
     }
 
     private static void serializeBannerMeta(ItemMeta meta, Map<String, Object> itemData) {
-        try {
+        // TODO
+        /*try {
             if (meta instanceof BannerMeta bannerMeta) {
-                // TODO
+                if (bannerMeta.numberOfPatterns() > 0) {
+                    itemData.put("patterns", bannerMeta.getPersistentDataContainer().get());
+                }
             }
         }
         catch (Exception ex) {
             LoggerUtils.LogError("An error occurred while serializing banner meta: " + ex.getMessage());
-        }
+        }*/
     }
 
     private static void deserializeBannerMeta(ItemMeta meta, Map<String, Object> itemData) {
-        try {
+        // TODO
+        /*try {
             if (meta instanceof BannerMeta bannerMeta) {
-                // TODO
+                if (itemData.containsKey("patterns")) {
+                    List<Map<String, Object>> patterns = (List<Map<String, Object>>) itemData.get("patterns");
+                    for (var patternData : patterns) {
+                        DyeColor color = DyeColor.valueOf((String) patternData.get("color"));
+                        PatternType.
+                        if (key != null) {
+                            PatternType patternType = RegistryAccess.registryAccess().getRegistry(RegistryKey.BANNER_PATTERN).get(key);
+                            if (patternType != null)
+                                bannerMeta.addPattern(new Pattern(color, patternType));
+                        }
+                    }
+                }
             }
         }
         catch (Exception ex) {
             LoggerUtils.LogError("An error occurred while deserializing banner meta: " + ex.getMessage());
-        }
+        }*/
     }
 
     private static void serializeMapMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof MapMeta mapMeta) {
-                // TODO
+                if (mapMeta.hasColor() && mapMeta.getColor() != null) {
+                    var color = mapMeta.getColor();
+                    itemData.put("color", String.format("%s;%s;%s;%s", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+                }
+
+                if (mapMeta.hasMapView() && mapMeta.getMapView() != null) {
+                    itemData.put("mapScale", mapMeta.getMapView().getScale().getValue());
+                    itemData.put("mapTrackingPosition", mapMeta.getMapView().isTrackingPosition());
+                    itemData.put("mapUnlimitedTracking", mapMeta.getMapView().isUnlimitedTracking());
+                    itemData.put("mapCenterX", mapMeta.getMapView().getCenterX());
+                    itemData.put("mapCenterZ", mapMeta.getMapView().getCenterZ());
+                    if (mapMeta.getMapView().getWorld() != null)
+                        itemData.put("world", mapMeta.getMapView().getWorld().getKey().getKey());
+                }
             }
         }
         catch (Exception ex) {
@@ -528,7 +667,10 @@ public class ItemUtils {
     private static void deserializeMapMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof MapMeta mapMeta) {
-                // TODO
+                if (itemData.containsKey("color")) {
+                    String[] colorData = ((String) itemData.get("color")).split(";");
+                    mapMeta.setColor(Color.fromARGB(Integer.parseInt(colorData[3]), Integer.parseInt(colorData[0]), Integer.parseInt(colorData[1]), Integer.parseInt(colorData[2])));
+                }
             }
         }
         catch (Exception ex) {
@@ -539,7 +681,11 @@ public class ItemUtils {
     private static void serializeSpawnEggMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof SpawnEggMeta spawnEggMeta) {
-                // TODO
+                if (spawnEggMeta.getSpawnedEntity() != null) {
+                    itemData.put("entityType", spawnEggMeta.getSpawnedEntity().getEntityType().getKey().getKey());
+                    if (spawnEggMeta.getCustomSpawnedType() != null)
+                        itemData.put("customEntity", spawnEggMeta.getCustomSpawnedType().getKey().getKey());
+                }
             }
         }
         catch (Exception ex) {
@@ -550,7 +696,24 @@ public class ItemUtils {
     private static void deserializeSpawnEggMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof SpawnEggMeta spawnEggMeta) {
-                // TODO
+                if (itemData.containsKey("entityType")) {
+                    String entityType = (String) itemData.get("entityType");
+                    var key = NamespacedKey.fromString(entityType);
+                    if (key != null) {
+                        EntityType type = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENTITY_TYPE).get(key);
+                        if (type != null) {
+                            //spawnEggMeta.setsp;
+                        }
+                    }
+                }
+
+                if (itemData.containsKey("customEntityType")) {
+                    String entityType = (String) itemData.get("customEntityType");
+                    var key = NamespacedKey.fromString(entityType);
+                    if (key != null) {
+                        spawnEggMeta.setCustomSpawnedType(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENTITY_TYPE).get(key));
+                    }
+                }
             }
         }
         catch (Exception ex) {
@@ -558,32 +721,21 @@ public class ItemUtils {
         }
     }
 
-    private static void serializeBlockDataMeta(ItemMeta meta, Map<String, Object> itemData) {
-        try {
-            if (meta instanceof BlockDataMeta blockDataMeta) {
-                // TODO
-            }
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing block data meta: " + ex.getMessage());
-        }
-    }
-
-    private static void deserializeBlockDataMeta(ItemMeta meta, Map<String, Object> itemData) {
-        try {
-            if (meta instanceof BlockDataMeta blockDataMeta) {
-                // TODO
-            }
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing block data meta: " + ex.getMessage());
-        }
-    }
 
     private static void serializeCrossbowMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof CrossbowMeta crossbowMeta) {
-                // TODO
+                if (crossbowMeta.hasChargedProjectiles()) {
+                    List<ItemStack> projectiles = crossbowMeta.getChargedProjectiles();
+                    List<Map<String, Object>> projectileData = new ArrayList<>();
+                    for (ItemStack projectile : projectiles) {
+                        Map<String, Object> projectileMap = new HashMap<>();
+                        projectileMap.put("material", projectile.getType().toString());
+                        projectileMap.put("amount", projectile.getAmount());
+                        projectileData.add(projectileMap);
+                    }
+                    itemData.put("projectiles", projectileData);
+                }
             }
         }
         catch (Exception ex) {
@@ -594,7 +746,20 @@ public class ItemUtils {
     private static void deserializeCrossbowMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof CrossbowMeta crossbowMeta) {
-                // TODO
+                if (itemData.containsKey("projectiles")) {
+                    List<Map<String, Object>> projectileData = (List<Map<String, Object>>) itemData.get("projectiles");
+                    List<ItemStack> projectiles = new ArrayList<>();
+                    for (Map<String, Object> projectileMap : projectileData) {
+                        String materialString = (String) projectileMap.get("material");
+                        Material material = Material.getMaterial(materialString);
+                        int amount = (int) projectileMap.get("amount");
+                        if (material != null) {
+                            ItemStack projectile = new ItemStack(material, amount);
+                            projectiles.add(projectile);
+                        }
+                    }
+                    crossbowMeta.setChargedProjectiles(projectiles);
+                }
             }
         }
         catch (Exception ex) {
