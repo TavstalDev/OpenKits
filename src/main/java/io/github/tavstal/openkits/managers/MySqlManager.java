@@ -62,7 +62,7 @@ public class MySqlManager implements IDatabase {
         {
             // Kits
             String sql = String.format("CREATE TABLE IF NOT EXISTS %s_kits (" +
-                    "Id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                    "Id INTEGER AUTO_INCREMENT PRIMARY KEY, " +
                     "Name VARCHAR(35), " +
                     "Icon VARCHAR(200), " +
                     "Price DECIMAL, " +
@@ -299,7 +299,7 @@ public class MySqlManager implements IDatabase {
 
                 while (result.next()) {
                     data.add(new Kit(
-                            result.getLong("Id"),
+                            result.getInt("Id"),
                             result.getString("Name"),
                             result.getString("Icon"),
                             result.getDouble("Price"),
@@ -334,7 +334,7 @@ public class MySqlManager implements IDatabase {
                 try (ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
                         data = new Kit(
-                                result.getLong("Id"),
+                                result.getInt("Id"),
                                 result.getString("Name"),
                                 result.getString("Icon"),
                                 result.getDouble("Price"),
@@ -370,7 +370,7 @@ public class MySqlManager implements IDatabase {
                 try (ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
                         data = new Kit(
-                                result.getLong("Id"),
+                                result.getInt("Id"),
                                 result.getString("Name"),
                                 result.getString("Icon"),
                                 result.getDouble("Price"),

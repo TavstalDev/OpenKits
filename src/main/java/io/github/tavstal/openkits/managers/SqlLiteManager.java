@@ -52,7 +52,7 @@ public class SqlLiteManager implements IDatabase {
         {
             // Kits
             String sql = String.format("CREATE TABLE IF NOT EXISTS %s_kits (" +
-                            "Id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                            "Id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             "Name VARCHAR(35), " +
                             "Icon VARCHAR(200), " +
                             "Price DECIMAL, " +
@@ -268,7 +268,10 @@ public class SqlLiteManager implements IDatabase {
                     getConfig().getString("storage.tablePrefix"));
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setLong(1, id);
-                statement.executeUpdate();
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0) {
+                    LoggerUtils.LogWarning("No kit found with the specified ID: " + id);
+                }
             }
         }
         catch (Exception ex)
@@ -289,7 +292,7 @@ public class SqlLiteManager implements IDatabase {
 
                 while (result.next()) {
                     data.add(new Kit(
-                            result.getLong("Id"),
+                            result.getInt("Id"),
                             result.getString("Name"),
                             result.getString("Icon"),
                             result.getDouble("Price"),
@@ -324,7 +327,7 @@ public class SqlLiteManager implements IDatabase {
                 try (ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
                         data = new Kit(
-                                result.getLong("Id"),
+                                result.getInt("Id"),
                                 result.getString("Name"),
                                 result.getString("Icon"),
                                 result.getDouble("Price"),
@@ -360,7 +363,7 @@ public class SqlLiteManager implements IDatabase {
                 try (ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
                         data = new Kit(
-                                result.getLong("Id"),
+                                result.getInt("Id"),
                                 result.getString("Name"),
                                 result.getString("Icon"),
                                 result.getDouble("Price"),
