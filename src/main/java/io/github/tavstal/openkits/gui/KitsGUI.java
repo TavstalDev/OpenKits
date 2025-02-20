@@ -28,6 +28,12 @@ public class KitsGUI {
                 46, 47,             51, 52, 53
     };
 
+    /**
+     * Creates the Kits GUI for the specified player.
+     *
+     * @param player The player for whom the GUI is being created.
+     * @return The created SGMenu instance.
+     */
     public static SGMenu create(@NotNull Player player) {
         SGMenu menu = OpenKits.GetGUI().create(LocaleUtils.Localize(player, "GUI.KitsTitle"), 6);
 
@@ -78,6 +84,11 @@ public class KitsGUI {
         return menu;
     }
 
+    /**
+     * Opens the Kits GUI for the specified player.
+     *
+     * @param player The player for whom the GUI is being opened.
+     */
     public static void open(@NotNull Player player) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         // Show the GUI
@@ -86,12 +97,22 @@ public class KitsGUI {
         player.openInventory(playerData.getKitsMenu().getInventory());
     }
 
+    /**
+     * Closes the Kits GUI for the specified player.
+     *
+     * @param player The player for whom the GUI is being closed.
+     */
     public static void close(@NotNull Player player) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         player.closeInventory();
         playerData.setGUIOpened(false);
     }
 
+    /**
+     * Refreshes the Kits GUI for the specified player.
+     *
+     * @param player The player for whom the GUI is being refreshed.
+     */
     public static void refresh(@NotNull Player player) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         SGButton pageButton = new SGButton(

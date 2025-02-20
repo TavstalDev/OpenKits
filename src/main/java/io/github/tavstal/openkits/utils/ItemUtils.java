@@ -1,7 +1,5 @@
 package io.github.tavstal.openkits.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
@@ -18,8 +16,17 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * Utility class for item-related operations.
+ */
 public class ItemUtils {
 
+    /**
+     * Serializes a list of ItemStack objects into a byte array.
+     *
+     * @param items The list of ItemStack objects to serialize.
+     * @return A byte array representing the serialized list of ItemStack objects.
+     */
     public static byte[] serializeItemStackList(List<ItemStack> items) {
         List<Map<String, Object>> itemDataList = new ArrayList<>();
         for (ItemStack item : items) {
@@ -57,8 +64,6 @@ public class ItemUtils {
 
                     // Enchants
                     serializeEnchants(meta, itemData);
-                    // Banners
-                    serializeBannerMeta(meta, itemData);
                     // Books
                     serializeBookMeta(meta, itemData);
                     // Crossbow
@@ -69,8 +74,6 @@ public class ItemUtils {
                     serializeFireworkMeta(meta, itemData);
                     // Leather Armor
                     serializeLeatherArmorMeta(meta, itemData);
-                    // Maps
-                    serializeMapMeta(meta, itemData);
                     // Potions
                     serializePotionMeta(meta, itemData);
                     // Skulls
@@ -93,6 +96,12 @@ public class ItemUtils {
         return byteStream.toByteArray();
     }
 
+    /**
+     * Deserializes a byte array into a list of ItemStack objects.
+     *
+     * @param data The byte array representing the serialized list of ItemStack objects.
+     * @return A list of deserialized ItemStack objects.
+     */
     public static List<ItemStack> deserializeItemStackList(byte[] data) {
         List<ItemStack> items = new ArrayList<>();
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
@@ -135,8 +144,6 @@ public class ItemUtils {
 
                     // Enchants
                     deserializeEnchants(meta, itemData);
-                    // Banners
-                    deserializeBannerMeta(meta, itemData);
                     // Books
                     deserializeBookMeta(meta, itemData);
                     // Crossbow
@@ -147,8 +154,6 @@ public class ItemUtils {
                     deserializeFireworkMeta(meta, itemData);
                     // Leather Armor
                     deserializeLeatherArmorMeta(meta, itemData);
-                    // Maps
-                    deserializeMapMeta(meta, itemData);
                     // Potions
                     deserializePotionMeta(meta, itemData);
                     // Skulls
@@ -603,81 +608,12 @@ public class ItemUtils {
         }
     }
 
-    private static void serializeBannerMeta(ItemMeta meta, Map<String, Object> itemData) {
-        // TODO
-        /*try {
-            if (meta instanceof BannerMeta bannerMeta) {
-                if (bannerMeta.numberOfPatterns() > 0) {
-                    itemData.put("patterns", bannerMeta.getPersistentDataContainer().get());
-                }
-            }
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing banner meta: " + ex.getMessage());
-        }*/
-    }
-
-    private static void deserializeBannerMeta(ItemMeta meta, Map<String, Object> itemData) {
-        // TODO
-        /*try {
-            if (meta instanceof BannerMeta bannerMeta) {
-                if (itemData.containsKey("patterns")) {
-                    List<Map<String, Object>> patterns = (List<Map<String, Object>>) itemData.get("patterns");
-                    for (var patternData : patterns) {
-                        DyeColor color = DyeColor.valueOf((String) patternData.get("color"));
-                        PatternType.
-                        if (key != null) {
-                            PatternType patternType = RegistryAccess.registryAccess().getRegistry(RegistryKey.BANNER_PATTERN).get(key);
-                            if (patternType != null)
-                                bannerMeta.addPattern(new Pattern(color, patternType));
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing banner meta: " + ex.getMessage());
-        }*/
-    }
-
-    private static void serializeMapMeta(ItemMeta meta, Map<String, Object> itemData) {
-        try {
-            if (meta instanceof MapMeta mapMeta) {
-                if (mapMeta.hasColor() && mapMeta.getColor() != null) {
-                    var color = mapMeta.getColor();
-                    itemData.put("color", String.format("%s;%s;%s;%s", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
-                }
-
-                if (mapMeta.hasMapView() && mapMeta.getMapView() != null) {
-                    itemData.put("mapScale", mapMeta.getMapView().getScale().getValue());
-                    itemData.put("mapTrackingPosition", mapMeta.getMapView().isTrackingPosition());
-                    itemData.put("mapUnlimitedTracking", mapMeta.getMapView().isUnlimitedTracking());
-                    itemData.put("mapCenterX", mapMeta.getMapView().getCenterX());
-                    itemData.put("mapCenterZ", mapMeta.getMapView().getCenterZ());
-                    if (mapMeta.getMapView().getWorld() != null)
-                        itemData.put("world", mapMeta.getMapView().getWorld().getKey().getKey());
-                }
-            }
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing map meta: " + ex.getMessage());
-        }
-    }
-
-    private static void deserializeMapMeta(ItemMeta meta, Map<String, Object> itemData) {
-        try {
-            if (meta instanceof MapMeta mapMeta) {
-                if (itemData.containsKey("color")) {
-                    String[] colorData = ((String) itemData.get("color")).split(";");
-                    mapMeta.setColor(Color.fromARGB(Integer.parseInt(colorData[3]), Integer.parseInt(colorData[0]), Integer.parseInt(colorData[1]), Integer.parseInt(colorData[2])));
-                }
-            }
-        }
-        catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing map meta: " + ex.getMessage());
-        }
-    }
-
+    /**
+     * Serializes the metadata of a spawn egg item into a map.
+     *
+     * @param meta     The ItemMeta of the spawn egg to serialize.
+     * @param itemData The map to store the serialized data.
+     */
     private static void serializeSpawnEggMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof SpawnEggMeta spawnEggMeta) {
@@ -693,6 +629,12 @@ public class ItemUtils {
         }
     }
 
+    /**
+     * Deserializes the metadata of a spawn egg item from a map.
+     *
+     * @param meta     The ItemMeta of the spawn egg to deserialize.
+     * @param itemData The map containing the serialized data.
+     */
     private static void deserializeSpawnEggMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof SpawnEggMeta spawnEggMeta) {
@@ -721,7 +663,12 @@ public class ItemUtils {
         }
     }
 
-
+    /**
+     * Serializes the metadata of a crossbow item into a map.
+     *
+     * @param meta     The ItemMeta of the crossbow to serialize.
+     * @param itemData The map to store the serialized data.
+     */
     private static void serializeCrossbowMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof CrossbowMeta crossbowMeta) {
@@ -743,6 +690,12 @@ public class ItemUtils {
         }
     }
 
+    /**
+     * Deserializes the metadata of a crossbow item from a map.
+     *
+     * @param meta     The ItemMeta of the crossbow to deserialize.
+     * @param itemData The map containing the serialized data.
+     */
     private static void deserializeCrossbowMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof CrossbowMeta crossbowMeta) {

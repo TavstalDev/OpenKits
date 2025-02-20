@@ -13,6 +13,12 @@ import java.util.Objects;
 
 public class ChatUtils {
 
+    /**
+     * Replaces placeholders in the given message with actual values.
+     *
+     * @param message The message containing placeholders to be replaced.
+     * @return The message with placeholders replaced by actual values.
+     */
     private static String replacePlaceholders(String message) {
         String currencySingular = EconomyUtils.currencyNameSingular();
         String currencyPlural = EconomyUtils.currencyNamePlural();

@@ -27,6 +27,12 @@ public class PreviewGUI {
                 46, 47,             51, 52, 53
     };
 
+    /**
+     * Creates the Preview GUI for the specified player.
+     *
+     * @param player The player for whom the GUI is being created.
+     * @return The created SGMenu instance.
+     */
     public static SGMenu create(@NotNull Player player) {
         SGMenu menu = OpenKits.GetGUI().create(LocaleUtils.Localize(player, "GUI.KitPreviewTitle"), 6);
 
@@ -77,6 +83,12 @@ public class PreviewGUI {
         return menu;
     }
 
+    /**
+     * Opens the Preview GUI for the specified player and kit.
+     *
+     * @param player The player for whom the GUI is being opened.
+     * @param kit    The kit to be previewed.
+     */
     public static void open(@NotNull Player player, Kit kit) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         // Show the GUI
@@ -87,12 +99,22 @@ public class PreviewGUI {
         refresh(player);
     }
 
+    /**
+     * Closes the Preview GUI for the specified player.
+     *
+     * @param player The player for whom the GUI is being closed.
+     */
     public static void close(@NotNull Player player) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         player.closeInventory();
         playerData.setGUIOpened(false);
     }
 
+    /**
+     * Refreshes the Preview GUI for the specified player.
+     *
+     * @param player The player for whom the GUI is being refreshed.
+     */
     public static void refresh(@NotNull Player player) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         SGButton pageButton = new SGButton(
