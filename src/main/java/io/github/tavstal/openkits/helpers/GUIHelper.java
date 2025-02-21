@@ -1,7 +1,7 @@
 package io.github.tavstal.openkits.helpers;
 
+import io.github.tavstal.minecorelib.utils.ChatUtils;
 import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.utils.ChatUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

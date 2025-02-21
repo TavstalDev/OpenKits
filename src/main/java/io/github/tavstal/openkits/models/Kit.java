@@ -3,7 +3,6 @@ package io.github.tavstal.openkits.models;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.utils.EconomyUtils;
 import io.github.tavstal.openkits.utils.ItemUtils;
-import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -69,8 +68,8 @@ public class Kit {
             return Material.getMaterial(Icon);
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("Failed to get kit icon.");
-            LoggerUtils.LogError(ex.getMessage());
+            OpenKits.Logger().Error("Failed to get kit icon.");
+            OpenKits.Logger().Error(ex.getMessage());
             return Material.CHEST;
         }
     }

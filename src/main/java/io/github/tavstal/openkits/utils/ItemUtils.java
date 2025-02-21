@@ -1,5 +1,7 @@
 package io.github.tavstal.openkits.utils;
 
+import io.github.tavstal.minecorelib.core.PluginLogger;
+import io.github.tavstal.openkits.OpenKits;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
@@ -20,6 +22,7 @@ import java.util.*;
  * Utility class for item-related operations.
  */
 public class ItemUtils {
+    private static final PluginLogger _logger = OpenKits.Logger().WithModule(ItemUtils.class);
 
     /**
      * Serializes a list of ItemStack objects into a byte array.
@@ -91,7 +94,7 @@ public class ItemUtils {
         try (ObjectOutputStream objectStream = new ObjectOutputStream(byteStream)) {
             objectStream.writeObject(itemDataList);
         } catch (IOException ex) {
-            LoggerUtils.LogError("An error occurred while serializing items: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing items: " + ex.getMessage());
         }
         return byteStream.toByteArray();
     }
@@ -166,7 +169,7 @@ public class ItemUtils {
                 }
             }
         } catch (IOException | ClassNotFoundException ex) {
-            LoggerUtils.LogError("An error occurred while deserializing items: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing items: " + ex.getMessage());
         }
         return items;
     }
@@ -188,7 +191,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing enchantments: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing enchantments: " + ex.getMessage());
         }
     }
 
@@ -211,7 +214,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing enchantments: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing enchantments: " + ex.getMessage());
         }
     }
 
@@ -234,7 +237,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing book meta: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing book meta: " + ex.getMessage());
         }
     }
 
@@ -259,7 +262,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing book meta: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing book meta: " + ex.getMessage());
         }
     }
 
@@ -296,7 +299,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing potion meta: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing potion meta: " + ex.getMessage());
         }
     }
 
@@ -325,7 +328,7 @@ public class ItemUtils {
                     if (potionKey != null)
                         potionMeta.setBasePotionType(RegistryAccess.registryAccess().getRegistry(RegistryKey.POTION).get(potionKey));
                     else
-                        LoggerUtils.LogDebug("Potion key type not found: " + potion);
+                        _logger.Debug("Potion key type not found: " + potion);
                 }
                 // Custom Effects
                 if (itemData.containsKey("customEffects")) {
@@ -342,15 +345,15 @@ public class ItemUtils {
                                 boolean particles = (boolean) data.getOrDefault("particles", true);
                                 potionMeta.addCustomEffect(new PotionEffect(type, duration, amplifier, ambient, particles), true);
                             } else
-                                LoggerUtils.LogDebug("Potion effect type not found: " + effectKey);
+                                _logger.Debug("Potion effect type not found: " + effectKey);
                         } else
-                            LoggerUtils.LogDebug("Potion effect key not found: " + entry.getKey());
+                            _logger.Debug("Potion effect key not found: " + entry.getKey());
                     }
                 }
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing potion meta: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing potion meta: " + ex.getMessage());
         }
     }
 
@@ -397,7 +400,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing firework meta: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing firework meta: " + ex.getMessage());
         }
     }
 
@@ -439,7 +442,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing firework meta: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing firework meta: " + ex.getMessage());
         }
     }
 
@@ -525,7 +528,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing leather armor meta: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing leather armor meta: " + ex.getMessage());
         }
     }
 
@@ -546,7 +549,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing leather armor meta: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing leather armor meta: " + ex.getMessage());
         }
     }
 
@@ -571,7 +574,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing skull meta: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing skull meta: " + ex.getMessage());
         }
     }
 
@@ -604,7 +607,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing skull meta: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing skull meta: " + ex.getMessage());
         }
     }
 
@@ -618,14 +621,13 @@ public class ItemUtils {
         try {
             if (meta instanceof SpawnEggMeta spawnEggMeta) {
                 if (spawnEggMeta.getSpawnedEntity() != null) {
-                    itemData.put("entityType", spawnEggMeta.getSpawnedEntity().getEntityType().getKey().getKey());
                     if (spawnEggMeta.getCustomSpawnedType() != null)
-                        itemData.put("customEntity", spawnEggMeta.getCustomSpawnedType().getKey().getKey());
+                        itemData.put("customEntityType", spawnEggMeta.getCustomSpawnedType().getKey().getKey());
                 }
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing spawn egg meta: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing spawn egg meta: " + ex.getMessage());
         }
     }
 
@@ -638,17 +640,6 @@ public class ItemUtils {
     private static void deserializeSpawnEggMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (meta instanceof SpawnEggMeta spawnEggMeta) {
-                if (itemData.containsKey("entityType")) {
-                    String entityType = (String) itemData.get("entityType");
-                    var key = NamespacedKey.fromString(entityType);
-                    if (key != null) {
-                        EntityType type = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENTITY_TYPE).get(key);
-                        if (type != null) {
-                            //spawnEggMeta.setsp;
-                        }
-                    }
-                }
-
                 if (itemData.containsKey("customEntityType")) {
                     String entityType = (String) itemData.get("customEntityType");
                     var key = NamespacedKey.fromString(entityType);
@@ -659,7 +650,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing spawn egg meta: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing spawn egg meta: " + ex.getMessage());
         }
     }
 
@@ -686,7 +677,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while serializing crossbow meta: " + ex.getMessage());
+            _logger.Error("An error occurred while serializing crossbow meta: " + ex.getMessage());
         }
     }
 
@@ -716,7 +707,7 @@ public class ItemUtils {
             }
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while deserializing crossbow meta: " + ex.getMessage());
+            _logger.Error("An error occurred while deserializing crossbow meta: " + ex.getMessage());
         }
     }
 }

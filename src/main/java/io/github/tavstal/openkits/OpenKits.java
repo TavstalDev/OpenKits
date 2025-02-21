@@ -1,6 +1,9 @@
 package io.github.tavstal.openkits;
 
 import com.samjakob.spigui.SpiGUI;
+import io.github.tavstal.minecorelib.PluginBase;
+import io.github.tavstal.minecorelib.core.PluginLogger;
+import io.github.tavstal.minecorelib.core.PluginTranslator;
 import io.github.tavstal.openkits.commands.CommandKit;
 import io.github.tavstal.openkits.commands.CommandKitCompleter;
 import io.github.tavstal.openkits.commands.CommandKits;
@@ -8,8 +11,6 @@ import io.github.tavstal.openkits.managers.MySqlManager;
 import io.github.tavstal.openkits.managers.SqlLiteManager;
 import io.github.tavstal.openkits.models.IDatabase;
 import io.github.tavstal.openkits.utils.EconomyUtils;
-import io.github.tavstal.openkits.utils.LocaleUtils;
-import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -24,14 +25,14 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 
-public class OpenKits extends JavaPlugin {
-    //#region Constants
-    public static final String PROJECT_NAME = "OpenKits";
-    public static final String VERSION = "1.0.0";
-    public static final String AUTHOR = "Tavstal";
-    public static final String DOWNLOAD_URL = "https://github.com/TavstalDev/OpenKits/releases/latest";
-    //#endregion
+public class OpenKits extends PluginBase {
     public static OpenKits Instance;
+    public static PluginLogger Logger() {
+        return Instance.getCustomLogger();
+    }
+    public static PluginTranslator Translator() {
+        return Instance.getTranslator();
+    }
     private static SpiGUI _spiGUI;
     /**
      * Gets the SpiGUI instance.
@@ -50,18 +51,27 @@ public class OpenKits extends JavaPlugin {
     }
     public static IDatabase Database;
 
+    public OpenKits() {
+        super("OpenKits",
+                "1.0.0",
+                "Tavstal",
+                "https://github.com/TavstalDev/OpenKits/releases/latest",
+                new String[]{"eng", "hun"}
+        );
+    }
+
     @Override
     public void onEnable() {
         Instance = this;
-        LoggerUtils.LogInfo("Loading OpenKits...");
+        getCustomLogger().Info("Loading OpenKits...");
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
-            LoggerUtils.LogWarning("Could not find PlaceholderAPI! This plugin is required.");
+            getCustomLogger().Warn("Could not find PlaceholderAPI! This plugin is required.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
         //new PAPIExpansion().register();
-        LoggerUtils.LogInfo("Hooked into PlaceholderAPI.");
+        getCustomLogger().Info("Hooked into PlaceholderAPI.");
 
         // Register Events
         EventListener.init();
@@ -70,20 +80,20 @@ public class OpenKits extends JavaPlugin {
         saveDefaultConfig();
 
         // Load Localizations
-        if (!LocaleUtils.Load())
+        if (!getTranslator().Load())
         {
-            LoggerUtils.LogError("Failed to load localizations... Unloading...");
+            getCustomLogger().Error("Failed to load localizations... Unloading...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         // Register Economy
-        LoggerUtils.LogDebug("Hooking into Vault...");
+        getCustomLogger().Debug("Hooking into Vault...");
         if (EconomyUtils.setupEconomy())
-            LoggerUtils.LogInfo("Economy plugin found and hooked into Vault.");
+            getCustomLogger().Info("Economy plugin found and hooked into Vault.");
         else
         {
-            LoggerUtils.LogWarning("Economy plugin not found. Disabling economy features.");
+            getCustomLogger().Warn("Economy plugin not found. Disabling economy features.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -105,11 +115,11 @@ public class OpenKits extends JavaPlugin {
         Database.CheckSchema();
 
         // Register GUI
-        LoggerUtils.LogDebug("Loading GUI...");
+        getCustomLogger().Debug("Loading GUI...");
         _spiGUI = new SpiGUI(this);
 
         // Register Commands
-        LoggerUtils.LogDebug("Registering commands...");
+        getCustomLogger().Debug("Registering commands...");
         var command = getCommand("kit");
         if (command != null) {
             command.setExecutor(new CommandKit());
@@ -121,28 +131,28 @@ public class OpenKits extends JavaPlugin {
         }
 
         // Schedule a task to run every second
-        LoggerUtils.LogInfo("OpenKits has been successfully loaded.");
+        getCustomLogger().Info("OpenKits has been successfully loaded.");
         if (!isUpToDate())
-            LoggerUtils.LogWarning("A new version of Aldas is available! Download it at: " + DOWNLOAD_URL);
+            getCustomLogger().Warn("A new version of Aldas is available! Download it at: " + getDownloadUrl());
     }
 
     @Override
     public void onDisable() {
         Database.Unload();
-        LoggerUtils.LogInfo("OpenKits has been successfully unloaded.");
+        getCustomLogger().Info("OpenKits has been successfully unloaded.");
     }
 
     /**
      * Reloads the plugin configuration and localizations.
      */
     public void reload() {
-        LoggerUtils.LogInfo("Reloading OpenKits...");
-        LoggerUtils.LogDebug("Reloading localizations...");
-        LocaleUtils.Load();
-        LoggerUtils.LogDebug("Localizations reloaded.");
-        LoggerUtils.LogDebug("Reloading configuration...");
+        getCustomLogger().Info("Reloading OpenKits...");
+        getCustomLogger().Debug("Reloading localizations...");
+        getTranslator().Load();
+        getCustomLogger().Debug("Localizations reloaded.");
+        getCustomLogger().Debug("Reloading configuration...");
         this.reloadConfig();
-        LoggerUtils.LogDebug("Configuration reloaded.");
+        getCustomLogger().Debug("Configuration reloaded.");
     }
 
     /**
@@ -151,28 +161,28 @@ public class OpenKits extends JavaPlugin {
      */
     public boolean isUpToDate() {
         String version;
-        LoggerUtils.LogDebug("Checking for updates...");
+        getCustomLogger().Debug("Checking for updates...");
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            LoggerUtils.LogDebug("Sending request to GitHub...");
-            HttpGet request = new HttpGet(DOWNLOAD_URL);
+            getCustomLogger().Debug("Sending request to GitHub...");
+            HttpGet request = new HttpGet(getDownloadUrl());
             HttpResponse response = httpClient.execute(request);
-            LoggerUtils.LogDebug("Received response from GitHub.");
+            getCustomLogger().Debug("Received response from GitHub.");
             String jsonResponse = EntityUtils.toString(response.getEntity());
-            LoggerUtils.LogDebug("Parsing response...");
+            getCustomLogger().Debug("Parsing response...");
             JSONParser parser = new JSONParser();
             JSONObject jsonObject = (JSONObject) parser.parse(jsonResponse);
-            LoggerUtils.LogDebug("Parsing release version...");
+            getCustomLogger().Debug("Parsing release version...");
             version = jsonObject.get("tag_name").toString();
         } catch (IOException e) {
-            LoggerUtils.LogError("Failed to check for updates.");
+            getCustomLogger().Error("Failed to check for updates.");
             return false;
         } catch (ParseException e) {
-            LoggerUtils.LogError("Failed to parse release version.");
+            getCustomLogger().Error("Failed to parse release version.");
             return false;
         }
 
-        LoggerUtils.LogDebug("Current version: " + VERSION);
-        LoggerUtils.LogDebug("Latest version: " + version);
-        return version.equalsIgnoreCase(VERSION);
+        getCustomLogger().Debug("Current version: " + getVersion());
+        getCustomLogger().Debug("Latest version: " + version);
+        return version.equalsIgnoreCase(getVersion());
     }
 }

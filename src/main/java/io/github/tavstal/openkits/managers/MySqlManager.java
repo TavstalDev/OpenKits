@@ -2,12 +2,12 @@ package io.github.tavstal.openkits.managers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.tavstal.minecorelib.core.PluginLogger;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.models.IDatabase;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.KitCooldown;
 import io.github.tavstal.openkits.utils.ItemUtils;
-import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -17,13 +17,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class MySqlManager implements IDatabase {
     private static HikariDataSource _dataSource;
     private static FileConfiguration getConfig() { return OpenKits.Instance.getConfig(); }
+    private static final PluginLogger _logger = OpenKits.Logger().WithModule(MySqlManager.class);
 
     @Override
     public void Load() {
@@ -51,7 +51,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the creation of database connection...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the creation of database connection...\n%s", ex.getMessage()));
             return null;
         }
     }
@@ -89,7 +89,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while creating tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while creating tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -121,7 +121,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while adding tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while adding tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -139,7 +139,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -158,7 +158,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -176,7 +176,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -194,7 +194,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -212,7 +212,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -230,7 +230,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -248,7 +248,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -266,7 +266,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -283,7 +283,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -315,7 +315,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while getting kits data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while getting kits data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -351,7 +351,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -387,7 +387,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -412,7 +412,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while adding cooldown...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while adding cooldown...\n%s", ex.getMessage()));
         }
     }
 
@@ -431,7 +431,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the cooldowns table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the cooldowns table...\n%s", ex.getMessage()));
         }
     }
 
@@ -449,7 +449,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -466,7 +466,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -483,7 +483,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -509,7 +509,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while getting cooldowns data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while getting cooldowns data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -539,7 +539,7 @@ public class MySqlManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while finding cooldown data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while finding cooldown data...\n%s", ex.getMessage()));
             return null;
         }
 

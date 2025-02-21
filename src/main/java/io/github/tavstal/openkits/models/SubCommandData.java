@@ -1,7 +1,6 @@
 package io.github.tavstal.openkits.models;
 
-import io.github.tavstal.openkits.utils.ChatUtils;
-import io.github.tavstal.openkits.utils.LocaleUtils;
+import io.github.tavstal.openkits.OpenKits;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -59,9 +58,9 @@ public class SubCommandData {
                 args.put(key, "");
                 continue;
             }
-            args.put(key, LocaleUtils.Localize(player, param.toString()));
+            args.put(key, OpenKits.Instance.Localize(player, param.toString()));
         }
 
-        ChatUtils.sendLocalizedMsg(player, "Commands.Help.Line", args);
+        OpenKits.Instance.sendLocalizedMsg(player, "Commands.Help.Line", args);
     }
 }

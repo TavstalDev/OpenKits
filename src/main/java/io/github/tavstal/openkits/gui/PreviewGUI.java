@@ -7,7 +7,6 @@ import io.github.tavstal.openkits.helpers.GUIHelper;
 import io.github.tavstal.openkits.managers.PlayerManager;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.PlayerData;
-import io.github.tavstal.openkits.utils.LocaleUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -34,7 +33,7 @@ public class PreviewGUI {
      * @return The created SGMenu instance.
      */
     public static SGMenu create(@NotNull Player player) {
-        SGMenu menu = OpenKits.GetGUI().create(LocaleUtils.Localize(player, "GUI.KitPreviewTitle"), 6);
+        SGMenu menu = OpenKits.GetGUI().create(OpenKits.Instance.Localize(player, "GUI.KitPreviewTitle"), 6);
 
         // Create Placeholders
         SGButton placeholderButton = new SGButton(GUIHelper.createItem(Material.BLACK_STAINED_GLASS_PANE, " "));
@@ -44,13 +43,13 @@ public class PreviewGUI {
 
         // Close Button
         SGButton closeButton = new SGButton(
-                GUIHelper.createItem(Material.BARRIER, LocaleUtils.Localize(player, "GUI.Close")))
+                GUIHelper.createItem(Material.BARRIER, OpenKits.Instance.Localize(player, "GUI.Close")))
                 .withListener((InventoryClickEvent event) -> KitsGUI.open(player));
         menu.setButton(0, 45, closeButton);
 
         // Previous Page Button
         SGButton prevPageButton = new SGButton(
-                GUIHelper.createItem(Material.ARROW, LocaleUtils.Localize(player, "GUI.PreviousPage")))
+                GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.PreviousPage")))
                 .withListener((InventoryClickEvent event) -> {
                     PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
                     if (playerData.getPreviewPage() - 1 < 0)
@@ -62,13 +61,13 @@ public class PreviewGUI {
 
         // Page Indicator
         SGButton pageButton = new SGButton(
-                GUIHelper.createItem(Material.PAPER, LocaleUtils.Localize(player, "GUI.Page").replace("%page%", "1"))
+                GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page").replace("%page%", "1"))
         );
         menu.setButton(0, 49, pageButton);
 
         // Next Page Button
         SGButton nextPageButton = new SGButton(
-                GUIHelper.createItem(Material.ARROW, LocaleUtils.Localize(player, "GUI.NextPage")))
+                GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.NextPage")))
                 .withListener((InventoryClickEvent event) -> {
                     PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
                     int maxPage = 1 + (playerData.getPreviewKit().GetItems().size() / 28);
@@ -118,7 +117,7 @@ public class PreviewGUI {
     public static void refresh(@NotNull Player player) {
         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
         SGButton pageButton = new SGButton(
-                GUIHelper.createItem(Material.PAPER, LocaleUtils.Localize(player,"GUI.Page")
+                GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player,"GUI.Page")
                         .replace("%page%", String.valueOf(playerData.getPreviewPage())))
         );
         playerData.getPreviewMenu().setButton(0, 49, pageButton);

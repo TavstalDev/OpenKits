@@ -1,5 +1,7 @@
 package io.github.tavstal.openkits.utils;
 
+import io.github.tavstal.minecorelib.core.PluginLogger;
+import io.github.tavstal.openkits.OpenKits;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -10,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * Utility class for handling economy-related operations using Vault.
  */
 public class EconomyUtils {
+    private static final PluginLogger _logger = OpenKits.Logger().WithModule(EconomyUtils.class);
     private static Economy economy = null;
     private static boolean economyEnabled;
 
@@ -19,12 +22,12 @@ public class EconomyUtils {
      * @return true if the economy provider was successfully registered, false otherwise.
      */
     public static boolean setupEconomy() {
-        LoggerUtils.LogDebug("Setting up economy...");
+        _logger.Debug("Setting up economy...");
         RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-        LoggerUtils.LogDebug("Economy provider: " + economyProvider);
+        _logger.Debug("Economy provider: " + economyProvider);
         if (economyProvider == null)
             return false;
-        LoggerUtils.LogDebug("Economy provider found.");
+        _logger.Debug("Economy provider found.");
         economy = economyProvider.getProvider();
         economyEnabled = economy != null;
         return economyEnabled;

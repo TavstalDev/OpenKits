@@ -1,11 +1,11 @@
 package io.github.tavstal.openkits.managers;
 
+import io.github.tavstal.minecorelib.core.PluginLogger;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.models.IDatabase;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.KitCooldown;
 import io.github.tavstal.openkits.utils.ItemUtils;
-import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -16,12 +16,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class SqlLiteManager implements IDatabase {
     private static FileConfiguration getConfig() { return OpenKits.Instance.getConfig(); }
+    private static final PluginLogger _logger = OpenKits.Logger().WithModule(SqlLiteManager.class);
 
     @Override
     public void Load() {
@@ -41,7 +41,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while creating db connection...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while creating db connection...\n%s", ex.getMessage()));
             return null;
         }
     }
@@ -79,7 +79,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while creating tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while creating tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -111,7 +111,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while adding tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while adding tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -129,7 +129,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -148,7 +148,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -166,7 +166,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -184,7 +184,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -202,7 +202,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -220,7 +220,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -238,7 +238,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -256,7 +256,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the kit table...\n%s", ex.getMessage()));
         }
     }
 
@@ -270,13 +270,13 @@ public class SqlLiteManager implements IDatabase {
                 statement.setLong(1, id);
                 int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0) {
-                    LoggerUtils.LogWarning("No kit found with the specified ID: " + id);
+                    _logger.Warn("No kit found with the specified ID: " + id);
                 }
             }
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -308,7 +308,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while getting kits data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while getting kits data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -344,7 +344,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -380,7 +380,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while finding kit data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -405,7 +405,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while adding cooldown...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while adding cooldown...\n%s", ex.getMessage()));
         }
     }
 
@@ -424,7 +424,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while updating the cooldowns table...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while updating the cooldowns table...\n%s", ex.getMessage()));
         }
     }
 
@@ -442,7 +442,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -459,7 +459,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -476,7 +476,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened during the deletion of tables...\n%s", ex.getMessage()));
         }
     }
 
@@ -502,7 +502,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while getting cooldowns data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while getting cooldowns data...\n%s", ex.getMessage()));
             return null;
         }
 
@@ -532,7 +532,7 @@ public class SqlLiteManager implements IDatabase {
         }
         catch (Exception ex)
         {
-            LoggerUtils.LogError(String.format("Unknown error happened while finding cooldown data...\n%s", ex.getMessage()));
+            _logger.Error(String.format("Unknown error happened while finding cooldown data...\n%s", ex.getMessage()));
             return null;
         }
 

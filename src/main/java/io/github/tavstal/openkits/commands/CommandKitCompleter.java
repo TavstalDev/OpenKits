@@ -1,8 +1,8 @@
 package io.github.tavstal.openkits.commands;
 
+import io.github.tavstal.minecorelib.core.PluginLogger;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.models.Kit;
-import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class CommandKitCompleter implements TabCompleter {
+    private final PluginLogger _logger = OpenKits.Logger().WithModule(CommandKitCompleter.class);
+
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String @NotNull [] args) {
         try {
@@ -212,8 +214,8 @@ public class CommandKitCompleter implements TabCompleter {
             return commandList;
         }
         catch (Exception ex) {
-            LoggerUtils.LogError("An error occurred while trying to tab complete the portallock command.");
-            LoggerUtils.LogError(ex.getMessage());
+            _logger.Error("An error occurred while trying to tab complete the portallock command.");
+            _logger.Error(ex.getMessage());
             return new ArrayList<>();
         }
     }

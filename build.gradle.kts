@@ -32,6 +32,7 @@ dependencies {
     implementation("com.samjakob:SpiGUI:1.3.1")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("com.zaxxer:HikariCP:4.0.3")
+    implementation(files("libs/MineCoreLib-1.0.jar"))
 }
 
 tasks.test {

@@ -1,9 +1,9 @@
 package io.github.tavstal.openkits;
 
+import io.github.tavstal.minecorelib.core.PluginLogger;
 import io.github.tavstal.openkits.managers.PlayerManager;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.PlayerData;
-import io.github.tavstal.openkits.utils.LoggerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,13 +14,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
  * Event listener for handling player-related events.
  */
 public class EventListener implements Listener {
+    private static final PluginLogger _logger = OpenKits.Logger().WithModule(EventListener.class);
+
     /**
      * Initializes and registers the event listener.
      */
     public static void init() {
-        LoggerUtils.LogDebug("Registering event listener...");
+        _logger.Debug("Registering event listener...");
         Bukkit.getPluginManager().registerEvents(new EventListener(), OpenKits.Instance);
-        LoggerUtils.LogDebug("Event listener registered.");
+        _logger.Debug("Event listener registered.");
     }
 
     /**
