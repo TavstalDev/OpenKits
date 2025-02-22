@@ -31,7 +31,7 @@ public class CommandKits implements CommandExecutor {
             return true;
         }
 
-        String message = OpenKits.Instance.Localize(player, "Commands.Kits.Format", true);
+        String message = OpenKits.Instance.Localize(player, "Commands.Kits.Format");
         StringBuilder kits = new StringBuilder();
 
         for (Kit kit : OpenKits.Database.GetKits()) {
@@ -40,7 +40,7 @@ public class CommandKits implements CommandExecutor {
             }
 
             if (kit.RequirePermission && !player.hasPermission(kit.Permission)) {
-                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.UnavailableKit", true)
+                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.UnavailableKit")
                         .replace("%kit%", kit.Name));
                 continue;
             }
@@ -49,7 +49,7 @@ public class CommandKits implements CommandExecutor {
             if (cooldown != null) {
                 Duration duration = Duration.between(LocalDateTime.now(), cooldown.End);
                 if (duration.getSeconds() > 0) {
-                    kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.CooldownKit", true)
+                    kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.CooldownKit")
                             .replace("%kit%", kit.Name)
                             .replace("%cooldown%", String.format("%02d:%02d:%02d", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart())));
                     continue;
@@ -57,11 +57,11 @@ public class CommandKits implements CommandExecutor {
             }
 
             if (kit.Price > 0)
-                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.Paid", true)
+                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.Paid")
                         .replace("%kit%", kit.Name)
                         .replace("%price%", String.format("%.2f", kit.Price)));
             else
-                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.Free", true)
+                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.Free")
                         .replace("%kit%", kit.Name));
         }
 

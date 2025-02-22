@@ -182,19 +182,19 @@ public class CommandKit implements CommandExecutor {
                         put("kit", kit.Name);
                     }});
 
-                    String kitPermission = OpenKits.Instance.Localize(player, "Commands.Common.None");
+                    String kitPermission = OpenKits.Instance.Localize(player, "Commands.Common.NoTextne");
                     if (!kit.Permission.isEmpty())
                         kitPermission = kit.Permission;
-                    String kitRequired = OpenKits.Instance.Localize(player, "Commands.Common.No");
+                    String kitRequired = OpenKits.Instance.Localize(player, "Commands.Common.NoText");
                     if (kit.RequirePermission)
-                        kitRequired = OpenKits.Instance.Localize(player, "Commands.Common.Yes");
+                        kitRequired = OpenKits.Instance.Localize(player, "Commands.Common.YesText");
 
                     long hours = kit.Cooldown / 3600;
                     long minutes = (kit.Cooldown % 3600) / 60;
                     long remainingSeconds = kit.Cooldown % 60;
 
                     OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.Enabled")
-                            .replace("%enabled%", kit.Enable ? OpenKits.Instance.Localize(player, "Commands.Common.Yes") : OpenKits.Instance.Localize(player, "Commands.Common.No")));
+                            .replace("%enabled%", kit.Enable ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText")));
                     OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.Price")
                             .replace("%price%", String.format("%.2f", kit.Price)));
                     OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.Cooldown")
@@ -203,7 +203,7 @@ public class CommandKit implements CommandExecutor {
                             .replace("%permission%", kitPermission)
                             .replace("%required%", kitRequired));
                     OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.OneTime")
-                            .replace("%onetime%", kit.IsOneTime ? OpenKits.Instance.Localize(player, "Commands.Common.Yes") : OpenKits.Instance.Localize(player, "Commands.Common.No")));
+                            .replace("%onetime%", kit.IsOneTime ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText")));
 
                     return true;
                 }
@@ -540,7 +540,7 @@ public class CommandKit implements CommandExecutor {
                         OpenKits.Database.UpdateKitPermission(kit.Id, false, "");
                         OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetPermission.Success", new HashMap<>() {{
                             put("kit", kit.Name);
-                            put("permission", OpenKits.Instance.Localize(player, "Commands.Common.None"));
+                            put("permission", OpenKits.Instance.Localize(player, "Commands.Common.NoTextne"));
                         }});
                         return true;
                     }
@@ -628,7 +628,7 @@ public class CommandKit implements CommandExecutor {
                     OpenKits.Database.UpdateKitOneTime(kit.Id, isOneTime);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetOneTime.Success", new HashMap<>() {{
                         put("kit", kit.Name);
-                        put("onetime", isOneTime ? OpenKits.Instance.Localize(player, "Commands.Common.Yes") : OpenKits.Instance.Localize(player, "Commands.Common.No"));
+                        put("onetime", isOneTime ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText"));
                     }});
 
                     return true;
@@ -679,7 +679,7 @@ public class CommandKit implements CommandExecutor {
                     OpenKits.Database.UpdateKitEnabled(kit.Id, enabled);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetEnabled.Success", new HashMap<>() {{
                         put("kit", kit.Name);
-                        put("enabled", enabled ? OpenKits.Instance.Localize(player, "Commands.Common.Yes") : OpenKits.Instance.Localize(player, "Commands.Common.No"));
+                        put("enabled", enabled ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText"));
                     }});
 
                     return true;
@@ -881,7 +881,7 @@ public class CommandKit implements CommandExecutor {
             }}));
             // GUI
             add(new SubCommandData("gui", "openkits.commands.kit.gui", new HashMap<>() {{
-                put("syntax", "Commands.Gui.Syntax");
+                put("syntax", null);
                 put("description", "Commands.Gui.Desc");
             }}));
             // CREATE
