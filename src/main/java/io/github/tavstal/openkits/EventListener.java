@@ -1,6 +1,7 @@
 package io.github.tavstal.openkits;
 
 import io.github.tavstal.minecorelib.core.PluginLogger;
+import io.github.tavstal.openkits.helpers.GUIHelper;
 import io.github.tavstal.openkits.managers.PlayerManager;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.PlayerData;
@@ -8,7 +9,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.InventoryHolder;
 
 /**
  * Event listener for handling player-related events.
@@ -31,7 +36,7 @@ public class EventListener implements Listener {
      * @param event The PlayerJoinEvent triggered when a player joins the server.
      */
     @EventHandler
-    public void onPlayerFirstJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         PlayerData playerData = new PlayerData(player);
         PlayerManager.addPlayerData(player.getUniqueId(), playerData);
@@ -47,5 +52,77 @@ public class EventListener implements Listener {
             return;
 
         kit.Give(player);
+    }
+
+    /**
+     * Handles the InventoryPickupItemEvent to prevent picking up duped items.
+     *
+     * @param event The InventoryPickupItemEvent.
+     */
+    @EventHandler
+    public void onItemPickup(InventoryPickupItemEvent event) {
+        InventoryHolder holder = event.getInventory().getHolder();
+        if (!(holder instanceof Player player))
+            return;
+
+        PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
+        if (playerData == null)
+            return;
+
+        if (playerData.isGUIOpened())
+            return;
+
+        if (!GUIHelper.isDuped(event.getItem().getItemStack()))
+            return;
+
+        event.setCancelled(true);
+        event.getItem().remove();
+    }
+
+    /**
+     * Handles the InventoryMoveItemEvent to prevent moving duped items.
+     *
+     * @param event The InventoryMoveItemEvent.
+     */
+    @EventHandler
+    public void onItemMoved(InventoryMoveItemEvent event) {
+        InventoryHolder holder = event.getSource().getHolder();
+        if (!(holder instanceof Player player))
+            return;
+
+        PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
+        if (playerData == null)
+            return;
+
+        if (playerData.isGUIOpened())
+            return;
+
+        if (!GUIHelper.isDuped(event.getItem()))
+            return;
+
+        event.setCancelled(true);
+        event.getItem().setAmount(0);
+    }
+
+    /**
+     * Handles the PlayerDropItemEvent to prevent dropping duped items.
+     *
+     * @param event The PlayerDropItemEvent.
+     */
+    @EventHandler
+    public void  onDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
+        if (playerData == null)
+            return;
+
+        if (playerData.isGUIOpened())
+            return;
+
+        if (!GUIHelper.isDuped(event.getItemDrop().getItemStack()))
+            return;
+
+        event.setCancelled(true);
+        event.getItemDrop().remove();
     }
 }
