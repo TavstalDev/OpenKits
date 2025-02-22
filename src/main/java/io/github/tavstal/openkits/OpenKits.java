@@ -142,6 +142,20 @@ public class OpenKits extends PluginBase {
         getCustomLogger().Info("OpenKits has been successfully unloaded.");
     }
 
+    @Override
+    protected String replacePlaceholders(String message) {
+        String result = super.replacePlaceholders(message);
+        if (result.contains("%currency_singular%")) {
+            String currencySingular = EconomyUtils.currencyNameSingular();
+            result = result.replace("%currency_singular%", currencySingular == null ? Localize("General.CurrencySingular") : currencySingular);
+        }
+        if (result.contains("%currency_plural%")) {
+            String currencyPlural = EconomyUtils.currencyNamePlural();
+            result = result.replace("%currency_plural%", currencyPlural == null ? Localize("General.CurrencyPlural") : currencyPlural);
+        }
+        return result;
+    }
+
     /**
      * Reloads the plugin configuration and localizations.
      */
