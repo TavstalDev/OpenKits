@@ -63,7 +63,7 @@ public class OpenKits extends PluginBase {
     @Override
     public void onEnable() {
         Instance = this;
-        getCustomLogger().Info("Loading OpenKits...");
+        getCustomLogger().Info(String.format("Loading %s...", getProjectName()));
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
             getCustomLogger().Warn("Could not find PlaceholderAPI! This plugin is required.");
@@ -130,15 +130,15 @@ public class OpenKits extends PluginBase {
             command.setExecutor(new CommandKits());
         }
 
-        getCustomLogger().Info("OpenKits has been successfully loaded.");
+        getCustomLogger().Info(String.format("%s has been successfully loaded.", getProjectName()));
         if (!isUpToDate())
-            getCustomLogger().Warn("A new version of Aldas is available! Download it at: " + getDownloadUrl());
+            getCustomLogger().Warn(String.format("A new version of %s is available! Download it at %s", getProjectName(), getDownloadUrl()));
     }
 
     @Override
     public void onDisable() {
         Database.Unload();
-        getCustomLogger().Info("OpenKits has been successfully unloaded.");
+        getCustomLogger().Info(String.format("%s has been successfully unloaded.", getProjectName()));
     }
 
     @Override
