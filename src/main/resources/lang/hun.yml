@@ -9,9 +9,10 @@ Commands:
   ConsoleCaller: "%prefix% &cEhhez a parancshoz játékosnak kell lenned."
   UnknownError: "%prefix% &cIsmeretlen hiba történt. Kérlek, jelentsd!"
   Common:
-    Yes: "&aIgen"
-    No: "&cNem"
+    YesText: "&aIgen"
+    NoText: "&cNem"
     None: "&cNincs"
+    Free: "&aIngyenes"
     InvalidPage: "%prefix% &cÉrvénytelen oldalszám."
     InvalidPrice: "%prefix% &cÉrvénytelen ár."
     InvalidCooldown: "%prefix% &cÉrvénytelen újratöltési idő."
@@ -99,7 +100,7 @@ Commands:
     Desc: "Beállítja a kit jogosultságát."
     Usage: "%prefix% &cHasználat: &e/openkits setpermission [kit] [jogosultság] <jogosultság_szükséges>"
     Success: "%prefix% &aBeállítottad a '&e%kit%&a' kit jogosultságát: &e%permission%&a."
-  SetOnTime:
+  SetOneTime:
     Syntax: " [kit_név] [egyszer_használható?]"
     Desc: "Beállítja, hogy a kit csak egyszer legyen használható."
     Usage: "%prefix% &cHasználat: &e/openkits setontime [kit] [egyszer_használható?]"
@@ -128,7 +129,7 @@ Commands:
     CooldownKit: "&7&m%kit%&r &7(%cooldown%)"
     UnavailableKit: "&c&m%kit%"
 GUI:
-  KitTitle: "&4> &1Kitek"
+  KitsTitle: "&4> &1Kitek"
   KitPreviewTitle: "&4> &1%kit% Előnézet"
   Cancel: "&cMégse"
   Confirm: "&aMegerősítés"

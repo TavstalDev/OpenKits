@@ -9,9 +9,10 @@ Commands:
   ConsoleCaller: "%prefix% &cYou must be a player to use this command."
   UnknownError: "%prefix% &cUnknown error happened. Please report it."
   Common:
-    Yes: "&aYes"
-    No: "&cNo"
+    YesText: "&aYes"
+    NoText: "&cNo"
     None: "&cNone"
+    Free: "&aFree"
     InvalidPage: "%prefix% &cInvalid page number."
     InvalidPrice: "%prefix% &cInvalid price number."
     InvalidCooldown: "%prefix% &cInvalid cooldown number."
@@ -99,7 +100,7 @@ Commands:
     Desc: "Sets the permission of the kit."
     Usage: "%prefix% &cUsage: &e/openkits setpermission [kit] [permission] <is_permission_required>"
     Success: "%prefix% &aYou have set the permission of the '&e%kit%&a' kit to &e%permission%&a."
-  SetOnTime:
+  SetOneTime:
     Syntax: " [kit_name] [is_onetime]"
     Desc: "Sets the kit can be called only once."
     Usage: "%prefix% &cUsage: &e/openkits setontime [kit] [is_onetime]"
@@ -128,7 +129,7 @@ Commands:
     CooldownKit: "&7&m%kit%&r &7(%cooldown%)"
     UnavailableKit: "&c&m%kit%"
 GUI:
-  KitTitle: "&4> &1Kits"
+  KitsTitle: "&4> &1Kits"
   KitPreviewTitle: "&4> &1%kit% Preview"
   Cancel: "&cCancel"
   Confirm: "&aConfirm"
