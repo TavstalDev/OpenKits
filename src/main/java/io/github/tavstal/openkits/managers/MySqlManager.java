@@ -81,7 +81,7 @@ public class MySqlManager implements IDatabase {
             sql = String.format("CREATE TABLE IF NOT EXISTS %s_cooldowns (" +
                             "PlayerId VARCHAR(36), " +
                             "KitId BIGINT, " +
-                            "End DATETIME);",
+                            "End VARCHAR(200));",
                     getConfig().getString("storage.tablePrefix")
             );
             statement = connection.prepareStatement(sql);
@@ -499,9 +499,9 @@ public class MySqlManager implements IDatabase {
                 try (ResultSet result = statement.executeQuery()) {
                     while (result.next()) {
                         data.add(new KitCooldown(
-                                result.getObject("PlayerId", UUID.class),
+                                UUID.fromString(result.getString("PlayerId")),
                                 result.getLong("KitId"),
-                                result.getObject("End", LocalDateTime.class)
+                                LocalDateTime.parse(result.getString("End"))
                         ));
                     }
                 }
@@ -529,9 +529,9 @@ public class MySqlManager implements IDatabase {
                 try (ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
                         data = new KitCooldown(
-                                result.getObject("PlayerId", UUID.class),
+                                UUID.fromString(result.getString("PlayerId")),
                                 result.getLong("KitId"),
-                                result.getObject("End", LocalDateTime.class)
+                                LocalDateTime.parse(result.getString("End"))
                         );
                     }
                 }
