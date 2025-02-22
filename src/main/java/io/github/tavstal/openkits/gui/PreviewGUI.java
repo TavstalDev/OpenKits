@@ -2,6 +2,7 @@ package io.github.tavstal.openkits.gui;
 
 import com.samjakob.spigui.buttons.SGButton;
 import com.samjakob.spigui.menu.SGMenu;
+import io.github.tavstal.minecorelib.core.PluginLogger;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.helpers.GUIHelper;
 import io.github.tavstal.openkits.managers.PlayerManager;
@@ -14,9 +15,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class PreviewGUI {
+    private static final PluginLogger _logger = OpenKits.Logger().WithModule(PreviewGUI.class);
     private static final Integer[] SlotPlaceholders = {
             0,  1,  2,  3,  4,  5,  6,  7,  8,
             9,                              17,
@@ -33,53 +36,58 @@ public class PreviewGUI {
      * @return The created SGMenu instance.
      */
     public static SGMenu create(@NotNull Player player) {
-        SGMenu menu = OpenKits.GetGUI().create(OpenKits.Instance.Localize(player, "GUI.KitPreviewTitle"), 6);
+        try {
+            SGMenu menu = OpenKits.GetGUI().create(OpenKits.Instance.Localize(player, "GUI.KitPreviewTitle"), 6);
 
-        // Create Placeholders
-        SGButton placeholderButton = new SGButton(GUIHelper.createItem(Material.BLACK_STAINED_GLASS_PANE, " "));
-        for (Integer slot : SlotPlaceholders) {
-            menu.setButton(0, slot, placeholderButton);
+            // Create Placeholders
+            SGButton placeholderButton = new SGButton(GUIHelper.createItem(Material.BLACK_STAINED_GLASS_PANE, " "));
+            for (Integer slot : SlotPlaceholders) {
+                menu.setButton(0, slot, placeholderButton);
+            }
+
+            // Close Button
+            SGButton closeButton = new SGButton(
+                    GUIHelper.createItem(Material.BARRIER, OpenKits.Instance.Localize(player, "GUI.Close")))
+                    .withListener((InventoryClickEvent event) -> KitsGUI.open(player));
+            menu.setButton(0, 45, closeButton);
+
+            // Previous Page Button
+            SGButton prevPageButton = new SGButton(
+                    GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.PreviousPage")))
+                    .withListener((InventoryClickEvent event) -> {
+                        PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
+                        if (playerData.getPreviewPage() - 1 <= 0)
+                            return;
+                        playerData.setPreviewPage(playerData.getPreviewPage() - 1);
+                        refresh(player);
+                    });
+            menu.setButton(0, 48, prevPageButton);
+
+            // Page Indicator
+            SGButton pageButton = new SGButton(
+                    GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page").replace("%page%", "1"))
+            );
+            menu.setButton(0, 49, pageButton);
+
+            // Next Page Button
+            SGButton nextPageButton = new SGButton(
+                    GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.NextPage")))
+                    .withListener((InventoryClickEvent event) -> {
+                        PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
+                        int maxPage = 1 + (playerData.getPreviewKit().GetItems().size() / 28);
+                        if (playerData.getPreviewPage() + 1 > maxPage)
+                            return;
+                        playerData.setPreviewPage(playerData.getPreviewPage() + 1);
+                        refresh(player);
+                    });
+            menu.setButton(0, 50, nextPageButton);
+            return menu;
         }
-
-        // Close Button
-        SGButton closeButton = new SGButton(
-                GUIHelper.createItem(Material.BARRIER, OpenKits.Instance.Localize(player, "GUI.Close")))
-                .withListener((InventoryClickEvent event) -> KitsGUI.open(player));
-        menu.setButton(0, 45, closeButton);
-
-        // Previous Page Button
-        SGButton prevPageButton = new SGButton(
-                GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.PreviousPage")))
-                .withListener((InventoryClickEvent event) -> {
-                    PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
-                    if (playerData.getPreviewPage() - 1 < 0)
-                        return;
-                    playerData.setPreviewPage(playerData.getPreviewPage() - 1);
-                    refresh(player);
-                });
-        menu.setButton(0, 48, prevPageButton);
-
-        // Page Indicator
-        SGButton pageButton = new SGButton(
-                GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page").replace("%page%", "1"))
-        );
-        menu.setButton(0, 49, pageButton);
-
-        // Next Page Button
-        SGButton nextPageButton = new SGButton(
-                GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.NextPage")))
-                .withListener((InventoryClickEvent event) -> {
-                    PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
-                    int maxPage = 1 + (playerData.getPreviewKit().GetItems().size() / 28);
-                    if (playerData.getPreviewPage()+ 1 > maxPage)
-                        return;
-                    playerData.setPreviewPage(playerData.getPreviewPage() + 1);
-                    refresh(player);
-                });
-        menu.setButton(0, 50, nextPageButton);
-
-        refresh(player);
-        return menu;
+        catch (Exception ex) {
+            _logger.Error("An error occurred while creating the Preview GUI.");
+            _logger.Error(ex);
+            return null;
+        }
     }
 
     /**
@@ -94,7 +102,10 @@ public class PreviewGUI {
         playerData.setPreviewKit(kit);
         playerData.setGUIOpened(true);
         playerData.setPreviewPage(1);
-        player.openInventory(playerData.getKitsMenu().getInventory());
+        playerData.getPreviewMenu().setName(OpenKits.Instance.Localize(player, "GUI.KitPreviewTitle", new HashMap<>() {{
+            put("kit", kit.Name);
+        }}));
+        player.openInventory(playerData.getPreviewMenu().getInventory());
         refresh(player);
     }
 
@@ -115,29 +126,36 @@ public class PreviewGUI {
      * @param player The player for whom the GUI is being refreshed.
      */
     public static void refresh(@NotNull Player player) {
-        PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
-        SGButton pageButton = new SGButton(
-                GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player,"GUI.Page")
-                        .replace("%page%", String.valueOf(playerData.getPreviewPage())))
-        );
-        playerData.getPreviewMenu().setButton(0, 49, pageButton);
+        try {
+            PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
+            SGButton pageButton = new SGButton(
+                    GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page")
+                            .replace("%page%", String.valueOf(playerData.getPreviewPage())))
+            );
+            playerData.getPreviewMenu().setButton(0, 49, pageButton);
 
-        List<ItemStack> items = playerData.getPreviewKit().GetItems();
-        int page =  playerData.getPreviewPage();
-        for (int i = 0; i < 28; i++) {
-            int index = i + page * 28;
-            int slot = i + 10 + (2 * (i / 7));
-            if (index >= items.size()) {
-                playerData.getPreviewMenu().setButton(0, null);
-                continue;
+            List<ItemStack> items = playerData.getPreviewKit().GetItems();
+            int page = playerData.getPreviewPage();
+            for (int i = 0; i < 28; i++) {
+                int index = i + (page - 1) * 28;
+                int slot = i + 10 + (2 * (i / 7));
+                if (index >= items.size()) {
+                    playerData.getPreviewMenu().removeButton(0, slot);
+                    continue;
+                }
+
+                ItemStack itemStack = items.get(index);
+                var meta = itemStack.getItemMeta();
+                meta.getPersistentDataContainer().set(GUIHelper.DupeKey, PersistentDataType.BOOLEAN, true);
+                itemStack.setItemMeta(meta);
+
+                playerData.getPreviewMenu().setButton(0, slot, new SGButton(itemStack));
             }
-
-            ItemStack itemStack = items.get(index);
-            var meta = itemStack.getItemMeta();
-            meta.getPersistentDataContainer().set(GUIHelper.DupeKey, PersistentDataType.BOOLEAN, true);
-            itemStack.setItemMeta(meta);
-
-            playerData.getPreviewMenu().setButton(0, slot, new SGButton(itemStack));
+            player.openInventory(playerData.getPreviewMenu().getInventory());
+        }
+        catch (Exception ex) {
+            _logger.Error("An error occurred while refreshing the Preview GUI.");
+            _logger.Error(ex);
         }
     }
 }
