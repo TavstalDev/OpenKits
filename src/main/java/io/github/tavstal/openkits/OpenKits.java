@@ -130,7 +130,6 @@ public class OpenKits extends PluginBase {
             command.setExecutor(new CommandKits());
         }
 
-        // Schedule a task to run every second
         getCustomLogger().Info("OpenKits has been successfully loaded.");
         if (!isUpToDate())
             getCustomLogger().Warn("A new version of Aldas is available! Download it at: " + getDownloadUrl());
