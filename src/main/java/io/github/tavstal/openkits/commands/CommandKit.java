@@ -182,7 +182,7 @@ public class CommandKit implements CommandExecutor {
                         put("kit", kit.Name);
                     }});
 
-                    String kitPermission = OpenKits.Instance.Localize(player, "Commands.Common.NoTextne");
+                    String kitPermission = OpenKits.Instance.Localize(player, "Commands.Common.NoText");
                     if (!kit.Permission.isEmpty())
                         kitPermission = kit.Permission;
                     String kitRequired = OpenKits.Instance.Localize(player, "Commands.Common.NoText");
@@ -899,37 +899,37 @@ public class CommandKit implements CommandExecutor {
                 put("syntax", "Commands.Edit.Syntax");
                 put("description", "Commands.Edit.Desc");
             }}));
-            // SETNAME
+            // SET NAME
             add(new SubCommandData("setname", "openkits.commands.kit.setname", new HashMap<>() {{
                 put("syntax", "Commands.SetName.Syntax");
                 put("description", "Commands.SetName.Desc");
             }}));
-            // SETENABLED
+            // SET ENABLED
             add(new SubCommandData("setenabled", "openkits.commands.kit.setenabled", new HashMap<>() {{
                 put("syntax", "Commands.SetEnabled.Syntax");
                 put("description", "Commands.SetEnabled.Desc");
             }}));
-            // SETPRICE
+            // SET PRICE
             add(new SubCommandData("setprice", "openkits.commands.kit.setprice", new HashMap<>() {{
                 put("syntax", "Commands.SetPrice.Syntax");
                 put("description", "Commands.SetPrice.Desc");
             }}));
-            // SETCOOLDOWN
+            // SET COOLDOWN
             add(new SubCommandData("setcooldown", "openkits.commands.kit.setcooldown", new HashMap<>() {{
                 put("syntax", "Commands.SetCooldown.Syntax");
                 put("description", "Commands.SetCooldown.Desc");
             }}));
-            // SETPERMISSION
+            // SET PERMISSION
             add(new SubCommandData("setpermission", "openkits.commands.kit.setpermission", new HashMap<>() {{
                 put("syntax", "Commands.SetPermission.Syntax");
                 put("description", "Commands.SetPermission.Desc");
             }}));
-            // SETONETIME
+            // SET ONE-TIME
             add(new SubCommandData("setonetime", "openkits.commands.kit.setonetime", new HashMap<>() {{
                 put("syntax", "Commands.SetOneTime.Syntax");
                 put("description", "Commands.SetOneTime.Desc");
             }}));
-            // SETICON
+            // SET ICON
             add(new SubCommandData("seticon", "openkits.commands.kit.seticon", new HashMap<>() {{
                 put("syntax", "Commands.SetIcon.Syntax");
                 put("description", "Commands.SetIcon.Desc");

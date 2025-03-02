@@ -18,7 +18,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -99,7 +98,10 @@ public class OpenKits extends PluginBase {
         }
 
         // Create Database
-        switch (this.getConfig().getString("storage.type").toLowerCase()) {
+        String databaseType = this.getConfig().getString("storage.type");
+        if (databaseType == null)
+            databaseType = "sqlite";
+        switch (databaseType.toLowerCase()) {
             case "mysql":
             {
                 Database = new MySqlManager();

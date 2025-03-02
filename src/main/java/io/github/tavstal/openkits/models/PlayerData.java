@@ -62,15 +62,6 @@ public class PlayerData {
     }
 
     /**
-     * Sets the kits menu for the player.
-     *
-     * @param kitsMenu the new kits menu
-     */
-    public void setKitsMenu(SGMenu kitsMenu) {
-        _kitsMenu = kitsMenu;
-    }
-
-    /**
      * Gets the preview menu for the player. If the preview menu is not initialized, it creates a new one.
      *
      * @return the preview menu
@@ -83,16 +74,7 @@ public class PlayerData {
     }
 
     /**
-     * Sets the preview menu for the player.
-     *
-     * @param previewMenu the new preview menu
-     */
-    public void setPreviewMenu(SGMenu previewMenu) {
-        _previewMenu = previewMenu;
-    }
-
-    /**
-     * Gets the current page number of the kits menu.
+     * Gets the current page number of the 'kits menu'.
      *
      * @return the current kits page number
      */
@@ -101,7 +83,7 @@ public class PlayerData {
     }
 
     /**
-     * Sets the current page number of the kits menu.
+     * Sets the current page number of the 'kits menu'.
      *
      * @param kitsPage the new kits page number
      */
