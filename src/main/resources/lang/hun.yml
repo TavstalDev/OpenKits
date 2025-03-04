@@ -150,3 +150,6 @@ GUI:
     - "&c> &eBal kattintás vásárláshoz."
     - "&c> &eJobb kattintás előnézethez."
   Enchant: " &2%name%  &e> &a%level%"
+
+# DO NOT TOUCH THIS. This helps to handle config related changes after updates.
+FileVersion: 1

@@ -150,3 +150,6 @@ GUI:
     - "&c> &eLeft-click to buy."
     - "&c> &eRight-click to preview."
   Enchant: " &2%name%  &e> &a%level%"
+
+  # DO NOT TOUCH THIS. This helps to handle config related changes after updates.
+  FileVersion: 1

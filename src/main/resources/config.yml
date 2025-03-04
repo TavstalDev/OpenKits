@@ -41,5 +41,5 @@ default:
     # Default icon for kits
     icon: "WOODEN_SWORD"
 
-# Do NOT edit this
+# DO NOT TOUCH THIS. This helps to handle config related changes after updates.
 FileVersion: 1
