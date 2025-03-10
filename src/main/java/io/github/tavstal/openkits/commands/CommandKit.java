@@ -1,10 +1,10 @@
 package io.github.tavstal.openkits.commands;
 
 import io.github.tavstal.minecorelib.core.PluginLogger;
+import io.github.tavstal.minecorelib.models.SubCommandData;
 import io.github.tavstal.minecorelib.utils.ChatUtils;
 import io.github.tavstal.openkits.OpenKits;
 import io.github.tavstal.openkits.gui.KitsGUI;
-import io.github.tavstal.openkits.models.SubCommandData;
 import io.github.tavstal.openkits.models.Kit;
 import io.github.tavstal.openkits.models.KitCooldown;
 import io.github.tavstal.openkits.utils.EconomyUtils;
@@ -968,7 +968,7 @@ public class CommandKit implements CommandExecutor {
                 continue;
             }
 
-            subCommand.send(player);
+            subCommand.send(OpenKits.Instance, player);
         }
 
         // Bottom message
