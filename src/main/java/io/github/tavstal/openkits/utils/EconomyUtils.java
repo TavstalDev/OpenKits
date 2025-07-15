@@ -29,8 +29,8 @@ public class EconomyUtils {
             return false;
         _logger.Debug("Economy provider found.");
         economy = economyProvider.getProvider();
-        economyEnabled = economy != null;
-        return economyEnabled;
+        economyEnabled = true;
+        return true;
     }
 
     /**
