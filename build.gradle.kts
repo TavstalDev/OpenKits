@@ -2,9 +2,22 @@ plugins {
     id("java")
 }
 
-group = "io.github.tavstal"
-version = "1.0.0"
+val javaVersion: String by project
+val junitVersion: String by project
+val paperApiVersion: String by project
+val hikariCpVersion: String by project
+val mineCoreLibVersion: String by project
+val vaultApiVersion: String by project
+val placeholderApiVersion: String by project
+val spiGuiVersion: String by project
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(javaVersion)
+        sourceCompatibility = JavaVersion.toVersion(javaVersion)
+        targetCompatibility = JavaVersion.toVersion(javaVersion)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -22,17 +35,16 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
+    compileOnly("io.papermc.paper:paper-api:${paperApiVersion}")
+    compileOnly("com.github.MilkBowl:VaultAPI:${vaultApiVersion}") {
         exclude(group = "org.bukkit", module = "bukkit")
     }
-    compileOnly("me.clip:placeholderapi:2.11.6")
-    implementation("com.samjakob:SpiGUI:1.3.1")
-    implementation("org.apache.httpcomponents:httpclient:4.5.14")
-    implementation("com.zaxxer:HikariCP:4.0.3")
-    implementation(files("libs/MineCoreLib-1.0.jar"))
+    compileOnly("me.clip:placeholderapi:${placeholderApiVersion}")
+    implementation("com.samjakob:SpiGUI:${spiGuiVersion}")
+    implementation("com.zaxxer:HikariCP:${hikariCpVersion}")
+    implementation(files("libs/MineCoreLib-${mineCoreLibVersion}.jar"))
 }
 
 tasks.test {
