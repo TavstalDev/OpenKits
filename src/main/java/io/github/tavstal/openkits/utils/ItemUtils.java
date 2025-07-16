@@ -1,6 +1,7 @@
 package io.github.tavstal.openkits.utils;
 
 import io.github.tavstal.minecorelib.core.PluginLogger;
+import io.github.tavstal.minecorelib.utils.TypeUtils;
 import io.github.tavstal.openkits.OpenKits;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
@@ -22,6 +23,7 @@ import java.util.*;
  */
 public class ItemUtils {
     private static final PluginLogger _logger = OpenKits.Logger().WithModule(ItemUtils.class);
+    private static final PluginLogger _typeUtilsLogger = _logger.WithModule(TypeUtils.class);
 
     /**
      * Serializes a list of ItemStack objects into a byte array.
@@ -43,11 +45,13 @@ public class ItemUtils {
                 if (meta != null) {
 
                     // Add item meta data like display name, lore, etc. (Optional)
-                    if (meta.hasDisplayName())
-                        itemData.put("name", GsonComponentSerializer.gson().serialize(meta.displayName()));
-                    if (meta.hasLore() && meta.lore() != null) {
+                    var displayName = meta.displayName();
+                    if (displayName != null)
+                        itemData.put("name", GsonComponentSerializer.gson().serialize(displayName));
+                    var metaLore = meta.lore();
+                    if (metaLore != null) {
                         List<String> lore = new ArrayList<>();
-                        for (Component line : meta.lore()) {
+                        for (Component line : metaLore) {
                             lore.add(GsonComponentSerializer.gson().serialize(line));
                         }
 
@@ -60,8 +64,10 @@ public class ItemUtils {
                     }
 
                     // Add nbt tags
+                    // TODO: Replace when its replacement is stable
+                    var customModelData = meta.getCustomModelData();
                     if (meta.hasCustomModelData()) {
-                        itemData.put("customModelData", meta.getCustomModelData());
+                        itemData.put("customModelData", customModelData);
                     }
 
                     // Enchants
@@ -108,7 +114,14 @@ public class ItemUtils {
         List<ItemStack> items = new ArrayList<>();
         try (ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
              ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
-            List<Map<String, Object>> itemDataList = (List<Map<String, Object>>) objectStream.readObject();
+
+            var streamObject = objectStream.readObject();
+            if (!(streamObject instanceof List)) {
+                _logger.Error("Deserialized object is not a List.");
+                return items;
+            }
+
+            @SuppressWarnings("unchecked") List<Map<String, Object>> itemDataList = (List<Map<String, Object>>) streamObject;
 
             for (Map<String, Object> itemData : itemDataList) {
                 String materialString = (String) itemData.get("material");
@@ -126,12 +139,16 @@ public class ItemUtils {
 
                     // Lore
                     if (itemData.containsKey("lore")) {
-                        List<String> lore = (List<String>) itemData.get("lore");
-                        List<Component> loreList = new ArrayList<>();
-                        for (String line : lore) {
-                            loreList.add(GsonComponentSerializer.gson().deserialize(line));
+                        var loreData = itemData.get("lore");
+                        if (loreData instanceof List) {
+                            //noinspection unchecked
+                            List<String> lore = (List<String>)loreData;
+                            List<Component> loreList = new ArrayList<>();
+                            for (String line : lore) {
+                                loreList.add(GsonComponentSerializer.gson().deserialize(line));
+                            }
+                            meta.lore(loreList);
                         }
-                        meta.lore(loreList);
                     }
 
                     // Durability
@@ -141,6 +158,7 @@ public class ItemUtils {
 
                     // customModelData
                     if (itemData.containsKey("customModelData")) {
+                        // TODO: Replace when its replacement is stable
                         meta.setCustomModelData((int) itemData.get("customModelData"));
                     }
 
@@ -203,9 +221,12 @@ public class ItemUtils {
     private static void deserializeEnchants(ItemMeta meta, Map<String, Object> itemData) {
         try {
             if (itemData.containsKey("enchantments")) {
-                Map<String, Integer> enchantments = (Map<String, Integer>) itemData.get("enchantments");
+                @SuppressWarnings("unchecked") Map<String, Integer> enchantments = (Map<String, Integer>) itemData.get("enchantments");
                 for (var entry : enchantments.entrySet()) {
-                    Enchantment enchantment = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(NamespacedKey.fromString(entry.getKey()));
+                    var namespacedKey = NamespacedKey.fromString(entry.getKey());
+                    if (namespacedKey == null)
+                        continue;
+                    Enchantment enchantment = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(namespacedKey);
                     if (enchantment != null) {
                         meta.addEnchant(enchantment, entry.getValue(), true);
                     }
@@ -254,6 +275,7 @@ public class ItemUtils {
                 if (itemData.containsKey("author"))
                     bookMeta.setAuthor((String) itemData.get("author"));
                 if (itemData.containsKey("pages")) {
+                    //noinspection unchecked
                     for (String page : (List<String>) itemData.get("pages")) {
                         bookMeta.addPages(GsonComponentSerializer.gson().deserialize(page));
                     }
@@ -331,10 +353,12 @@ public class ItemUtils {
                 }
                 // Custom Effects
                 if (itemData.containsKey("customEffects")) {
+                    //noinspection unchecked
                     Map<String, Object> effects = (Map<String, Object>) itemData.get("customEffects");
                     for (var entry : effects.entrySet()) {
                         var effectKey = NamespacedKey.fromString(entry.getKey());
                         if (effectKey != null) {
+                            //noinspection unchecked
                             var data = (Map<String, Object>) entry.getValue();
                             PotionEffectType type = RegistryAccess.registryAccess().getRegistry(RegistryKey.MOB_EFFECT).get(effectKey);
                             if (type != null) {
@@ -413,6 +437,7 @@ public class ItemUtils {
         try {
             if (meta instanceof FireworkMeta fireworkMeta) {
                 if (itemData.containsKey("effects")) {
+                    //noinspection unchecked
                     List<Map<String, Object>> effects = (List<Map<String, Object>>) itemData.get("effects");
                     for (var effectData : effects) {
                         FireworkEffect.Type type = FireworkEffect.Type.valueOf((String) effectData.get("type"));
@@ -420,12 +445,14 @@ public class ItemUtils {
                         boolean trail = (boolean) effectData.get("trail");
 
                         List<Color> colors = new ArrayList<>();
+                        //noinspection unchecked
                         for (String colorData : (List<String>) effectData.get("colors")) {
                             String[] color = colorData.split(";");
                             colors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
                         }
 
                         List<Color> fadeColors = new ArrayList<>();
+                        //noinspection unchecked
                         for (String colorData : (List<String>) effectData.get("fadeColors")) {
                             String[] color = colorData.split(";");
                             fadeColors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
@@ -490,6 +517,7 @@ public class ItemUtils {
     private static void deserializeFireworkEffectMeta(ItemMeta meta, Map<String, Object> itemData) {
         if (meta instanceof FireworkEffectMeta fireworkEffectMeta) {
             if (itemData.containsKey("effect")) {
+                //noinspection unchecked
                 Map<String, Object> effectData = (Map<String, Object>) itemData.get("effect");
 
                 FireworkEffect.Type type = FireworkEffect.Type.valueOf((String) effectData.get("type"));
@@ -497,12 +525,14 @@ public class ItemUtils {
                 boolean trail = (boolean) effectData.get("trail");
 
                 List<Color> colors = new ArrayList<>();
+                //noinspection unchecked
                 for (String colorData : (List<String>) effectData.get("colors")) {
                     String[] color = colorData.split(";");
                     colors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
                 }
 
                 List<Color> fadeColors = new ArrayList<>();
+                //noinspection unchecked
                 for (String colorData : (List<String>) effectData.get("fadeColors")) {
                     String[] color = colorData.split(";");
                     fadeColors.add(Color.fromARGB(Integer.parseInt(color[3]), Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2])));
@@ -521,10 +551,18 @@ public class ItemUtils {
      */
     private static void serializeLeatherArmorMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
-                var color = leatherArmorMeta.getColor();
-                itemData.put("color", String.format("%s;%s;%s;%s", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+            if (!(meta instanceof LeatherArmorMeta leatherArmorMeta)) {
+                _logger.Debug("ItemMeta is not an instance of LeatherArmorMeta.");
+                return;
             }
+
+            var color = leatherArmorMeta.getColor();
+            itemData.put("color", String.format("%s;%s;%s;%s",
+                    color.getRed(),
+                    color.getGreen(),
+                    color.getBlue(),
+                    color.getAlpha())
+            );
         }
         catch (Exception ex) {
             _logger.Error("An error occurred while serializing leather armor meta: " + ex.getMessage());
@@ -539,13 +577,19 @@ public class ItemUtils {
      */
     private static void deserializeLeatherArmorMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
-                if (!itemData.containsKey("color"))
-                    return;
-
-                String[] colorData = ((String) itemData.get("color")).split(";");
-                leatherArmorMeta.setColor(Color.fromARGB(Integer.parseInt(colorData[3]), Integer.parseInt(colorData[0]), Integer.parseInt(colorData[1]), Integer.parseInt(colorData[2])));
+            if (!(meta instanceof LeatherArmorMeta leatherArmorMeta)) {
+                _logger.Debug("ItemMeta is not an instance of LeatherArmorMeta.");
+                return;
             }
+            if (!itemData.containsKey("color"))
+                return;
+
+            String[] colorData = ((String) itemData.get("color")).split(";");
+            int red = Integer.parseInt(colorData[0]);
+            int green = Integer.parseInt(colorData[1]);
+            int blue = Integer.parseInt(colorData[2]);
+            int alpha = Integer.parseInt(colorData[3]);
+            leatherArmorMeta.setColor(Color.fromARGB(alpha, red, green, blue));
         }
         catch (Exception ex) {
             _logger.Error("An error occurred while deserializing leather armor meta: " + ex.getMessage());
@@ -560,16 +604,19 @@ public class ItemUtils {
      */
     private static void serializeSkullMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof SkullMeta skullMeta) {
-                if (skullMeta.hasOwner() && skullMeta.getOwningPlayer() != null)
-                    itemData.put("owner", skullMeta.getOwningPlayer().getUniqueId());
+            if (!(meta instanceof SkullMeta skullMeta)) {
+                _logger.Debug("ItemMeta is not an instance of SkullMeta.");
+                return;
+            }
 
-                if (skullMeta.getPlayerProfile() != null) {
-                    var profile = skullMeta.getPlayerProfile();
-                    if (profile.hasTextures())
-                        itemData.put("profileUrl", profile.getTextures().getSkin());
-                    itemData.put("profile", profile.getId());
-                }
+            if (skullMeta.hasOwner() && skullMeta.getOwningPlayer() != null)
+                itemData.put("owner", skullMeta.getOwningPlayer().getUniqueId());
+
+            if (skullMeta.getPlayerProfile() != null) {
+                var profile = skullMeta.getPlayerProfile();
+                if (profile.hasTextures())
+                    itemData.put("profileUrl", profile.getTextures().getSkin());
+                itemData.put("profile", profile.getId());
             }
         }
         catch (Exception ex) {
@@ -585,24 +632,26 @@ public class ItemUtils {
      */
     private static void deserializeSkullMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof SkullMeta skullMeta) {
-                if (itemData.containsKey("owner")) {
-                    var player = Bukkit.getOfflinePlayer((UUID) itemData.get("owner"));
-                    skullMeta.setOwningPlayer(player);
-                }
+            if (!(meta instanceof SkullMeta skullMeta)) {
+                _logger.Debug("ItemMeta is not an instance of SkullMeta.");
+                return;
+            }
 
-                // Restore player profile (for custom skins)
-                if (itemData.containsKey("profile")) {
-                    UUID profileUUID = (UUID) itemData.get("profile");
-                    var profile = Bukkit.createProfile(profileUUID);
-                    var textures = profile.getTextures();
-                    if (itemData.containsKey("profileUrl")) {
-                        textures.setSkin((URL)itemData.get("profileUrl"));
-                        profile.setTextures(textures);
-                    }
-                    skullMeta.setPlayerProfile(profile);
-                }
+            if (itemData.containsKey("owner")) {
+                var player = Bukkit.getOfflinePlayer((UUID) itemData.get("owner"));
+                skullMeta.setOwningPlayer(player);
+            }
 
+            // Restore player profile (for custom skins)
+            if (itemData.containsKey("profile")) {
+                UUID profileUUID = (UUID) itemData.get("profile");
+                var profile = Bukkit.createProfile(profileUUID);
+                var textures = profile.getTextures();
+                if (itemData.containsKey("profileUrl")) {
+                    textures.setSkin((URL) itemData.get("profileUrl"));
+                    profile.setTextures(textures);
+                }
+                skullMeta.setPlayerProfile(profile);
             }
         }
         catch (Exception ex) {
@@ -618,12 +667,18 @@ public class ItemUtils {
      */
     private static void serializeSpawnEggMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof SpawnEggMeta spawnEggMeta) {
-                if (spawnEggMeta.getSpawnedEntity() != null) {
-                    if (spawnEggMeta.getCustomSpawnedType() != null)
-                        itemData.put("customEntityType", spawnEggMeta.getCustomSpawnedType().getKey().getKey());
-                }
+            if (!(meta instanceof SpawnEggMeta spawnEggMeta)) {
+                _logger.Debug("ItemMeta is not an instance of SpawnEggMeta.");
+                return;
             }
+
+            if (spawnEggMeta.getSpawnedEntity() == null)
+                return;
+
+            if (spawnEggMeta.getCustomSpawnedType() == null)
+                return;
+
+            itemData.put("customEntityType", spawnEggMeta.getCustomSpawnedType().getKey().getKey());
         }
         catch (Exception ex) {
             _logger.Error("An error occurred while serializing spawn egg meta: " + ex.getMessage());
@@ -638,14 +693,19 @@ public class ItemUtils {
      */
     private static void deserializeSpawnEggMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof SpawnEggMeta spawnEggMeta) {
-                if (itemData.containsKey("customEntityType")) {
-                    String entityType = (String) itemData.get("customEntityType");
-                    var key = NamespacedKey.fromString(entityType);
-                    if (key != null) {
-                        spawnEggMeta.setCustomSpawnedType(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENTITY_TYPE).get(key));
-                    }
-                }
+            if (!(meta instanceof SpawnEggMeta spawnEggMeta)) {
+                _logger.Debug("ItemMeta is not an instance of SpawnEggMeta.");
+                return;
+            }
+
+            if (!itemData.containsKey("customEntityType")) {
+                return;
+            }
+
+            String entityType = (String) itemData.get("customEntityType");
+            var key = NamespacedKey.fromString(entityType);
+            if (key != null) {
+                spawnEggMeta.setCustomSpawnedType(RegistryAccess.registryAccess().getRegistry(RegistryKey.ENTITY_TYPE).get(key));
             }
         }
         catch (Exception ex) {
@@ -661,19 +721,24 @@ public class ItemUtils {
      */
     private static void serializeCrossbowMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof CrossbowMeta crossbowMeta) {
-                if (crossbowMeta.hasChargedProjectiles()) {
-                    List<ItemStack> projectiles = crossbowMeta.getChargedProjectiles();
-                    List<Map<String, Object>> projectileData = new ArrayList<>();
-                    for (ItemStack projectile : projectiles) {
-                        Map<String, Object> projectileMap = new HashMap<>();
-                        projectileMap.put("material", projectile.getType().toString());
-                        projectileMap.put("amount", projectile.getAmount());
-                        projectileData.add(projectileMap);
-                    }
-                    itemData.put("projectiles", projectileData);
-                }
+            if (!(meta instanceof CrossbowMeta crossbowMeta)) {
+                _logger.Debug("ItemMeta is not an instance of CrossbowMeta.");
+                return;
             }
+
+            if (!crossbowMeta.hasChargedProjectiles()) {
+                return;
+            }
+
+            List<ItemStack> projectiles = crossbowMeta.getChargedProjectiles();
+            List<Map<String, Object>> projectileData = new ArrayList<>();
+            for (ItemStack projectile : projectiles) {
+                Map<String, Object> projectileMap = new HashMap<>();
+                projectileMap.put("material", projectile.getType().toString());
+                projectileMap.put("amount", projectile.getAmount());
+                projectileData.add(projectileMap);
+            }
+            itemData.put("projectiles", projectileData);
         }
         catch (Exception ex) {
             _logger.Error("An error occurred while serializing crossbow meta: " + ex.getMessage());
@@ -688,22 +753,32 @@ public class ItemUtils {
      */
     private static void deserializeCrossbowMeta(ItemMeta meta, Map<String, Object> itemData) {
         try {
-            if (meta instanceof CrossbowMeta crossbowMeta) {
-                if (itemData.containsKey("projectiles")) {
-                    List<Map<String, Object>> projectileData = (List<Map<String, Object>>) itemData.get("projectiles");
-                    List<ItemStack> projectiles = new ArrayList<>();
-                    for (Map<String, Object> projectileMap : projectileData) {
-                        String materialString = (String) projectileMap.get("material");
-                        Material material = Material.getMaterial(materialString);
-                        int amount = (int) projectileMap.get("amount");
-                        if (material != null) {
-                            ItemStack projectile = new ItemStack(material, amount);
-                            projectiles.add(projectile);
-                        }
-                    }
-                    crossbowMeta.setChargedProjectiles(projectiles);
+            if (!(meta instanceof CrossbowMeta crossbowMeta)) {
+                _logger.Debug("ItemMeta is not an instance of CrossbowMeta.");
+                return;
+            }
+
+            if (!itemData.containsKey("projectiles"))
+                return;
+
+            var rawProjectiles = itemData.get("projectiles");
+            List<Map<String, Object>> projectileData = TypeUtils.castAsListOfMaps(rawProjectiles, _typeUtilsLogger);
+            if (projectileData == null) {
+                _logger.Error("Failed to cast projectiles data to List<Map<String, Object>>.");
+                return;
+            }
+
+            List<ItemStack> projectiles = new ArrayList<>();
+            for (Map<String, Object> projectileMap : projectileData) {
+                String materialString = (String) projectileMap.get("material");
+                Material material = Material.getMaterial(materialString);
+                int amount = (int) projectileMap.get("amount");
+                if (material != null) {
+                    ItemStack projectile = new ItemStack(material, amount);
+                    projectiles.add(projectile);
                 }
             }
+            crossbowMeta.setChargedProjectiles(projectiles);
         }
         catch (Exception ex) {
             _logger.Error("An error occurred while deserializing crossbow meta: " + ex.getMessage());

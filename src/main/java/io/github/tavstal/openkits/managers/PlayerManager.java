@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Manages player data for the OpenKits plugin.
+ * Provides methods to add, remove, and retrieve player data.
+ */
 public class PlayerManager {
     private static final Map<UUID, PlayerData> _playerData = new HashMap<>();
 

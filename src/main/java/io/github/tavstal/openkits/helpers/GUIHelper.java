@@ -16,6 +16,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A helper class for creating and managing GUI-related ItemStacks in the OpenKits plugin.
+ */
 public class GUIHelper {
     public static final NamespacedKey DupeKey = new NamespacedKey(OpenKits.Instance, "ProbablyDuped");
 

@@ -20,16 +20,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Manages MySQL database connections and operations for the OpenKits plugin.
+ * Implements the IDatabase interface to provide methods for loading, unloading,
+ * and managing the database schema.
+ */
 public class MySqlManager implements IDatabase {
     private static HikariDataSource _dataSource;
     private static FileConfiguration getConfig() { return OpenKits.Instance.getConfig(); }
     private static final PluginLogger _logger = OpenKits.Logger().WithModule(MySqlManager.class);
 
+    /**
+     * Initializes the database connection by creating a data source.
+     */
     @Override
     public void Load() {
         _dataSource = CreateDataSource();
     }
 
+    /**
+     * Closes the database connection and releases resources.
+     */
     @Override
     public void Unload() {
         if (_dataSource != null) {
@@ -38,6 +49,11 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Creates and configures a HikariCP data source for connecting to the MySQL database.
+     *
+     * @return A configured HikariDataSource instance, or null if an error occurs.
+     */
     public HikariDataSource CreateDataSource() {
         try
         {
@@ -56,6 +72,9 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Ensures the required database schema exists by creating tables if they do not already exist.
+     */
     @Override
     public void CheckSchema() {
         try (Connection connection = _dataSource.getConnection())
@@ -94,6 +113,19 @@ public class MySqlManager implements IDatabase {
     }
 
     //#region Kits
+    /**
+     * Adds a new kit to the database with the specified attributes.
+     *
+     * @param name The name of the kit.
+     * @param icon The material icon representing the kit.
+     * @param price The price of the kit.
+     * @param requirePermission Whether the kit requires a permission to be used.
+     * @param permission The permission string required to use the kit.
+     * @param cooldown The cooldown time (in milliseconds) for the kit.
+     * @param isOneTime Whether the kit can only be used once.
+     * @param enable Whether the kit is enabled.
+     * @param items The list of items included in the kit.
+     */
     @Override
     public void AddKit(String name, Material icon, Double price, boolean requirePermission, String permission, long cooldown, boolean isOneTime, boolean enable, List<ItemStack> items) {
         try (Connection connection = _dataSource.getConnection())
@@ -125,6 +157,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the name of a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param name The new name for the kit.
+     */
     @Override
     public void UpdateKitName(long id, String name) {
         try (Connection connection = _dataSource.getConnection())
@@ -143,6 +181,13 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the permission requirements for a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param requirePermission Whether the kit requires a permission.
+     * @param permission The new permission string for the kit.
+     */
     @Override
     public void UpdateKitPermission(long id, boolean requirePermission, String permission) {
         try (Connection connection = _dataSource.getConnection())
@@ -162,6 +207,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the items of a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param items The new list of items for the kit.
+     */
     @Override
     public void UpdateKitItems(long id, List<ItemStack> items) {
         try (Connection connection = _dataSource.getConnection())
@@ -180,6 +231,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the price of a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param price The new price for the kit.
+     */
     @Override
     public void UpdateKitPrice(long id, Double price) {
         try (Connection connection = _dataSource.getConnection())
@@ -198,6 +255,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the cooldown of a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param cooldown The new cooldown time (in milliseconds) for the kit.
+     */
     @Override
     public void UpdateKitCooldown(long id, long cooldown) {
         try (Connection connection = _dataSource.getConnection())
@@ -216,6 +279,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the enabled status of a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param enable The new enabled status for the kit.
+     */
     @Override
     public void UpdateKitEnabled(long id, boolean enable) {
         try (Connection connection = _dataSource.getConnection())
@@ -234,6 +303,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the icon of a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param icon The new material icon for the kit.
+     */
     @Override
     public void UpdateKitIcon(long id, Material icon) {
         try (Connection connection = _dataSource.getConnection())
@@ -252,6 +327,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the one-time usage status of a kit in the database.
+     *
+     * @param id The ID of the kit to update.
+     * @param isOneTime The new one-time usage status for the kit.
+     */
     @Override
     public void UpdateKitOneTime(long id, boolean isOneTime) {
         try (Connection connection = _dataSource.getConnection())
@@ -270,6 +351,11 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Removes a kit from the database.
+     *
+     * @param id The ID of the kit to remove.
+     */
     @Override
     public void RemoveKit(long id) {
         try (Connection connection = _dataSource.getConnection())
@@ -287,6 +373,11 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Retrieves all kits from the database.
+     *
+     * @return A list of all kits in the database.
+     */
     @Override
     public List<Kit> GetKits() {
         List<Kit> data = new ArrayList<>();
@@ -322,6 +413,12 @@ public class MySqlManager implements IDatabase {
         return data;
     }
 
+    /**
+     * Finds a kit in the database by its ID.
+     *
+     * @param id The ID of the kit to find.
+     * @return The kit with the specified ID, or null if not found.
+     */
     @Override
     public Kit FindKit(long id) {
         Kit data = null;
@@ -358,6 +455,12 @@ public class MySqlManager implements IDatabase {
         return data;
     }
 
+    /**
+     * Finds a kit in the database by its name.
+     *
+     * @param name The name of the kit to find.
+     * @return The kit with the specified name, or null if not found.
+     */
     @Override
     public Kit FindKit(String name) {
         Kit data = null;
@@ -396,6 +499,13 @@ public class MySqlManager implements IDatabase {
     //#endregion
 
     //#region Cooldowns
+    /**
+     * Adds a cooldown for a specific kit and player in the database.
+     *
+     * @param playerId The UUID of the player.
+     * @param kitId The ID of the kit.
+     * @param end The end time of the cooldown as a LocalDateTime.
+     */
     @Override
     public void AddKitCooldown(UUID playerId, long kitId, LocalDateTime end) {
         try (Connection connection = _dataSource.getConnection())
@@ -416,6 +526,13 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Updates the cooldown for a specific kit and player in the database.
+     *
+     * @param playerId The UUID of the player.
+     * @param kitId The ID of the kit.
+     * @param end The new end time of the cooldown as a LocalDateTime.
+     */
     @Override
     public void UpdateKitCooldown(UUID playerId, long kitId, LocalDateTime end) {
         try (Connection connection = _dataSource.getConnection())
@@ -435,6 +552,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Removes a specific cooldown for a kit and player from the database.
+     *
+     * @param playerId The UUID of the player.
+     * @param kitId The ID of the kit.
+     */
     @Override
     public void RemoveKitCooldown(UUID playerId, long kitId) {
         try (Connection connection = _dataSource.getConnection())
@@ -453,6 +576,11 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Removes all cooldowns for a specific player from the database.
+     *
+     * @param playerId The UUID of the player.
+     */
     @Override
     public void RemoveKitCooldowns(UUID playerId) {
         try (Connection connection = _dataSource.getConnection())
@@ -470,6 +598,11 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Removes all cooldowns for a specific kit from the database.
+     *
+     * @param kitId The ID of the kit.
+     */
     @Override
     public void RemoveKitCooldowns(long kitId) {
         try (Connection connection = _dataSource.getConnection())
@@ -487,6 +620,12 @@ public class MySqlManager implements IDatabase {
         }
     }
 
+    /**
+     * Retrieves all cooldowns for a specific player from the database.
+     *
+     * @param playerId The UUID of the player.
+     * @return A list of KitCooldown objects representing the player's cooldowns.
+     */
     @Override
     public List<KitCooldown> GetKitCooldowns(UUID playerId) {
         List<KitCooldown> data = new ArrayList<>();
@@ -516,6 +655,13 @@ public class MySqlManager implements IDatabase {
         return data;
     }
 
+    /**
+     * Finds a specific cooldown for a kit and player in the database.
+     *
+     * @param playerId The UUID of the player.
+     * @param kitId The ID of the kit.
+     * @return A KitCooldown object representing the cooldown, or null if not found.
+     */
     @Override
     public KitCooldown FindKitCooldown(UUID playerId, long kitId) {
         KitCooldown data = null;
