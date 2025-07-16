@@ -18,6 +18,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Represents the Preview GUI for the OpenKits plugin.
+ * This class provides constants for logging and placeholder slots used in the GUI.
+ */
 public class PreviewGUI {
     private static final PluginLogger _logger = OpenKits.Logger().WithModule(PreviewGUI.class);
     private static final Integer[] SlotPlaceholders = {

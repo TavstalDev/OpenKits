@@ -19,6 +19,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * Represents the GUI for displaying kits in the OpenKits plugin.
+ * This class provides methods to create, open, close, and refresh the GUI for players.
+ */
 public class KitsGUI {
     private static final PluginLogger _logger = OpenKits.Logger().WithModule(KitsGUI.class);
 
