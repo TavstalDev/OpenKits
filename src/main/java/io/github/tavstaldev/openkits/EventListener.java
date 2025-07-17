@@ -1,10 +1,10 @@
-package io.github.tavstal.openkits;
+package io.github.tavstaldev.openkits;
 
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.openkits.helpers.GUIHelper;
-import io.github.tavstal.openkits.managers.PlayerManager;
-import io.github.tavstal.openkits.models.Kit;
-import io.github.tavstal.openkits.models.PlayerData;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.utils.GuiUtils;
+import io.github.tavstaldev.openkits.managers.PlayerManager;
+import io.github.tavstaldev.openkits.models.Kit;
+import io.github.tavstaldev.openkits.models.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -72,7 +72,7 @@ public class EventListener implements Listener {
         if (playerData.isGUIOpened())
             return;
 
-        if (!GUIHelper.isDuped(event.getItem().getItemStack()))
+        if (!GuiUtils.isDuped(event.getItem().getItemStack(), OpenKits.Instance))
             return;
 
         event.setCancelled(true);
@@ -97,7 +97,7 @@ public class EventListener implements Listener {
         if (playerData.isGUIOpened())
             return;
 
-        if (!GUIHelper.isDuped(event.getItem()))
+        if (!GuiUtils.isDuped(event.getItem(), OpenKits.Instance))
             return;
 
         event.setCancelled(true);
@@ -119,7 +119,7 @@ public class EventListener implements Listener {
         if (playerData.isGUIOpened())
             return;
 
-        if (!GUIHelper.isDuped(event.getItemDrop().getItemStack()))
+        if (!GuiUtils.isDuped(event.getItemDrop().getItemStack(), OpenKits.Instance))
             return;
 
         event.setCancelled(true);

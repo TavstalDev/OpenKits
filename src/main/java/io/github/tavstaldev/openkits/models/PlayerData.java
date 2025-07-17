@@ -1,8 +1,8 @@
-package io.github.tavstal.openkits.models;
+package io.github.tavstaldev.openkits.models;
 
 import com.samjakob.spigui.menu.SGMenu;
-import io.github.tavstal.openkits.gui.KitsGUI;
-import io.github.tavstal.openkits.gui.PreviewGUI;
+import io.github.tavstaldev.openkits.gui.KitsGUI;
+import io.github.tavstaldev.openkits.gui.PreviewGUI;
 import org.bukkit.entity.Player;
 
 /**

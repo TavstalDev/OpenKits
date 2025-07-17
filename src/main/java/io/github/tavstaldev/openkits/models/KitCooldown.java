@@ -1,4 +1,4 @@
-package io.github.tavstal.openkits.models;
+package io.github.tavstaldev.openkits.models;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

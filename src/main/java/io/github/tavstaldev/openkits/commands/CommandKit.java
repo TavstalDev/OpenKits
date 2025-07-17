@@ -1,13 +1,13 @@
-package io.github.tavstal.openkits.commands;
+package io.github.tavstaldev.openkits.commands;
 
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.minecorelib.models.SubCommandData;
-import io.github.tavstal.minecorelib.utils.ChatUtils;
-import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.gui.KitsGUI;
-import io.github.tavstal.openkits.models.Kit;
-import io.github.tavstal.openkits.models.KitCooldown;
-import io.github.tavstal.openkits.utils.EconomyUtils;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.models.command.SubCommandData;
+import io.github.tavstaldev.minecorelib.utils.ChatUtils;
+import io.github.tavstaldev.openkits.OpenKits;
+import io.github.tavstaldev.openkits.gui.KitsGUI;
+import io.github.tavstaldev.openkits.models.Kit;
+import io.github.tavstaldev.openkits.models.KitCooldown;
+import io.github.tavstaldev.openkits.utils.EconomyUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Material;
@@ -102,11 +102,17 @@ public class CommandKit implements CommandExecutor {
                         }
                     }
 
+                    List<Kit> kits = OpenKits.Database.GetKits();
+                    if (kits.isEmpty()) {
+                        OpenKits.Instance.sendLocalizedMsg(player, "Commands.List.None");
+                        return true;
+                    }
+
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.List.Title");
 
                     boolean reachedEnd = false;
-                    List<Kit> kits = OpenKits.Database.GetKits();
                     int maxPage = 1 + (kits.size() / 15);
+                    int kitSentCount = 0;
                     for (int i = 0; i < 15; i++) {
                         int index = i + (page - 1) * 15;
 
@@ -127,6 +133,12 @@ public class CommandKit implements CommandExecutor {
                         }});
 
                         player.sendMessage(result);
+                        kitSentCount++;
+                    }
+
+                    if (kitSentCount == 0) {
+                        OpenKits.Instance.sendLocalizedMsg(player, "Commands.List.None");
+                        return true;
                     }
 
                     // Bottom message
@@ -283,7 +295,7 @@ public class CommandKit implements CommandExecutor {
                     if (permission != null)
                         permission = permission.replace("%kit%", args[1]);
                     boolean requirePermission = OpenKits.GetConfig().getBoolean("default.isPermissionRequired");
-                    boolean isOneTime = OpenKits.GetConfig().getBoolean("default.onTime");
+                    boolean isOneTime = OpenKits.GetConfig().getBoolean("default.oneTime");
                     Material icon;
                     try
                     {

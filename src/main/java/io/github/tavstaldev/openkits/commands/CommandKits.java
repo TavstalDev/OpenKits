@@ -1,10 +1,10 @@
-package io.github.tavstal.openkits.commands;
+package io.github.tavstaldev.openkits.commands;
 
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.minecorelib.utils.ChatUtils;
-import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.models.Kit;
-import io.github.tavstal.openkits.models.KitCooldown;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.utils.ChatUtils;
+import io.github.tavstaldev.openkits.OpenKits;
+import io.github.tavstaldev.openkits.models.Kit;
+import io.github.tavstaldev.openkits.models.KitCooldown;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

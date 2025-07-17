@@ -1,16 +1,15 @@
-package io.github.tavstal.openkits;
+package io.github.tavstaldev.openkits;
 
 import com.samjakob.spigui.SpiGUI;
-import io.github.tavstal.minecorelib.PluginBase;
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.minecorelib.core.PluginTranslator;
-import io.github.tavstal.openkits.commands.CommandKit;
-import io.github.tavstal.openkits.commands.CommandKitCompleter;
-import io.github.tavstal.openkits.commands.CommandKits;
-import io.github.tavstal.openkits.managers.MySqlManager;
-import io.github.tavstal.openkits.managers.SqlLiteManager;
-import io.github.tavstal.openkits.models.IDatabase;
-import io.github.tavstal.openkits.utils.EconomyUtils;
+import io.github.tavstaldev.minecorelib.PluginBase;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.openkits.commands.CommandKit;
+import io.github.tavstaldev.openkits.commands.CommandKitCompleter;
+import io.github.tavstaldev.openkits.commands.CommandKits;
+import io.github.tavstaldev.openkits.managers.MySqlManager;
+import io.github.tavstaldev.openkits.managers.SqlLiteManager;
+import io.github.tavstaldev.openkits.models.IDatabase;
+import io.github.tavstaldev.openkits.utils.EconomyUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -21,12 +20,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class OpenKits extends PluginBase {
     // Singleton instance of the plugin
     public static OpenKits Instance;
-
-    // Logger for the plugin
-    private final PluginLogger _logger;
-
-    // Translator for handling localizations
-    private final PluginTranslator _translator;
 
     // Static logger accessor
     public static PluginLogger Logger() {
@@ -68,8 +61,6 @@ public class OpenKits extends PluginBase {
                 "https://github.com/TavstalDev/OpenKits/releases/latest",
                 new String[]{"eng", "hun"}
         );
-        _logger = getCustomLogger();
-        _translator = getTranslator();
     }
 
     /**

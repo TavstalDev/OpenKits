@@ -1,8 +1,8 @@
-package io.github.tavstal.openkits.models;
+package io.github.tavstaldev.openkits.models;
 
-import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.utils.EconomyUtils;
-import io.github.tavstal.openkits.utils.ItemUtils;
+import io.github.tavstaldev.openkits.OpenKits;
+import io.github.tavstaldev.openkits.utils.EconomyUtils;
+import io.github.tavstaldev.openkits.utils.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

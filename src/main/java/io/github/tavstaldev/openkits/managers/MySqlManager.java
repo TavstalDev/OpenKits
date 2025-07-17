@@ -1,13 +1,13 @@
-package io.github.tavstal.openkits.managers;
+package io.github.tavstaldev.openkits.managers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.models.IDatabase;
-import io.github.tavstal.openkits.models.Kit;
-import io.github.tavstal.openkits.models.KitCooldown;
-import io.github.tavstal.openkits.utils.ItemUtils;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.openkits.OpenKits;
+import io.github.tavstaldev.openkits.models.IDatabase;
+import io.github.tavstaldev.openkits.models.Kit;
+import io.github.tavstaldev.openkits.models.KitCooldown;
+import io.github.tavstaldev.openkits.utils.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;

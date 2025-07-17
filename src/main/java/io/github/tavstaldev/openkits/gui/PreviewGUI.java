@@ -1,13 +1,13 @@
-package io.github.tavstal.openkits.gui;
+package io.github.tavstaldev.openkits.gui;
 
 import com.samjakob.spigui.buttons.SGButton;
 import com.samjakob.spigui.menu.SGMenu;
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.helpers.GUIHelper;
-import io.github.tavstal.openkits.managers.PlayerManager;
-import io.github.tavstal.openkits.models.Kit;
-import io.github.tavstal.openkits.models.PlayerData;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.utils.GuiUtils;
+import io.github.tavstaldev.openkits.OpenKits;
+import io.github.tavstaldev.openkits.managers.PlayerManager;
+import io.github.tavstaldev.openkits.models.Kit;
+import io.github.tavstaldev.openkits.models.PlayerData;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -44,20 +44,20 @@ public class PreviewGUI {
             SGMenu menu = OpenKits.GetGUI().create(OpenKits.Instance.Localize(player, "GUI.KitPreviewTitle"), 6);
 
             // Create Placeholders
-            SGButton placeholderButton = new SGButton(GUIHelper.createItem(Material.BLACK_STAINED_GLASS_PANE, " "));
+            SGButton placeholderButton = new SGButton(GuiUtils.createItem(OpenKits.Instance, Material.BLACK_STAINED_GLASS_PANE, " "));
             for (Integer slot : SlotPlaceholders) {
                 menu.setButton(0, slot, placeholderButton);
             }
 
             // Close Button
             SGButton closeButton = new SGButton(
-                    GUIHelper.createItem(Material.BARRIER, OpenKits.Instance.Localize(player, "GUI.Close")))
+                    GuiUtils.createItem(OpenKits.Instance, Material.BARRIER, OpenKits.Instance.Localize(player, "GUI.Close")))
                     .withListener((InventoryClickEvent event) -> KitsGUI.open(player));
             menu.setButton(0, 45, closeButton);
 
             // Previous Page Button
             SGButton prevPageButton = new SGButton(
-                    GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.PreviousPage")))
+                    GuiUtils.createItem(OpenKits.Instance, Material.ARROW, OpenKits.Instance.Localize(player, "GUI.PreviousPage")))
                     .withListener((InventoryClickEvent event) -> {
                         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
                         if (playerData.getPreviewPage() - 1 <= 0)
@@ -69,13 +69,13 @@ public class PreviewGUI {
 
             // Page Indicator
             SGButton pageButton = new SGButton(
-                    GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page").replace("%page%", "1"))
+                    GuiUtils.createItem(OpenKits.Instance, Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page").replace("%page%", "1"))
             );
             menu.setButton(0, 49, pageButton);
 
             // Next Page Button
             SGButton nextPageButton = new SGButton(
-                    GUIHelper.createItem(Material.ARROW, OpenKits.Instance.Localize(player, "GUI.NextPage")))
+                    GuiUtils.createItem(OpenKits.Instance, Material.ARROW, OpenKits.Instance.Localize(player, "GUI.NextPage")))
                     .withListener((InventoryClickEvent event) -> {
                         PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
                         int maxPage = 1 + (playerData.getPreviewKit().GetItems().size() / 28);
@@ -133,7 +133,7 @@ public class PreviewGUI {
         try {
             PlayerData playerData = PlayerManager.getPlayerData(player.getUniqueId());
             SGButton pageButton = new SGButton(
-                    GUIHelper.createItem(Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page")
+                    GuiUtils.createItem(OpenKits.Instance, Material.PAPER, OpenKits.Instance.Localize(player, "GUI.Page")
                             .replace("%page%", String.valueOf(playerData.getPreviewPage())))
             );
             playerData.getPreviewMenu().setButton(0, 49, pageButton);
@@ -150,7 +150,7 @@ public class PreviewGUI {
 
                 ItemStack itemStack = items.get(index);
                 var meta = itemStack.getItemMeta();
-                meta.getPersistentDataContainer().set(GUIHelper.DupeKey, PersistentDataType.BOOLEAN, true);
+                meta.getPersistentDataContainer().set(GuiUtils.DupeKey(OpenKits.Instance), PersistentDataType.BOOLEAN, true);
                 itemStack.setItemMeta(meta);
 
                 playerData.getPreviewMenu().setButton(0, slot, new SGButton(itemStack));

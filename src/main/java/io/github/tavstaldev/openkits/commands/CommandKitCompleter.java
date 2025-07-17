@@ -1,8 +1,8 @@
-package io.github.tavstal.openkits.commands;
+package io.github.tavstaldev.openkits.commands;
 
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.openkits.OpenKits;
-import io.github.tavstal.openkits.models.Kit;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.openkits.OpenKits;
+import io.github.tavstaldev.openkits.models.Kit;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;

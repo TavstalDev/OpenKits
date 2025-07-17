@@ -1,7 +1,7 @@
-package io.github.tavstal.openkits.utils;
+package io.github.tavstaldev.openkits.utils;
 
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.openkits.OpenKits;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.openkits.OpenKits;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

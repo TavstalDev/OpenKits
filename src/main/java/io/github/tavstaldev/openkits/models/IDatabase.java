@@ -1,4 +1,4 @@
-package io.github.tavstal.openkits.models;
+package io.github.tavstaldev.openkits.models;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
