@@ -1,8 +1,8 @@
-package io.github.tavstal.openkits.utils;
+package io.github.tavstaldev.openkits.utils;
 
-import io.github.tavstal.minecorelib.core.PluginLogger;
-import io.github.tavstal.minecorelib.utils.TypeUtils;
-import io.github.tavstal.openkits.OpenKits;
+import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.utils.TypeUtils;
+import io.github.tavstaldev.openkits.OpenKits;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
@@ -35,7 +35,7 @@ public class ItemUtils {
         List<Map<String, Object>> itemDataList = new ArrayList<>();
         for (ItemStack item : items) {
             Map<String, Object> itemData = new HashMap<>();
-
+            _logger.Debug("Serializing item: " + item.getType().name());
             itemData.put("material", item.getType().toString());  // Store the material (type) of the item
             itemData.put("amount", item.getAmount());  // Store the amount of the item
 
@@ -65,8 +65,8 @@ public class ItemUtils {
 
                     // Add nbt tags
                     // TODO: Replace when its replacement is stable
-                    var customModelData = meta.getCustomModelData();
                     if (meta.hasCustomModelData()) {
+                        var customModelData = meta.getCustomModelData();
                         itemData.put("customModelData", customModelData);
                     }
 
@@ -731,13 +731,7 @@ public class ItemUtils {
             }
 
             List<ItemStack> projectiles = crossbowMeta.getChargedProjectiles();
-            List<Map<String, Object>> projectileData = new ArrayList<>();
-            for (ItemStack projectile : projectiles) {
-                Map<String, Object> projectileMap = new HashMap<>();
-                projectileMap.put("material", projectile.getType().toString());
-                projectileMap.put("amount", projectile.getAmount());
-                projectileData.add(projectileMap);
-            }
+            var projectileData = serializeItemStackList(projectiles);
             itemData.put("projectiles", projectileData);
         }
         catch (Exception ex) {
@@ -762,22 +756,12 @@ public class ItemUtils {
                 return;
 
             var rawProjectiles = itemData.get("projectiles");
-            List<Map<String, Object>> projectileData = TypeUtils.castAsListOfMaps(rawProjectiles, _typeUtilsLogger);
-            if (projectileData == null) {
-                _logger.Error("Failed to cast projectiles data to List<Map<String, Object>>.");
+            if (!(rawProjectiles instanceof byte[])) {
+                _logger.Error("Expected projectiles data to be a byte array.");
                 return;
             }
 
-            List<ItemStack> projectiles = new ArrayList<>();
-            for (Map<String, Object> projectileMap : projectileData) {
-                String materialString = (String) projectileMap.get("material");
-                Material material = Material.getMaterial(materialString);
-                int amount = (int) projectileMap.get("amount");
-                if (material != null) {
-                    ItemStack projectile = new ItemStack(material, amount);
-                    projectiles.add(projectile);
-                }
-            }
+            List<ItemStack> projectiles = deserializeItemStackList((byte[])rawProjectiles);
             crossbowMeta.setChargedProjectiles(projectiles);
         }
         catch (Exception ex) {
