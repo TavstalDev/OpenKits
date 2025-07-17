@@ -44,6 +44,7 @@ Commands:
     Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======"
     PrevBtn: "&a<<< "
     NextBtn: " &a>>>"
+    None: "%prefix% &cThere are no kits available."
   Info:
     Syntax: " [kit_name]"
     Desc: "Shows information about the kit."
@@ -53,7 +54,7 @@ Commands:
     Price: "&ePrice: &3%price% &e%currency_plural%"
     Cooldown: "&eCooldown: &3%cooldown%"
     Permission: "&ePermission: &3%permission%, Required?: %required%"
-    OnTime: "&eOn Time: &3%ontime%"
+    OneTime: "&eOn Time: &3%onetime%"
   Get:
     Syntax: " [kit_name]"
     Desc: "Gets the kit."
@@ -103,7 +104,7 @@ Commands:
   SetOneTime:
     Syntax: " [kit_name] [is_onetime]"
     Desc: "Sets the kit can be called only once."
-    Usage: "%prefix% &cUsage: &e/openkits setontime [kit] [is_onetime]"
+    Usage: "%prefix% &cUsage: &e/openkits setonetime [kit] [is_onetime]"
     Success: "%prefix %aYou have set the '&e%kit%&a' kit to be called only once to &e%onetime%&a."
   SetEnabled:
     Syntax: " [kit_name] [is_enabled]"
@@ -151,5 +152,5 @@ GUI:
     - "&c> &eRight-click to preview."
   Enchant: " &2%name%  &e> &a%level%"
 
-  # DO NOT TOUCH THIS. This helps to handle config related changes after updates.
-  FileVersion: 1
+# DO NOT TOUCH THIS. This helps to handle config related changes after updates.
+FileVersion: 1

@@ -36,8 +36,8 @@ default:
     permission: "openkits.kit.%kit%"
     # Default isPermissionRequired for kits
     isPermissionRequired: true
-    # Default onTime for kits
-    onTime: false
+    # Default oneTime for kits
+    oneTime: false
     # Default icon for kits
     icon: "WOODEN_SWORD"
 
