@@ -44,6 +44,7 @@ Commands:
     Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======"
     PrevBtn: "&a<<< "
     NextBtn: " &a>>>"
+    None: "%prefix% &cNincsenek elérhető kitek."
   Info:
     Syntax: " [kit_név]"
     Desc: "Megjeleníti a kit információit."
@@ -53,7 +54,7 @@ Commands:
     Price: "&eÁr: &3%price% &e%currency_plural%"
     Cooldown: "&eÚjratöltési idő: &3%cooldown%"
     Permission: "&eJogosultság: &3%permission%, Szükséges?: %required%"
-    OnTime: "&eEgyszeri használat: &3%ontime%"
+    OneTime: "&eEgyszeri használat: &3%onetime%"
   Get:
     Syntax: " [kit_név]"
     Desc: "Megkapja a kitet."
@@ -103,7 +104,7 @@ Commands:
   SetOneTime:
     Syntax: " [kit_név] [egyszer_használható?]"
     Desc: "Beállítja, hogy a kit csak egyszer legyen használható."
-    Usage: "%prefix% &cHasználat: &e/openkits setontime [kit] [egyszer_használható?]"
+    Usage: "%prefix% &cHasználat: &e/openkits setonetime [kit] [egyszer_használható?]"
     Success: "%prefix% &aBeállítottad, hogy a '&e%kit%&a' kit csak egyszer legyen használható: &e%onetime%&a."
   SetEnabled:
     Syntax: " [kit_név] [engedélyezve?]"
