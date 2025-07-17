@@ -107,7 +107,7 @@ public class PreviewGUI {
         playerData.setGUIOpened(true);
         playerData.setPreviewPage(1);
         playerData.getPreviewMenu().setName(OpenKits.Instance.Localize(player, "GUI.KitPreviewTitle", new HashMap<>() {{
-            put("kit", kit.Name.substring(0, 0).toUpperCase() + kit.Name.substring(1));
+            put("kit", kit.Name.substring(0, 1).toUpperCase() + kit.Name.substring(1));
         }}));
         player.openInventory(playerData.getPreviewMenu().getInventory());
         refresh(player);
