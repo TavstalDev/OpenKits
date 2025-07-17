@@ -102,6 +102,12 @@ OpenKits supports multiple languages. You can add or edit translations in the `p
 
 OpenKits integrates with Vault to provide economy support. Ensure that you have a compatible economy plugin installed and configured on your server.
 
+## Screenshots
+
+![Preview](docs/images/img0.png)
+![Preview](docs/images/img1.png)
+![Preview](docs/images/img2.png)
+
 ## Development
 
 To contribute to the development of OpenKits, follow these steps:
