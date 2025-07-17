@@ -1,5 +1,11 @@
 # OpenKits
 
+![Release (latest by date)](https://img.shields.io/github/v/release/TavstalDev/OpenKits?style=plastic-square)
+![Workflow Status](https://img.shields.io/github/actions/workflow/status/TavstalDev/OpenKits/release.yml?branch=stable&label=build&style=plastic-square)
+![License](https://img.shields.io/github/license/TavstalDev/OpenKits?style=plastic-square)
+![Downloads](https://img.shields.io/github/downloads/TavstalDev/OpenKits/total?style=plastic-square)
+![Issues](https://img.shields.io/github/issues/TavstalDev/OpenKits?style=plastic-square)
+
 OpenKits is a Minecraft plugin for easy kit creation, management, and distribution.
 
 ## Features
