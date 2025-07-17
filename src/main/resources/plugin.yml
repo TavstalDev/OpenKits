@@ -1,4 +1,4 @@
-main: io.github.tavstal.openkits.OpenKits
+main: io.github.tavstaldev.openkits.OpenKits
 version: 1.0.0
 
 name: OpenKits
