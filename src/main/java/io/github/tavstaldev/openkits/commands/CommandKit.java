@@ -65,15 +65,16 @@ public class CommandKit implements CommandExecutor {
                     parameters.put("version", OpenKits.Instance.getVersion());
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.Version.Current", parameters);
 
-                    boolean isUpToDate = OpenKits.Instance.isUpToDate();
-                    if (isUpToDate) {
-                        OpenKits.Instance.sendLocalizedMsg(player, "Commands.Version.UpToDate");
-                        return true;
-                    }
-
-                    parameters = new HashMap<>();
-                    parameters.put("link", OpenKits.Instance.getDownloadUrl());
-                    OpenKits.Instance.sendLocalizedMsg(player, "Commands.Version.Outdated");
+                    OpenKits.Instance.isUpToDate().thenAccept(upToDate -> {
+                        if (upToDate) {
+                            OpenKits.Instance.sendLocalizedMsg(player, "Commands.Version.UpToDate");
+                        } else {
+                            OpenKits.Instance.sendLocalizedMsg(player, "Commands.Version.Outdated", Map.of("link", OpenKits.Instance.getDownloadUrl()));
+                        }
+                    }).exceptionally(e -> {
+                        _logger.Error("Failed to determine update status: " + e.getMessage());
+                        return null;
+                    });
                     return true;
                 }
                 case "reload": {
