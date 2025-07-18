@@ -137,12 +137,19 @@ public class OpenKits extends PluginBase {
             command.setExecutor(new CommandKits());
         }
 
-        _logger.Info(String.format("%s has been successfully loaded.", getProjectName()));
+        _logger.Ok(String.format("%s has been successfully loaded.", getProjectName()));
 
         // Check for updates
-        if (!isUpToDate()) {
-            _logger.Warn(String.format("A new version of %s is available! Download it at %s", getProjectName(), getDownloadUrl()));
-        }
+        isUpToDate().thenAccept(upToDate -> {
+            if (upToDate) {
+                _logger.Ok("Plugin is up to date!");
+            } else {
+                _logger.Warn("A new version of the plugin is available: " + getDownloadUrl());
+            }
+        }).exceptionally(e -> {
+            _logger.Error("Failed to determine update status: " + e.getMessage());
+            return null;
+        });
     }
 
     /**
