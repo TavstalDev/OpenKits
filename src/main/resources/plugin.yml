@@ -1,5 +1,5 @@
 main: io.github.tavstaldev.openkits.OpenKits
-version: 1.0.0
+version: 1.1.0
 
 name: OpenKits
 api-version: '1.21'
@@ -7,7 +7,6 @@ prefix: OpenKits
 authors: [ Tavstal ]
 description: A free and open-source player kits plugin with GUI and database support.
 website: https://github.com/TavstalDev/OpenKits
-# This sets PlaceholderAPI as an optional dependency for your plugin.
 softdepend: [PlaceholderAPI, Vault]
 permissions:
   openkits.commands.kits:
@@ -79,10 +78,10 @@ permissions:
       openkits.player: true
       openkits.admin: true
 commands:
-  kit:
+  openkits:
     description: "Main command for managing kits"
     usage: "/kit help"
-    aliases: [ "kits" ]
+    aliases: [ "openkit", "kit" ]
     permission: openkits.commands.kit
     subcommands:
       help:
