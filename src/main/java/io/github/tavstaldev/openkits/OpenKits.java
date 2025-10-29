@@ -3,12 +3,17 @@ package io.github.tavstaldev.openkits;
 import com.samjakob.spigui.SpiGUI;
 import io.github.tavstaldev.minecorelib.PluginBase;
 import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.core.PluginTranslator;
+import io.github.tavstaldev.minecorelib.utils.ItemMetaSerializer;
 import io.github.tavstaldev.openkits.commands.CommandKit;
 import io.github.tavstaldev.openkits.commands.CommandKitCompleter;
 import io.github.tavstaldev.openkits.commands.CommandKits;
+import io.github.tavstaldev.openkits.events.PlayerEventListener;
 import io.github.tavstaldev.openkits.managers.MySqlManager;
 import io.github.tavstaldev.openkits.managers.SqlLiteManager;
+import io.github.tavstaldev.openkits.metrics.Metrics;
 import io.github.tavstaldev.openkits.models.IDatabase;
+import io.github.tavstaldev.openkits.tasks.CacheCleanTask;
 import io.github.tavstaldev.openkits.utils.EconomyUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,21 +25,22 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class OpenKits extends PluginBase {
     // Singleton instance of the plugin
     public static OpenKits Instance;
+    private static SpiGUI _spiGUI;
+    public static ItemMetaSerializer ItemMetaSerializer;
+    public static IDatabase Database;
+    private CacheCleanTask cacheCleanTask; // Task for cleaning player caches.
 
     // Static logger accessor
-    public static PluginLogger Logger() {
+    public static PluginLogger logger() {
         return Instance._logger;
     }
-
-    // SpiGUI instance for GUI management
-    private static SpiGUI _spiGUI;
 
     /**
      * Gets the SpiGUI instance.
      *
      * @return The SpiGUI instance.
      */
-    public static SpiGUI GetGUI() {
+    public static SpiGUI gui() {
         return _spiGUI;
     }
 
@@ -43,23 +49,16 @@ public class OpenKits extends PluginBase {
      *
      * @return The FileConfiguration object.
      */
-    public static FileConfiguration GetConfig() {
+    public static FileConfiguration config() {
         return Instance.getConfig();
     }
-
-    // Database instance for managing storage
-    public static IDatabase Database;
 
     /**
      * Constructor for the OpenKits plugin.
      * Initializes the plugin with its name, version, author, download URL, and supported languages.
      */
     public OpenKits() {
-        super("OpenKits",
-                "1.0.0",
-                "Tavstal",
-                "https://github.com/TavstalDev/OpenKits/releases/latest",
-                new String[]{"eng", "hun"}
+        super(true, "https://github.com/TavstalDev/OpenKits/releases/latest"
         );
     }
 
@@ -70,35 +69,35 @@ public class OpenKits extends PluginBase {
     @Override
     public void onEnable() {
         Instance = this;
-        _logger.Info(String.format("Loading %s...", getProjectName()));
+        _config = new KitsConfiguration();
+        _config.load(); // Fix load bug
+        _translator = new PluginTranslator(this, new String[]{"eng", "hun"});
+        _logger.info(String.format("Loading %s...", getProjectName()));
 
         // Check for PlaceholderAPI dependency
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
-            _logger.Warn("Could not find PlaceholderAPI! This plugin is required.");
+            _logger.warn("Could not find PlaceholderAPI! This plugin is required.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        _logger.Info("Hooked into PlaceholderAPI.");
+        _logger.info("Hooked into PlaceholderAPI.");
 
         // Register events
-        EventListener.init();
-
-        // Generate default configuration file
-        saveDefaultConfig();
+        PlayerEventListener.init();
 
         // Load localizations
-        if (!_translator.Load()) {
-            _logger.Error("Failed to load localizations... Unloading...");
+        if (!_translator.load()) {
+            _logger.error("Failed to load localizations... Unloading...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         // Register economy integration
-        _logger.Debug("Hooking into Vault...");
+        _logger.debug("Hooking into Vault...");
         if (EconomyUtils.setupEconomy()) {
-            _logger.Info("Economy plugin found and hooked into Vault.");
+            _logger.info("Economy plugin found and hooked into Vault.");
         } else {
-            _logger.Warn("Economy plugin not found. Disabling economy features.");
+            _logger.warn("Economy plugin not found. Disabling economy features.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -119,15 +118,16 @@ public class OpenKits extends PluginBase {
                 break;
             }
         }
-        Database.CheckSchema();
+        Database.load();
+        Database.checkSchema();
 
         // Initialize GUI
-        _logger.Debug("Loading GUI...");
+        _logger.debug("Loading GUI...");
         _spiGUI = new SpiGUI(this);
 
         // Register commands
-        _logger.Debug("Registering commands...");
-        var command = getCommand("kit");
+        _logger.debug("Registering commands...");
+        var command = getCommand("openkits");
         if (command != null) {
             command.setExecutor(new CommandKit());
             command.setTabCompleter(new CommandKitCompleter());
@@ -137,17 +137,35 @@ public class OpenKits extends PluginBase {
             command.setExecutor(new CommandKits());
         }
 
-        _logger.Ok(String.format("%s has been successfully loaded.", getProjectName()));
+        // Metrics
+        try {
+            @SuppressWarnings("unused") Metrics metrics = new Metrics(this, 27764);
+        }
+        catch (Exception ex)
+        {
+            _logger.error("Failed to start Metrics: " + ex.getMessage());
+        }
+
+        // Initialize ItemMetaSerializer
+        ItemMetaSerializer = new ItemMetaSerializer(this);
+
+        // Register cache cleanup task.
+        if (cacheCleanTask != null && !cacheCleanTask.isCancelled())
+            cacheCleanTask.cancel();
+        cacheCleanTask = new CacheCleanTask(); // Runs every 5 minutes
+        cacheCleanTask.runTaskTimerAsynchronously(this, 0, 5 * 60 * 20);
+
+        _logger.ok(String.format("%s has been successfully loaded.", getProjectName()));
 
         // Check for updates
         isUpToDate().thenAccept(upToDate -> {
             if (upToDate) {
-                _logger.Ok("Plugin is up to date!");
+                _logger.ok("Plugin is up to date!");
             } else {
-                _logger.Warn("A new version of the plugin is available: " + getDownloadUrl());
+                _logger.warn("A new version of the plugin is available: " + getDownloadUrl());
             }
         }).exceptionally(e -> {
-            _logger.Error("Failed to determine update status: " + e.getMessage());
+            _logger.error("Failed to determine update status: " + e.getMessage());
             return null;
         });
     }
@@ -158,8 +176,8 @@ public class OpenKits extends PluginBase {
      */
     @Override
     public void onDisable() {
-        Database.Unload();
-        _logger.Info(String.format("%s has been successfully unloaded.", getProjectName()));
+        Database.unload();
+        _logger.info(String.format("%s has been successfully unloaded.", getProjectName()));
     }
 
     /**
@@ -173,11 +191,11 @@ public class OpenKits extends PluginBase {
         String result = super.replacePlaceholders(message);
         if (result.contains("%currency_singular%")) {
             String currencySingular = EconomyUtils.currencyNameSingular();
-            result = result.replace("%currency_singular%", currencySingular == null ? Localize("General.CurrencySingular") : currencySingular);
+            result = result.replace("%currency_singular%", currencySingular == null ? localize("General.CurrencySingular") : currencySingular);
         }
         if (result.contains("%currency_plural%")) {
             String currencyPlural = EconomyUtils.currencyNamePlural();
-            result = result.replace("%currency_plural%", currencyPlural == null ? Localize("General.CurrencyPlural") : currencyPlural);
+            result = result.replace("%currency_plural%", currencyPlural == null ? localize("General.CurrencyPlural") : currencyPlural);
         }
         return result;
     }
@@ -186,12 +204,18 @@ public class OpenKits extends PluginBase {
      * Reloads the plugin configuration and localizations.
      */
     public void reload() {
-        _logger.Info(String.format("Reloading %s...", getProjectName()));
-        _logger.Debug("Reloading localizations...");
-        _translator.Load();
-        _logger.Debug("Localizations reloaded.");
-        _logger.Debug("Reloading configuration...");
-        this.reloadConfig();
-        _logger.Debug("Configuration reloaded.");
+        _logger.info(String.format("Reloading %s...", getProjectName()));
+        _logger.debug("Reloading localizations...");
+        _translator.load();
+        _logger.debug("Localizations reloaded.");
+        _logger.debug("Reloading configuration...");
+        _config.load();
+        _logger.debug("Configuration reloaded.");
+
+        // Restart cache cleanup task
+        if (cacheCleanTask != null && !cacheCleanTask.isCancelled())
+            cacheCleanTask.cancel();
+        cacheCleanTask = new CacheCleanTask(); // Runs every 5 minutes
+        cacheCleanTask.runTaskTimerAsynchronously(this, 0, 5 * 60 * 20);
     }
 }
