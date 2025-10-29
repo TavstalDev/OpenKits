@@ -16,12 +16,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class CommandKits implements CommandExecutor {
-    private final PluginLogger _logger = OpenKits.Logger().WithModule(CommandKits.class);
+    private final PluginLogger _logger = OpenKits.logger().withModule(CommandKits.class);
     
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (sender instanceof ConsoleCommandSender) {
-             _logger.Info(ChatUtils.translateColors("Commands.ConsoleCaller", true).toString());
+             _logger.info(ChatUtils.translateColors("Commands.ConsoleCaller", true).toString());
             return true;
         }
         Player player = (Player) sender;
@@ -31,25 +31,25 @@ public class CommandKits implements CommandExecutor {
             return true;
         }
 
-        String message = OpenKits.Instance.Localize(player, "Commands.Kits.Format");
+        String message = OpenKits.Instance.localize(player, "Commands.Kits.Format");
         StringBuilder kits = new StringBuilder();
 
-        for (Kit kit : OpenKits.Database.GetKits()) {
+        for (Kit kit : OpenKits.Database.getKits()) {
             if (!kits.toString().isBlank()) {
-                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.Separator"));
+                kits.append(OpenKits.Instance.localize(player,"Commands.Kits.Separator"));
             }
 
             if (kit.RequirePermission && !player.hasPermission(kit.Permission)) {
-                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.UnavailableKit")
+                kits.append(OpenKits.Instance.localize(player,"Commands.Kits.UnavailableKit")
                         .replace("%kit%", kit.Name));
                 continue;
             }
 
-            KitCooldown cooldown = OpenKits.Database.FindKitCooldown(player.getUniqueId(), kit.Id);
+            KitCooldown cooldown = OpenKits.Database.findKitCooldown(player.getUniqueId(), kit.Id);
             if (cooldown != null) {
                 Duration duration = Duration.between(LocalDateTime.now(), cooldown.End);
                 if (duration.getSeconds() > 0) {
-                    kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.CooldownKit")
+                    kits.append(OpenKits.Instance.localize(player,"Commands.Kits.CooldownKit")
                             .replace("%kit%", kit.Name)
                             .replace("%cooldown%", String.format("%02d:%02d:%02d", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart())));
                     continue;
@@ -57,18 +57,18 @@ public class CommandKits implements CommandExecutor {
             }
 
             if (kit.Price > 0)
-                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.Paid")
+                kits.append(OpenKits.Instance.localize(player,"Commands.Kits.Paid")
                         .replace("%kit%", kit.Name)
                         .replace("%price%", String.format("%.2f", kit.Price)));
             else
-                kits.append(OpenKits.Instance.Localize(player,"Commands.Kits.Free")
+                kits.append(OpenKits.Instance.localize(player,"Commands.Kits.Free")
                         .replace("%kit%", kit.Name));
         }
 
 
         OpenKits.Instance.sendRichMsg(player, message
                 .replace("%kits%", kits.toString())
-                .replace("%count%", String.valueOf(OpenKits.Database.GetKits().size())));
+                .replace("%count%", String.valueOf(OpenKits.Database.getKits().size())));
 
         return true;
     }

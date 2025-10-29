@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CommandKitCompleter implements TabCompleter {
-    private final PluginLogger _logger = OpenKits.Logger().WithModule(CommandKitCompleter.class);
+    private final PluginLogger _logger = OpenKits.logger().withModule(CommandKitCompleter.class);
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String @NotNull [] args) {
@@ -67,7 +67,7 @@ public class CommandKitCompleter implements TabCompleter {
                         commandList.add("seticon");
 
 
-                    for (Kit kit : OpenKits.Database.GetKits()) {
+                    for (Kit kit : OpenKits.Database.getKits()) {
                         if (!kit.Enable)
                             continue;
 
@@ -99,7 +99,7 @@ public class CommandKitCompleter implements TabCompleter {
                         case "setname":
                         case "setenabled": {
 
-                            for (Kit kit : OpenKits.Database.GetKits()) {
+                            for (Kit kit : OpenKits.Database.getKits()) {
                                 if (!kit.Enable)
                                     continue;
 
@@ -140,7 +140,7 @@ public class CommandKitCompleter implements TabCompleter {
                             break;
                         }
                         case "setpermission": {
-                            String permission = OpenKits.GetConfig().getString("default.permission");
+                            String permission = OpenKits.config().getString("default.permission");
                             if (permission != null)
                                 commandList.add(permission.replace("%kit%", args[1].toLowerCase()));
                         }
@@ -187,7 +187,7 @@ public class CommandKitCompleter implements TabCompleter {
                 }
                 case 6: {
                     if (args[0].equalsIgnoreCase("create")) {
-                        String permission = OpenKits.GetConfig().getString("default.permission");
+                        String permission = OpenKits.config().getString("default.permission");
                         if (permission != null)
                             commandList.add(permission.replace("%kit%", args[1].toLowerCase()));
                     }
@@ -214,8 +214,8 @@ public class CommandKitCompleter implements TabCompleter {
             return commandList;
         }
         catch (Exception ex) {
-            _logger.Error("An error occurred while trying to tab complete the portallock command.");
-            _logger.Error(ex.getMessage());
+            _logger.error("An error occurred while trying to tab complete the portallock command.");
+            _logger.error(ex.getMessage());
             return new ArrayList<>();
         }
     }

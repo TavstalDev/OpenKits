@@ -24,11 +24,12 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class CommandKit implements CommandExecutor {
-    private final PluginLogger _logger = OpenKits.Logger().WithModule(CommandKit.class);
+    private final PluginLogger _logger = OpenKits.logger().withModule(CommandKit.class);
+    private final String baseCommand = "openkits";
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (sender instanceof ConsoleCommandSender) {
-            _logger.Info(ChatUtils.translateColors("Commands.ConsoleCaller", true).toString());
+            _logger.info(ChatUtils.translateColors("Commands.ConsoleCaller", true).toString());
             return true;
         }
         Player player = (Player) sender;
@@ -72,7 +73,7 @@ public class CommandKit implements CommandExecutor {
                             OpenKits.Instance.sendLocalizedMsg(player, "Commands.Version.Outdated", Map.of("link", OpenKits.Instance.getDownloadUrl()));
                         }
                     }).exceptionally(e -> {
-                        _logger.Error("Failed to determine update status: " + e.getMessage());
+                        _logger.error("Failed to determine update status: " + e.getMessage());
                         return null;
                     });
                     return true;
@@ -103,7 +104,7 @@ public class CommandKit implements CommandExecutor {
                         }
                     }
 
-                    List<Kit> kits = OpenKits.Database.GetKits();
+                    List<Kit> kits = OpenKits.Database.getKits();
                     if (kits.isEmpty()) {
                         OpenKits.Instance.sendLocalizedMsg(player, "Commands.List.None");
                         return true;
@@ -123,14 +124,14 @@ public class CommandKit implements CommandExecutor {
                         }
 
                         Kit kit = kits.get(index);
-                        String msg = OpenKits.Instance.Localize(player, "Commands.List.Line")
+                        String msg = OpenKits.Instance.localize(player, "Commands.List.Line")
                                 .replace("%kit%", kit.Name);
 
                         Component result = ChatUtils.buildWithButtons(msg, new HashMap<>() {{
                             put("info_button",
-                                    ChatUtils.translateColors(OpenKits.Instance.Localize(player, "Commands.List.InfoBtn"), true).clickEvent(ClickEvent.runCommand("/kit info " + kit.Name)));
+                                    ChatUtils.translateColors(OpenKits.Instance.localize(player, "Commands.List.InfoBtn"), true).clickEvent(ClickEvent.runCommand("/kit info " + kit.Name)));
                             put("get_button",
-                                    ChatUtils.translateColors(OpenKits.Instance.Localize(player, "Commands.List.GetBtn"), true).clickEvent(ClickEvent.runCommand("/kit " + kit.Name)));
+                                    ChatUtils.translateColors(OpenKits.Instance.localize(player, "Commands.List.GetBtn"), true).clickEvent(ClickEvent.runCommand("/kit " + kit.Name)));
                         }});
 
                         player.sendMessage(result);
@@ -143,9 +144,9 @@ public class CommandKit implements CommandExecutor {
                     }
 
                     // Bottom message
-                    String previousBtn = OpenKits.Instance.Localize(player, "Commands.List.PrevBtn");
-                    String nextBtn = OpenKits.Instance.Localize(player, "Commands.List.NextBtn");
-                    String bottomMsg = OpenKits.Instance.Localize(player, "Commands.List.Bottom")
+                    String previousBtn = OpenKits.Instance.localize(player, "Commands.List.PrevBtn");
+                    String nextBtn = OpenKits.Instance.localize(player, "Commands.List.NextBtn");
+                    String bottomMsg = OpenKits.Instance.localize(player, "Commands.List.Bottom")
                             .replace("%current_page%", String.valueOf(page))
                             .replace("%max_page%", String.valueOf(maxPage));
 
@@ -176,7 +177,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -195,28 +196,28 @@ public class CommandKit implements CommandExecutor {
                         put("kit", kit.Name);
                     }});
 
-                    String kitPermission = OpenKits.Instance.Localize(player, "Commands.Common.NoText");
+                    String kitPermission = OpenKits.Instance.localize(player, "Commands.Common.NoText");
                     if (!kit.Permission.isEmpty())
                         kitPermission = kit.Permission;
-                    String kitRequired = OpenKits.Instance.Localize(player, "Commands.Common.NoText");
+                    String kitRequired = OpenKits.Instance.localize(player, "Commands.Common.NoText");
                     if (kit.RequirePermission)
-                        kitRequired = OpenKits.Instance.Localize(player, "Commands.Common.YesText");
+                        kitRequired = OpenKits.Instance.localize(player, "Commands.Common.YesText");
 
                     long hours = kit.Cooldown / 3600;
                     long minutes = (kit.Cooldown % 3600) / 60;
                     long remainingSeconds = kit.Cooldown % 60;
 
-                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.Enabled")
-                            .replace("%enabled%", kit.Enable ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText")));
-                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.Price")
+                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.localize(player, "Commands.Info.Enabled")
+                            .replace("%enabled%", kit.Enable ? OpenKits.Instance.localize(player, "Commands.Common.YesText") : OpenKits.Instance.localize(player, "Commands.Common.NoText")));
+                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.localize(player, "Commands.Info.Price")
                             .replace("%price%", String.format("%.2f", kit.Price)));
-                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.Cooldown")
+                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.localize(player, "Commands.Info.Cooldown")
                             .replace("%cooldown%", String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)));
-                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.Permission")
+                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.localize(player, "Commands.Info.Permission")
                             .replace("%permission%", kitPermission)
                             .replace("%required%", kitRequired));
-                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.Localize(player, "Commands.Info.OneTime")
-                            .replace("%onetime%", kit.IsOneTime ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText")));
+                    OpenKits.Instance.sendRichMsg(player, OpenKits.Instance.localize(player, "Commands.Info.OneTime")
+                            .replace("%onetime%", kit.IsOneTime ? OpenKits.Instance.localize(player, "Commands.Common.YesText") : OpenKits.Instance.localize(player, "Commands.Common.NoText")));
 
                     return true;
                 }
@@ -240,7 +241,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -263,12 +264,12 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    kit.Give(target);
+                    kit.give(target);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.Give.Success", new HashMap<>() {{
                         put("kit", kit.Name);
                         put("player", target.getName());
                     }});
-                    OpenKits.Instance.sendRichMsg(target, OpenKits.Instance.Localize(player, "Commands.Get.Success").replace("%kit%", kit.Name));
+                    OpenKits.Instance.sendRichMsg(target, OpenKits.Instance.localize(player, "Commands.Get.Success").replace("%kit%", kit.Name));
 
                     return true;
                 }
@@ -283,20 +284,20 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit != null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "Commands.Create.KitAlreadyExists", new HashMap<>() {{
                             put("kit", kit.Name);
                         }});
                         return true;
                     }
-                    double price = OpenKits.GetConfig().getDouble("default.price");
-                    long cooldown = OpenKits.GetConfig().getLong("default.cooldown");
-                    String permission = OpenKits.GetConfig().getString("default.permission");
+                    double price = OpenKits.config().getDouble("default.price");
+                    long cooldown = OpenKits.config().getLong("default.cooldown");
+                    String permission = OpenKits.config().getString("default.permission");
                     if (permission != null)
                         permission = permission.replace("%kit%", args[1]);
-                    boolean requirePermission = OpenKits.GetConfig().getBoolean("default.isPermissionRequired");
-                    boolean isOneTime = OpenKits.GetConfig().getBoolean("default.oneTime");
+                    boolean requirePermission = OpenKits.config().getBoolean("default.isPermissionRequired");
+                    boolean isOneTime = OpenKits.config().getBoolean("default.oneTime");
                     Material icon;
                     try
                     {
@@ -393,7 +394,7 @@ public class CommandKit implements CommandExecutor {
                             items.add(itemStack);
                     }
 
-                    OpenKits.Database.AddKit(args[1], icon, price, requirePermission, permission, cooldown, isOneTime, true, items);
+                    OpenKits.Database.addKit(args[1], icon, price, requirePermission, permission, cooldown, isOneTime, true, items);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.Create.Success", new HashMap<>() {{
                         put("kit", args[1]);
                     }});
@@ -411,7 +412,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -419,8 +420,8 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    OpenKits.Database.RemoveKit(kit.Id);
-                    OpenKits.Database.RemoveKitCooldowns(kit.Id);
+                    OpenKits.Database.removeKit(kit.Id);
+                    OpenKits.Database.removeKitCooldowns(kit.Id);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.Delete.Success", new HashMap<>() {{
                         put("kit", kit.Name);
                     }});
@@ -438,7 +439,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -447,7 +448,7 @@ public class CommandKit implements CommandExecutor {
                     }
 
                     ItemStack[] items = player.getInventory().getContents();
-                    OpenKits.Database.UpdateKitItems(kit.Id, Arrays.stream(items).toList());
+                    OpenKits.Database.updateKitItems(kit.Id, Arrays.stream(items).toList());
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.Edit.Success", new HashMap<>() {{
                         put("kit", kit.Name);
                     }});
@@ -464,7 +465,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -484,7 +485,7 @@ public class CommandKit implements CommandExecutor {
 
                     // Required because of the Hashtable
                     double finalPrice = price;
-                    OpenKits.Database.UpdateKitPrice(kit.Id, finalPrice);
+                    OpenKits.Database.updateKitPrice(kit.Id, finalPrice);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetPrice.Success", new HashMap<>() {{
                         put("kit", kit.Name);
                         put("price", String.format("%.2f", finalPrice));
@@ -502,7 +503,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -523,7 +524,7 @@ public class CommandKit implements CommandExecutor {
 
                     // Required because of the Hashtable
                     long finalCooldown = cooldown;
-                    OpenKits.Database.UpdateKitCooldown(kit.Id, finalCooldown);
+                    OpenKits.Database.updateKitCooldown(kit.Id, finalCooldown);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetCooldown.Success", new HashMap<>() {{
                         put("kit", kit.Name);
                         put("cooldown", finalCooldown);
@@ -541,7 +542,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -550,10 +551,10 @@ public class CommandKit implements CommandExecutor {
                     }
 
                     if (args[2].equalsIgnoreCase("none")) {
-                        OpenKits.Database.UpdateKitPermission(kit.Id, false, "");
+                        OpenKits.Database.updateKitPermission(kit.Id, false, "");
                         OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetPermission.Success", new HashMap<>() {{
                             put("kit", kit.Name);
-                            put("permission", OpenKits.Instance.Localize(player, "Commands.Common.NoTextne"));
+                            put("permission", OpenKits.Instance.localize(player, "Commands.Common.NoTextne"));
                         }});
                         return true;
                     }
@@ -587,7 +588,7 @@ public class CommandKit implements CommandExecutor {
                         }
                     }
 
-                    OpenKits.Database.UpdateKitPermission(kit.Id, requirePermission, args[2]);
+                    OpenKits.Database.updateKitPermission(kit.Id, requirePermission, args[2]);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetPermission.Success", new HashMap<>() {{
                         put("kit", kit.Name);
                         put("permission", args[2]);
@@ -606,7 +607,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -638,10 +639,10 @@ public class CommandKit implements CommandExecutor {
                         }
                     }
 
-                    OpenKits.Database.UpdateKitOneTime(kit.Id, isOneTime);
+                    OpenKits.Database.updateKitOneTime(kit.Id, isOneTime);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetOneTime.Success", new HashMap<>() {{
                         put("kit", kit.Name);
-                        put("onetime", isOneTime ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText"));
+                        put("onetime", isOneTime ? OpenKits.Instance.localize(player, "Commands.Common.YesText") : OpenKits.Instance.localize(player, "Commands.Common.NoText"));
                     }});
 
                     return true;
@@ -657,7 +658,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -689,10 +690,10 @@ public class CommandKit implements CommandExecutor {
                         }
                     }
 
-                    OpenKits.Database.UpdateKitEnabled(kit.Id, enabled);
+                    OpenKits.Database.updateKitEnabled(kit.Id, enabled);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetEnabled.Success", new HashMap<>() {{
                         put("kit", kit.Name);
-                        put("enabled", enabled ? OpenKits.Instance.Localize(player, "Commands.Common.YesText") : OpenKits.Instance.Localize(player, "Commands.Common.NoText"));
+                        put("enabled", enabled ? OpenKits.Instance.localize(player, "Commands.Common.YesText") : OpenKits.Instance.localize(player, "Commands.Common.NoText"));
                     }});
 
                     return true;
@@ -708,7 +709,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -716,7 +717,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit newKit = OpenKits.Database.FindKit(args[2]);
+                    Kit newKit = OpenKits.Database.findKit(args[2]);
                     if (newKit != null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "Commands.Create.KitAlreadyExists", new HashMap<>() {{
                             put("kit", newKit.Name);
@@ -724,7 +725,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    OpenKits.Database.UpdateKitName(kit.Id, args[2]);
+                    OpenKits.Database.updateKitName(kit.Id, args[2]);
                     OpenKits.Instance.sendLocalizedMsg(player, "Commands.SetName.Success", new HashMap<>() {{
                         put("kit", kit.Name);
                         put("new_name", args[2]);
@@ -743,7 +744,7 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    Kit kit = OpenKits.Database.FindKit(args[1]);
+                    Kit kit = OpenKits.Database.findKit(args[1]);
                     if (kit == null) {
                         OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                             put("kit", args[1]);
@@ -768,8 +769,8 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    OpenKits.Database.UpdateKitIcon(kit.Id, icon);
-                    player.sendMessage(ChatUtils.buildWithButtons(OpenKits.Instance.Localize(player, "Commands.SetIcon.Success"), new HashMap<>() {{
+                    OpenKits.Database.updateKitIcon(kit.Id, icon);
+                    player.sendMessage(ChatUtils.buildWithButtons(OpenKits.Instance.localize(player, "Commands.SetIcon.Success"), new HashMap<>() {{
                         put("kit", ChatUtils.translateColors(kit.Name, true));
                         put("icon", Component.translatable(icon.translationKey()));
                     }}));
@@ -779,7 +780,7 @@ public class CommandKit implements CommandExecutor {
 
             // Find kit by name
             //#region Get Kit
-            Kit kit = OpenKits.Database.FindKit(args[0]);
+            Kit kit = OpenKits.Database.findKit(args[0]);
             if (kit == null) {
                 OpenKits.Instance.sendLocalizedMsg(player, "General.KitNotFound", new HashMap<>() {{
                     put("kit", args[0]);
@@ -801,7 +802,7 @@ public class CommandKit implements CommandExecutor {
                 return true;
             }
 
-            KitCooldown cooldown = OpenKits.Database.FindKitCooldown(player.getUniqueId(), kit.Id);
+            KitCooldown cooldown = OpenKits.Database.findKitCooldown(player.getUniqueId(), kit.Id);
             if (cooldown != null) {
                 Duration duration = Duration.between(LocalDateTime.now(), cooldown.End);
                 if (duration.getSeconds() > 0) {
@@ -827,11 +828,11 @@ public class CommandKit implements CommandExecutor {
                 return true;
             }
 
-            kit.Give(player);
+            kit.give(player);
             if (cooldown == null)
-                OpenKits.Database.AddKitCooldown(player.getUniqueId(), kit.Id, LocalDateTime.now().plusSeconds(kit.Cooldown));
+                OpenKits.Database.addKitCooldown(player.getUniqueId(), kit.Id, LocalDateTime.now().plusSeconds(kit.Cooldown));
             else
-                OpenKits.Database.UpdateKitCooldown(player.getUniqueId(), kit.Id, LocalDateTime.now().plusSeconds(kit.Cooldown));
+                OpenKits.Database.updateKitCooldown(player.getUniqueId(), kit.Id, LocalDateTime.now().plusSeconds(kit.Cooldown));
 
             if (kit.Price > 0) {
                 EconomyUtils.withdraw(player, kit.Price);
@@ -848,8 +849,8 @@ public class CommandKit implements CommandExecutor {
             //#endregion
         } catch (Exception ex) {
             OpenKits.Instance.sendLocalizedMsg(player, "Commands.UnknownError");
-            _logger.Warn("Error while executing kits command:");
-            _logger.Error(ex.getMessage());
+            _logger.warn("Error while executing kits command:");
+            _logger.error(ex.getMessage());
         }
 
         return true;
@@ -950,23 +951,28 @@ public class CommandKit implements CommandExecutor {
         }
     };
 
-    private void help(Player player, int page) {
+    private void help(CommandSender sender, int page) {
         int maxPage = 1 + (_subCommands.size() / 15);
 
+        // Ensure the page number is within valid bounds
         if (page > maxPage)
             page = maxPage;
         if (page < 1)
             page = 1;
         int finalPage = page;
 
-        OpenKits.Instance.sendLocalizedMsg(player, "Commands.Help.Title", new HashMap<>() {{
-            put("current_page", finalPage);
-            put("max_page", maxPage);
-        }});
-        OpenKits.Instance.sendLocalizedMsg(player, "Commands.Help.Info");
+        // Send the help menu title and info
+        OpenKits.Instance.sendCommandReply(sender, "Commands.Help.Title", Map.of(
+                        "current_page", finalPage,
+                        "max_page", maxPage
+                )
+        );
+        OpenKits.Instance.sendCommandReply(sender, "Commands.Help.Info");
 
         boolean reachedEnd = false;
         int itemIndex = 0;
+
+        // Display up to 15 subcommands per page
         for (int i = 0; i < 15; i++) {
             int index = itemIndex + (page - 1) * 15;
             if (index >= _subCommands.size()) {
@@ -976,33 +982,48 @@ public class CommandKit implements CommandExecutor {
             itemIndex++;
 
             SubCommandData subCommand = _subCommands.get(index);
-            if (!subCommand.hasPermission(player)) {
+            if (!subCommand.hasPermission(sender)) {
                 i--;
                 continue;
             }
 
-            subCommand.send(OpenKits.Instance, player);
+            subCommand.send(OpenKits.Instance, sender, baseCommand);
         }
 
-        // Bottom message
-        String previousBtn = OpenKits.Instance.Localize(player, "Commands.Help.PrevBtn");
-        String nextBtn = OpenKits.Instance.Localize(player, "Commands.Help.NextBtn");
-        String bottomMsg = OpenKits.Instance.Localize(player, "Commands.Help.Bottom")
-                .replace("%current_page%", String.valueOf(page))
-                .replace("%max_page%", String.valueOf(maxPage));
+        // Display navigation buttons for the help menu
+        String previousBtn, nextBtn, bottomMsg;
+        if (sender instanceof Player player)
+        {
+            previousBtn = OpenKits.Instance.localize(player, "Commands.Help.PrevBtn");
+            nextBtn = OpenKits.Instance.localize(player, "Commands.Help.NextBtn");
+            bottomMsg = OpenKits.Instance.localize(player, "Commands.Help.Bottom", Map.of(
+                    "current_page", page,
+                    "max_page", maxPage
+            ));
+        }
+        else {
+            previousBtn = OpenKits.Instance.localize("Commands.Help.PrevBtn");
+            nextBtn = OpenKits.Instance.localize("Commands.Help.NextBtn");
+            bottomMsg = OpenKits.Instance.localize("Commands.Help.Bottom", Map.of(
+                    "current_page", page,
+                    "max_page", maxPage
+            ));
+        }
 
         Map<String, Component> bottomParams = new HashMap<>();
         if (page > 1)
-            bottomParams.put("previous_btn", ChatUtils.translateColors(previousBtn, true).clickEvent(ClickEvent.runCommand("/kit help " + (page - 1))));
+            bottomParams.put("previous_btn", ChatUtils.translateColors(previousBtn, true)
+                    .clickEvent(ClickEvent.runCommand(String.format("/%s help %s", baseCommand, page - 1))));
         else
             bottomParams.put("previous_btn", ChatUtils.translateColors(previousBtn, true));
 
         if (!reachedEnd && maxPage >= page + 1)
-            bottomParams.put("next_btn", ChatUtils.translateColors(nextBtn, true).clickEvent(ClickEvent.runCommand("/kit help " + (page + 1))));
+            bottomParams.put("next_btn", ChatUtils.translateColors(nextBtn, true)
+                    .clickEvent(ClickEvent.runCommand(String.format("/%s help %s", baseCommand, page + 1))));
         else
             bottomParams.put("next_btn", ChatUtils.translateColors(nextBtn, true));
 
         Component bottomComp = ChatUtils.buildWithButtons(bottomMsg, bottomParams);
-        player.sendMessage(bottomComp);
+        sender.sendMessage(bottomComp);
     }
 }
