@@ -20,12 +20,17 @@ Commands:
     InvalidMaterial: "%prefix% &cInvalid material name."
   Help:
     Desc: "Shows information about the commands."
-    Title: "&e=== &aOpenKits Help &e=== &aPage &c%current_page%&a/&c%max_page% &e==="
-    Info: "   &c[] &7- &6Required   &c<> &7- &6Optional"
-    Line: "&2/openkits %subcommand%&a%syntax% &8» &7%description%"
-    Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======"
-    PrevBtn: "&a<<< "
-    NextBtn: " &a>>>"
+    Title: "&8&m        &r &bOpen&3Kits &7Help &8&m    &r &7Page &3%current_page%&7/&3%max_page% &8&m        &r"
+    Info: |-
+      &r
+      &r  &c&l[]&r &8- &7Required,   &e&l<>&r &8- &7Optional
+      &r
+    Line: "&r  &b/%command% %subcommand%&3%syntax% &8- &7%description%"
+    Bottom: |-
+      &r
+      &8&m                       &r %previous_btn%&3%current_page%&7/&3%max_page%%next_btn% &8&m                       &r
+    PrevBtn: "&b<< "
+    NextBtn: " &b>>"
   Version:
     Desc: "Shows the plugin version."
     Current: "%prefix% &aYou are using the '&3%version%&a' version of OpenKits."
@@ -37,13 +42,15 @@ Commands:
   List:
     Syntax: " <page>"
     Desc: "Shows the list of available kits."
-    Title: "&e====== &aKit List &e======"
-    Line: "&e- &3%kit% &8| %info_button% %get_button%"
+    Title: "&8&m        &r &bKit &7List &8&m    &r &7Oldal &3%current_page%&7/&3%max_page% &8&m        &r"
+    Line: "&r  &3%kit% &8| %info_button% %get_button%"
     InfoBtn: "&8[&2Info&8]"
     GetBtn: "&8[&bGet&8]"
-    Bottom: "&e====== %previous_btn%&6%current_page%&e/&6%max_page%%next_btn% &e======"
-    PrevBtn: "&a<<< "
-    NextBtn: " &a>>>"
+    Bottom: |-
+      &r
+      &8&m                       &r %previous_btn%&3%current_page%&7/&3%max_page%%next_btn% &8&m                       &r
+    PrevBtn: "&b<< "
+    NextBtn: " &b>>"
     None: "%prefix% &cThere are no kits available."
   Info:
     Syntax: " [kit_name]"
