@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 /**
  * Represents the data associated with a player in the OpenKits plugin.
  */
-public class PlayerData {
+public class PlayerCache {
     private final Player _player;
     private boolean _isGUIOpened;
     private SGMenu _kitsMenu;
@@ -18,11 +18,11 @@ public class PlayerData {
     private Kit _previewKit;
 
     /**
-     * Constructs a new PlayerData object for the specified player.
+     * Constructs a new PlayerCache object for the specified player.
      *
      * @param player the player associated with this data
      */
-    public PlayerData(Player player) {
+    public PlayerCache(Player player) {
         _player = player;
         _isGUIOpened = false;
         _kitsMenu = null;
