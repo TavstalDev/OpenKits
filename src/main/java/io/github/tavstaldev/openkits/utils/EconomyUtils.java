@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * Utility class for handling economy-related operations using Vault.
  */
 public class EconomyUtils {
-    private static final PluginLogger _logger = OpenKits.Logger().WithModule(EconomyUtils.class);
+    private static final PluginLogger _logger = OpenKits.logger().withModule(EconomyUtils.class);
     private static Economy economy = null;
     private static boolean economyEnabled;
 
@@ -22,12 +22,12 @@ public class EconomyUtils {
      * @return true if the economy provider was successfully registered, false otherwise.
      */
     public static boolean setupEconomy() {
-        _logger.Debug("Setting up economy...");
+        _logger.debug("Setting up economy...");
         RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-        _logger.Debug("Economy provider: " + economyProvider);
+        _logger.debug("Economy provider: " + economyProvider);
         if (economyProvider == null)
             return false;
-        _logger.Debug("Economy provider found.");
+        _logger.debug("Economy provider found.");
         economy = economyProvider.getProvider();
         economyEnabled = true;
         return true;

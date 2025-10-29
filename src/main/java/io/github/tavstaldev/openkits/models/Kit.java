@@ -2,7 +2,6 @@ package io.github.tavstaldev.openkits.models;
 
 import io.github.tavstaldev.openkits.OpenKits;
 import io.github.tavstaldev.openkits.utils.EconomyUtils;
-import io.github.tavstaldev.openkits.utils.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -50,7 +49,7 @@ public class Kit {
         Cooldown = cooldown;
         IsOneTime = isOneTime;
         Enable = enable;
-        Items = ItemUtils.serializeItemStackList(items);
+        Items = OpenKits.ItemMetaSerializer.serializeItemStackListToBytes(items);
     }
 
     /**
@@ -60,16 +59,16 @@ public class Kit {
      *
      * @return the Material representing the icon of the kit
      */
-    public Material GetIcon() {
+    public Material getIcon() {
         try
         {
             if (Icon == null || Icon.isEmpty())
-                return Material.getMaterial(Objects.requireNonNull(OpenKits.GetConfig().getString("default.icon")));
+                return Material.getMaterial(Objects.requireNonNull(OpenKits.config().getString("default.icon")));
             return Material.getMaterial(Icon);
         }
         catch (Exception ex) {
-            OpenKits.Logger().Error("Failed to get kit icon.");
-            OpenKits.Logger().Error(ex.getMessage());
+            OpenKits.logger().error("Failed to get kit icon.");
+            OpenKits.logger().error(ex.getMessage());
             return Material.CHEST;
         }
     }
@@ -79,8 +78,8 @@ public class Kit {
      *
      * @return the list of deserialized items
      */
-    public List<ItemStack> GetItems() {
-        return ItemUtils.deserializeItemStackList(Items);
+    public List<ItemStack> getItems() {
+        return OpenKits.ItemMetaSerializer.deserializeItemStackListFromBytes(Items);
     }
 
 
@@ -90,8 +89,8 @@ public class Kit {
      * @param player the player to whom the items will be given
      * @return true if the items were successfully given to the player
      */
-    public boolean Give(Player player) {
-        List<ItemStack> items = GetItems();
+    public boolean give(Player player) {
+        List<ItemStack> items = getItems();
         for (ItemStack item : items) {
             Map<Integer, ItemStack> remainingItems = player.getInventory().addItem(item);
             if (!OpenKits.Instance.getConfig().getBoolean("dropItemsOnFullInventory"))
@@ -113,7 +112,7 @@ public class Kit {
      * @param player the player to check
      * @return true if the player can get the kit, false otherwise
      */
-    public boolean CanGet(Player player) {
+    public boolean canGet(Player player) {
         if (!Enable) {
             return false;
         }
@@ -121,7 +120,7 @@ public class Kit {
         if (RequirePermission && !player.hasPermission(Permission))
             return false;
 
-        KitCooldown cooldown = OpenKits.Database.FindKitCooldown(player.getUniqueId(), Id);
+        KitCooldown cooldown = OpenKits.Database.findKitCooldown(player.getUniqueId(), Id);
         if (cooldown != null) {
             Duration duration = Duration.between(LocalDateTime.now(), cooldown.End);
             if (duration.getSeconds() > 0) {
