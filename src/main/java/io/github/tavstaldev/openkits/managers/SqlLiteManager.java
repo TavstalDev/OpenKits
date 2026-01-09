@@ -1,8 +1,8 @@
 package io.github.tavstaldev.openkits.managers;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.shadow.caffeine.cache.Cache;
+import io.github.tavstaldev.minecorelib.shadow.caffeine.cache.Caffeine;
 import io.github.tavstaldev.openkits.OpenKits;
 import io.github.tavstaldev.openkits.models.IDatabase;
 import io.github.tavstaldev.openkits.models.Kit;
@@ -12,10 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,7 +131,7 @@ public class SqlLiteManager implements IDatabase {
 
 
             long id;
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 // Set parameters for the prepared statement
                 statement.setString(1, name);  // Kit name
                 statement.setString(2, icon.name());  // Material icon as a string
@@ -151,7 +148,7 @@ public class SqlLiteManager implements IDatabase {
 
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        id = generatedKeys.getLong("Id");
+                        id = generatedKeys.getLong(1);
                     } else {
                         _logger.warn("Could not retrieve auto-incremented ID after INSERT.");
                         return;

@@ -1,10 +1,10 @@
 package io.github.tavstaldev.openkits.managers;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.shadow.caffeine.cache.Cache;
+import io.github.tavstaldev.minecorelib.shadow.caffeine.cache.Caffeine;
 import io.github.tavstaldev.openkits.OpenKits;
 import io.github.tavstaldev.openkits.models.IDatabase;
 import io.github.tavstaldev.openkits.models.Kit;
