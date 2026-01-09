@@ -30,8 +30,8 @@ public class PreviewGUI extends MenuBase {
 
     @Override
     protected void loadDefaults() {
-        menuTitle = "";
-        isMenuTitleTranslated = false; // disable it
+        menuTitle = resolveGet("title", "GUI.KitPreviewTitle");
+        isMenuTitleTranslated = resolveGet("title_translated", true);
         menuSize = resolveGet("size", 6);
         dynamicSlots = resolveDynamicSlots(new LinkedHashMap<>() {{
             put("kits_slots", new ArrayList<>() {{
@@ -57,7 +57,7 @@ public class PreviewGUI extends MenuBase {
         MenuManager menuManager = plugin.getMenuManager();
         if (menuManager == null)
             throw new RuntimeException("Menu manager was not initialized.");
-        SGMenu menu = menuManager.getSpiGUI().create("...", menuSize);
+        SGMenu menu = menuManager.getSpiGUI().create(menuTitle, menuSize);
         for (MenuButton button : menuButtons) {
             button.apply(player, translator, menu, this);
         }
@@ -178,9 +178,11 @@ public class PreviewGUI extends MenuBase {
             SGMenu menu = manager.getMenu(player, ID);
             if (menu != null) {
                 Kit kit = playerCache.getPreviewKit();
-                menu.setName(plugin.localize(player, "GUI.KitPreviewTitle", Map.of(
-                        "kit", kit.Name.substring(0, 1).toUpperCase() + kit.Name.substring(1)
-                        )));
+                if (isMenuTitleTranslated) {
+                    menu.setName(plugin.localize(player, menuTitle, Map.of(
+                            "kit", kit.Name.substring(0, 1).toUpperCase() + kit.Name.substring(1)
+                    )));
+                }
                 refresh(player, menu);
             }
         }
