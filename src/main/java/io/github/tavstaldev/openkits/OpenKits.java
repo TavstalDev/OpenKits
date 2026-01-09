@@ -1,14 +1,16 @@
 package io.github.tavstaldev.openkits;
 
-import com.samjakob.spigui.SpiGUI;
 import io.github.tavstaldev.minecorelib.PluginBase;
 import io.github.tavstaldev.minecorelib.core.PluginLogger;
 import io.github.tavstaldev.minecorelib.core.PluginTranslator;
+import io.github.tavstaldev.minecorelib.managers.MenuManager;
 import io.github.tavstaldev.minecorelib.utils.ItemMetaSerializer;
 import io.github.tavstaldev.openkits.commands.CommandKit;
 import io.github.tavstaldev.openkits.commands.CommandKitCompleter;
 import io.github.tavstaldev.openkits.commands.CommandKits;
 import io.github.tavstaldev.openkits.events.PlayerEventListener;
+import io.github.tavstaldev.openkits.gui.KitsGUI;
+import io.github.tavstaldev.openkits.gui.PreviewGUI;
 import io.github.tavstaldev.openkits.managers.MySqlManager;
 import io.github.tavstaldev.openkits.managers.SqlLiteManager;
 import io.github.tavstaldev.openkits.metrics.Metrics;
@@ -25,7 +27,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class OpenKits extends PluginBase {
     // Singleton instance of the plugin
     public static OpenKits Instance;
-    private static SpiGUI _spiGUI;
     public static ItemMetaSerializer ItemMetaSerializer;
     public static IDatabase Database;
     private CacheCleanTask cacheCleanTask; // Task for cleaning player caches.
@@ -33,15 +34,6 @@ public class OpenKits extends PluginBase {
     // Static logger accessor
     public static PluginLogger logger() {
         return Instance._logger;
-    }
-
-    /**
-     * Gets the SpiGUI instance.
-     *
-     * @return The SpiGUI instance.
-     */
-    public static SpiGUI gui() {
-        return _spiGUI;
     }
 
     /**
@@ -68,6 +60,7 @@ public class OpenKits extends PluginBase {
      */
     @Override
     public void onEnable() {
+        super.onEnable();
         Instance = this;
         _config = new KitsConfiguration();
         _config.load(); // Fix load bug
@@ -123,7 +116,16 @@ public class OpenKits extends PluginBase {
 
         // Initialize GUI
         _logger.debug("Loading GUI...");
-        _spiGUI = new SpiGUI(this);
+        MenuManager menuManager = getMenuManager();
+        if (menuManager != null) {
+            menuManager.register(KitsGUI.ID, new KitsGUI());
+            menuManager.register(PreviewGUI.ID, new PreviewGUI());
+        }
+        else {
+            _logger.error("Failed to get MenuManager... Unloading...");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         // Register commands
         _logger.debug("Registering commands...");
