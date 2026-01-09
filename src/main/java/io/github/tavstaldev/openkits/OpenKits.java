@@ -179,6 +179,13 @@ public class OpenKits extends PluginBase {
     @Override
     public void onDisable() {
         Database.unload();
+        MenuManager menuManager = getMenuManager();
+        if (menuManager != null) {
+            menuManager.closeAll();
+            menuManager.unregister(KitsGUI.ID);
+            menuManager.unregister(PreviewGUI.ID);
+            menuManager.invalidateAllCache();
+        }
         _logger.info(String.format("%s has been successfully unloaded.", getProjectName()));
     }
 
@@ -213,6 +220,19 @@ public class OpenKits extends PluginBase {
         _logger.debug("Reloading configuration...");
         _config.load();
         _logger.debug("Configuration reloaded.");
+
+        // Re-register GUIs
+        MenuManager menuManager = getMenuManager();
+        if (menuManager != null) {
+            menuManager.closeAll();
+
+            menuManager.unregister(KitsGUI.ID);
+            menuManager.unregister(PreviewGUI.ID);
+            menuManager.invalidateAllCache();
+
+            menuManager.register(KitsGUI.ID, new KitsGUI());
+            menuManager.register(PreviewGUI.ID, new PreviewGUI());
+        }
 
         // Restart cache cleanup task
         if (cacheCleanTask != null && !cacheCleanTask.isCancelled())
