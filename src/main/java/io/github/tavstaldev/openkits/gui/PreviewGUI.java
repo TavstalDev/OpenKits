@@ -1,166 +1,188 @@
 package io.github.tavstaldev.openkits.gui;
 
-import com.samjakob.spigui.buttons.SGButton;
-import com.samjakob.spigui.menu.SGMenu;
 import io.github.tavstaldev.minecorelib.core.GuiDupeDetector;
-import io.github.tavstaldev.minecorelib.core.PluginLogger;
-import io.github.tavstaldev.minecorelib.utils.GuiUtils;
+import io.github.tavstaldev.minecorelib.managers.MenuManager;
+import io.github.tavstaldev.minecorelib.models.gui.MenuBase;
+import io.github.tavstaldev.minecorelib.models.gui.MenuButton;
+import io.github.tavstaldev.minecorelib.shadow.spigui.buttons.SGButton;
+import io.github.tavstaldev.minecorelib.shadow.spigui.menu.SGMenu;
+import io.github.tavstaldev.minecorelib.utils.ChatUtils;
 import io.github.tavstaldev.openkits.OpenKits;
 import io.github.tavstaldev.openkits.managers.PlayerCacheManager;
 import io.github.tavstaldev.openkits.models.Kit;
 import io.github.tavstaldev.openkits.models.PlayerCache;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-/**
- * Represents the Preview GUI for the OpenKits plugin.
- * This class provides constants for logging and placeholder slots used in the GUI.
- */
-public class PreviewGUI {
-    private static final PluginLogger _logger = OpenKits.logger().withModule(PreviewGUI.class);
-    private static final Integer[] SlotPlaceholders = {
-            0,  1,  2,  3,  4,  5,  6,  7,  8,
-            9,                              17,
-            18,                             26,
-            27,                             35,
-            36,                             44,
-                46, 47,             51, 52, 53
-    };
+public class PreviewGUI extends MenuBase {
+    public static String ID = "kitspreview";
 
-    /**
-     * Creates the Preview GUI for the specified player.
-     *
-     * @param player The player for whom the GUI is being created.
-     * @return The created SGMenu instance.
-     */
-    public static SGMenu create(@NotNull Player player) {
-        try {
-            SGMenu menu = OpenKits.gui().create(OpenKits.Instance.localize(player, "GUI.KitPreviewTitle"), 6);
+    public PreviewGUI() {
+        super(OpenKits.Instance, "preview.yml");
+    }
 
-            // Create Placeholders
-            SGButton placeholderButton = new SGButton(GuiUtils.createItem(OpenKits.Instance, Material.BLACK_STAINED_GLASS_PANE, " "));
-            for (Integer slot : SlotPlaceholders) {
-                menu.setButton(0, slot, placeholderButton);
+    @Override
+    protected void loadDefaults() {
+        menuTitle = "";
+        isMenuTitleTranslated = false; // disable it
+        menuSize = resolveGet("size", 6);
+        dynamicSlots = resolveDynamicSlots(new LinkedHashMap<>() {{
+            put("kits_slots", new ArrayList<>() {{
+                add("0-44");
+            }});
+        }});
+        menuButtons = resolveButtons(new LinkedHashSet<>() {{
+            // Placeholder
+            add(new MenuButton(Material.BLACK_STAINED_GLASS_PANE, null, 1, "§r", null, null, null, null, List.of("0-9", "17-18", "26-27", "35-36", "44-47", "51-53"), null));
+            // Back button
+            add(new MenuButton(Material.SPRUCE_DOOR, null, 1, null, "GUI.Back", null, null, 45, null,  List.of("[OPEN] " + KitsGUI.ID)));
+            // Previous button
+            add(new MenuButton(Material.ARROW, null, 1, null, "GUI.PreviousPage", null, null, 48, null, List.of("[PREV_PAGE]")));
+            // Page button, NOTE: should be updated on refresh
+            add(new MenuButton(Material.PAPER, null, 1, "{PAGE}", null, null, null, 49, null, null));
+            // Next button
+            add(new MenuButton(Material.ARROW, null, 1, null, "GUI.NextPage", null, null, 50, null, List.of("[NEXT_PAGE]")));
+        }});
+    }
+
+    @Override
+    public SGMenu create(@NotNull Player player) {
+        MenuManager menuManager = plugin.getMenuManager();
+        if (menuManager == null)
+            throw new RuntimeException("Menu manager was not initialized.");
+        SGMenu menu = menuManager.getSpiGUI().create("...", menuSize);
+        for (MenuButton button : menuButtons) {
+            button.apply(player, translator, menu, this);
+        }
+        return menu;
+    }
+
+    @Override
+    public void refresh(@NotNull Player player, @NotNull SGMenu sgMenu) {
+        PlayerCache playerData = PlayerCacheManager.get(player.getUniqueId());
+
+        // 1. Find page button
+        MenuButton pageButton = null;
+        for (MenuButton btn : menuButtons) {
+            if (btn.getTitle() != null && btn.getTitle().equalsIgnoreCase("{PAGE}")) {
+                pageButton = btn;
+                break;
             }
-
-            // Close Button
-            SGButton closeButton = new SGButton(
-                    GuiUtils.createItem(OpenKits.Instance, Material.BARRIER, OpenKits.Instance.localize(player, "GUI.Close")))
-                    .withListener((InventoryClickEvent event) -> KitsGUI.open(player));
-            menu.setButton(0, 45, closeButton);
-
-            // Previous Page Button
-            SGButton prevPageButton = new SGButton(
-                    GuiUtils.createItem(OpenKits.Instance, Material.ARROW, OpenKits.Instance.localize(player, "GUI.PreviousPage")))
-                    .withListener((InventoryClickEvent event) -> {
-                        PlayerCache playerCache = PlayerCacheManager.get(player.getUniqueId());
-                        if (playerCache.getPreviewPage() - 1 <= 0)
-                            return;
-                        playerCache.setPreviewPage(playerCache.getPreviewPage() - 1);
-                        refresh(player);
-                    });
-            menu.setButton(0, 48, prevPageButton);
-
-            // Page Indicator
-            SGButton pageButton = new SGButton(
-                    GuiUtils.createItem(OpenKits.Instance, Material.PAPER, OpenKits.Instance.localize(player, "GUI.Page").replace("%page%", "1"))
-            );
-            menu.setButton(0, 49, pageButton);
-
-            // Next Page Button
-            SGButton nextPageButton = new SGButton(
-                    GuiUtils.createItem(OpenKits.Instance, Material.ARROW, OpenKits.Instance.localize(player, "GUI.NextPage")))
-                    .withListener((InventoryClickEvent event) -> {
-                        PlayerCache playerCache = PlayerCacheManager.get(player.getUniqueId());
-                        int maxPage = 1 + (playerCache.getPreviewKit().getItems().size() / 28);
-                        if (playerCache.getPreviewPage() + 1 > maxPage)
-                            return;
-                        playerCache.setPreviewPage(playerCache.getPreviewPage() + 1);
-                        refresh(player);
-                    });
-            menu.setButton(0, 50, nextPageButton);
-            return menu;
         }
-        catch (Exception ex) {
-            _logger.error("An error occurred while creating the Preview GUI.");
-            _logger.error(ex);
-            return null;
-        }
-    }
 
-    /**
-     * Opens the Preview GUI for the specified player and kit.
-     *
-     * @param player The player for whom the GUI is being opened.
-     * @param kit    The kit to be previewed.
-     */
-    public static void open(@NotNull Player player, Kit kit) {
-        PlayerCache playerCache = PlayerCacheManager.get(player.getUniqueId());
-        // Show the GUI
-        playerCache.setPreviewKit(kit);
-        playerCache.setGUIOpened(true);
-        playerCache.setPreviewPage(1);
-        playerCache.getPreviewMenu().setName(OpenKits.Instance.localize(player, "GUI.KitPreviewTitle", new HashMap<>() {{
-            put("kit", kit.Name.substring(0, 1).toUpperCase() + kit.Name.substring(1));
-        }}));
-        player.openInventory(playerCache.getPreviewMenu().getInventory());
-        refresh(player);
-    }
+        // 2. Update page button
+        if (pageButton != null) {
+            String pageText = translator.localize(player,  "GUI.Page", Map.of(
+                    "page", String.valueOf(playerData.getKitsPage()) // Localize the page number
+            ));
+            Component pageComp = ChatUtils.translateColors(pageText, true);
 
-    /**
-     * Closes the Preview GUI for the specified player.
-     *
-     * @param player The player for whom the GUI is being closed.
-     */
-    public static void close(@NotNull Player player) {
-        PlayerCache playerCache = PlayerCacheManager.get(player.getUniqueId());
-        player.closeInventory();
-        playerCache.setGUIOpened(false);
-    }
-
-    /**
-     * Refreshes the Preview GUI for the specified player.
-     *
-     * @param player The player for whom the GUI is being refreshed.
-     */
-    public static void refresh(@NotNull Player player) {
-        try {
-            PlayerCache playerCache = PlayerCacheManager.get(player.getUniqueId());
-            SGButton pageButton = new SGButton(
-                    GuiUtils.createItem(OpenKits.Instance, Material.PAPER, OpenKits.Instance.localize(player, "GUI.Page")
-                            .replace("%page%", String.valueOf(playerCache.getPreviewPage())))
-            );
-            playerCache.getPreviewMenu().setButton(0, 49, pageButton);
-
-            List<ItemStack> items = playerCache.getPreviewKit().getItems();
-            int page = playerCache.getPreviewPage();
-            for (int i = 0; i < 28; i++) {
-                int index = i + (page - 1) * 28;
-                int slot = i + 10 + (2 * (i / 7));
-                if (index >= items.size()) {
-                    playerCache.getPreviewMenu().removeButton(0, slot);
+            for (Integer slot : pageButton.getSlots()) {
+                SGButton btn = sgMenu.getButton(0, slot);
+                if (btn == null)
                     continue;
+
+                ItemStack icon = btn.getIcon();
+                ItemMeta meta = icon.getItemMeta();
+                if (meta != null) {
+                    meta.displayName(pageComp);
+                    icon.setItemMeta(meta);
                 }
-
-                ItemStack itemStack = items.get(index).clone();
-                var meta = itemStack.getItemMeta();
-                meta.getPersistentDataContainer().set(GuiDupeDetector.getDupeProtectedKey(), PersistentDataType.BOOLEAN, true);
-                itemStack.setItemMeta(meta);
-
-                playerCache.getPreviewMenu().setButton(0, slot, new SGButton(itemStack));
+                btn.setIcon(icon);
             }
-            player.openInventory(playerCache.getPreviewMenu().getInventory());
         }
-        catch (Exception ex) {
-            _logger.error("An error occurred while refreshing the Preview GUI.");
-            _logger.error(ex);
+
+        // 3. Handle dynamic slots
+        List<Integer> dynamicSlots = this.dynamicSlots.getOrDefault("kits_slots", new ArrayList<>());
+        int page = playerData.getPreviewPage();
+        List<ItemStack> items = playerData.getPreviewKit().getItems();
+        for (int i = 0; i < dynamicSlots.size(); i++) {
+            int index = i + (page - 1) * dynamicSlots.size();
+            int slot = dynamicSlots.get(i);
+
+            if (index >= items.size()) {
+                sgMenu.removeButton(0, slot);
+                continue;
+            }
+
+            ItemStack itemStack = items.get(index);
+            var meta = itemStack.getItemMeta();
+            meta.getPersistentDataContainer().set(GuiDupeDetector.getDupeProtectedKey(), PersistentDataType.BOOLEAN, true);
+            itemStack.setItemMeta(meta);
+            sgMenu.setButton(0, slot, new SGButton(itemStack));
+        }
+        player.openInventory(sgMenu.getInventory());
+    }
+
+    @Override
+    public void executeCommand(@NotNull Player player, @NotNull String command) {
+        String[] parts = command.split("\\s+");
+        switch (parts[0].toLowerCase()) {
+            case "[next_page]" -> {
+                PlayerCache playerData = PlayerCacheManager.get(player.getUniqueId());
+                int maxPage = 1 + (playerData.getPreviewKit().getItems().size() / dynamicSlots.getOrDefault("kits_slots", new ArrayList<>()).size());
+                if (playerData.getPreviewPage() + 1 > maxPage)
+                    return;
+                playerData.setPreviewPage(playerData.getPreviewPage() + 1);
+
+                MenuManager manager = plugin.getMenuManager();
+                if (manager == null)
+                    break;
+                SGMenu menu = manager.getMenu(player, ID);
+                if (menu == null)
+                    break;
+                refresh(player, menu);
+            }
+            case "[prev_page]" -> {
+                PlayerCache playerData = PlayerCacheManager.get(player.getUniqueId());
+                if (playerData.getPreviewPage() - 1 <= 0)
+                    return;
+                playerData.setPreviewPage(playerData.getPreviewPage() - 1);
+
+                MenuManager manager = plugin.getMenuManager();
+                if (manager == null)
+                    break;
+                SGMenu menu = manager.getMenu(player, ID);
+                if (menu == null)
+                    break;
+                refresh(player, menu);
+            }
+            case "[open]" -> {
+                if (parts.length < 2)
+                    return;
+                String menuId = parts[1];
+                MenuManager manager = plugin.getMenuManager();
+                if (manager != null)
+                    manager.open(player, menuId);
+            }
+            case "[close]" -> {
+                MenuManager manager = plugin.getMenuManager();
+                if (manager != null)
+                    manager.close(player, false);
+            }
+        }
+    }
+
+    @Override
+    public void onOpen(@NotNull Player player) {
+        PlayerCache playerCache = PlayerCacheManager.get(player.getUniqueId());
+        MenuManager manager = plugin.getMenuManager();
+        if (manager != null) {
+            SGMenu menu = manager.getMenu(player, ID);
+            if (menu != null) {
+                Kit kit = playerCache.getPreviewKit();
+                menu.setName(plugin.localize(player, "GUI.KitPreviewTitle", Map.of(
+                        "kit", kit.Name.substring(0, 1).toUpperCase() + kit.Name.substring(1)
+                        )));
+                refresh(player, menu);
+            }
         }
     }
 }
