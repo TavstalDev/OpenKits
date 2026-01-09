@@ -12,8 +12,6 @@ val hikariCpVersion: String by project
 val mineCoreLibVersion: String by project
 val vaultApiVersion: String by project
 val placeholderApiVersion: String by project
-val spiGuiVersion: String by project
-val caffeineVersion: String by project
 val projectPackageName = "${project.group}.openkits"
 
 java {
@@ -49,11 +47,8 @@ dependencies {
         exclude(group = "org.bukkit", module = "bukkit")
     }
     compileOnly("me.clip:placeholderapi:${placeholderApiVersion}")
-    implementation("com.samjakob:SpiGUI:${spiGuiVersion}")
     implementation("com.zaxxer:HikariCP:${hikariCpVersion}")
     implementation(files("libs/MineCoreLib-${mineCoreLibVersion}.jar"))
-    // SQL caching
-    implementation("com.github.ben-manes.caffeine:caffeine:${caffeineVersion}")
 }
 
 // Disable the default JAR task
@@ -74,9 +69,7 @@ tasks.shadowJar {
 
     // Relocate packages to avoid conflicts
     relocate("me.clip", "${projectPackageName}.shadow.placeholderapi")
-    relocate("com.samjakob.spigui", "${projectPackageName}.shadow.spigui")
     relocate("com.zaxxer.hikari", "${projectPackageName}.shadow.hikari")
-    relocate("com.github.benmanes.caffeine", "${projectPackageName}.shadow.caffeine")
 }
 
 // Ensure the Shadow JAR task runs during the build process
