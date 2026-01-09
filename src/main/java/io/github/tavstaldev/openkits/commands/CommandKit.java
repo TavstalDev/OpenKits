@@ -1,6 +1,7 @@
 package io.github.tavstaldev.openkits.commands;
 
 import io.github.tavstaldev.minecorelib.core.PluginLogger;
+import io.github.tavstaldev.minecorelib.managers.MenuManager;
 import io.github.tavstaldev.minecorelib.models.command.SubCommandData;
 import io.github.tavstaldev.minecorelib.utils.ChatUtils;
 import io.github.tavstaldev.openkits.OpenKits;
@@ -25,6 +26,7 @@ import java.util.*;
 
 public class CommandKit implements CommandExecutor {
     private final PluginLogger _logger = OpenKits.logger().withModule(CommandKit.class);
+    @SuppressWarnings("FieldCanBeLocal")
     private final String baseCommand = "openkits";
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
@@ -227,7 +229,10 @@ public class CommandKit implements CommandExecutor {
                         return true;
                     }
 
-                    KitsGUI.open(player);
+                    MenuManager manager = OpenKits.Instance.getMenuManager();
+                    if (manager == null)
+                        return true;
+                    manager.open(player, KitsGUI.ID);
                     return true;
                 }
                 case "give": {
